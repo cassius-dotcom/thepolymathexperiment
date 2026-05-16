@@ -413,6 +413,7 @@ input[type=number]::-webkit-outer-spin-button{opacity:0.5}
 
 <nav class="nav">
   <div class="nav-brand">CASSIUS <span class="sep">/ OS</span></div>
+  <div id="liveClock" style="font-family:var(--mono);font-size:10px;color:var(--text3);white-space:nowrap;flex-shrink:0;padding-right:16px"></div>
   <div class="nav-tabs">
     <button class="nav-tab active" onclick="showPage('dashboard',this)">Dashboard</button>
     <button class="nav-tab" onclick="showPage('character',this)">Character</button>
@@ -2364,6 +2365,13 @@ function esc(s) {
   if(bdSel){DOMAINS_DATA.forEach(d=>{const o=document.createElement('option');o.value=d.id;o.textContent=d.name;bdSel.appendChild(o);});populateBookSkills();}
 
   updateDayBar(); setInterval(updateDayBar, 60000);
+  function updateLiveClock() {
+    const now = new Date();
+    const date = now.toLocaleDateString('en-US', { weekday:'long', month:'long', day:'numeric' });
+    const time = now.toLocaleTimeString('en-US', { hour:'numeric', minute:'2-digit', hour12:true });
+    document.getElementById('liveClock').textContent = date + ' · ' + time;
+  }
+  updateLiveClock(); setInterval(updateLiveClock, 1000);
   startTicker();
 
   const es=document.getElementById('expStart'); if(es) es.value=todayISOStr();

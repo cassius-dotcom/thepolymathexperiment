@@ -543,29 +543,27 @@ input[type=number]::-webkit-outer-spin-button{opacity:0.5}
 <!-- PAGE: CALENDAR & EMAIL -->
 <div id="page-calendar" class="page">
   <div class="page-title">Calendar &amp; Email</div>
-  <div class="page-subtitle">Connect your Google account to pull in live data.</div>
-  <div style="max-width:420px;margin-bottom:24px">
-    <button class="connect-btn" onclick="connectCalendar()">
-      <span class="connect-icon">📅</span>
-      <span class="connect-label">Google Calendar</span>
-      <span class="connected-badge" id="calConnectedBadge">Connected</span>
-      <span class="connect-status-text" id="calConnectLabel">Connect →</span>
+  <div class="page-subtitle">Live data from your Google account.</div>
+  <div style="max-width:480px;margin-bottom:28px">
+    <button class="connect-btn" id="googleConnectBtn" onclick="connectGoogle()">
+      <span class="connect-icon">🔗</span>
+      <span class="connect-label" id="googleConnectLabel">Connect Google Account</span>
+      <span class="connected-badge" id="googleConnectedBadge">Connected</span>
+      <span class="connect-status-text" id="googleConnectStatus">Sign in →</span>
     </button>
-    <button class="connect-btn" onclick="connectGmail()">
-      <span class="connect-icon">✉️</span>
-      <span class="connect-label">Gmail</span>
-      <span class="connected-badge" id="gmailConnectedBadge">Connected</span>
-      <span class="connect-status-text" id="gmailConnectLabel">Connect →</span>
-    </button>
+    <div id="googleUserRow" style="display:none;font-family:var(--mono);font-size:10px;color:var(--text3);padding:6px 2px;display:flex;justify-content:space-between;align-items:center">
+      <span id="googleUserEmail"></span>
+      <button onclick="signOutGoogle()" style="background:none;border:none;color:var(--text3);font-family:var(--mono);font-size:10px;cursor:pointer;text-decoration:underline">Sign out</button>
+    </div>
   </div>
   <div class="two-col">
     <div>
-      <div class="section-label">Today's Events</div>
-      <div id="calEventsContainer"><div class="loading-text">Connect Google Calendar to see events.</div></div>
+      <div class="section-label">Next 7 Days</div>
+      <div id="calEventsContainer"><div class="loading-text">Connect Google to see your calendar.</div></div>
     </div>
     <div>
-      <div class="section-label">Recent Emails</div>
-      <div id="gmailContainer"><div class="loading-text">Connect Gmail to see emails.</div></div>
+      <div class="section-label">Gmail Inbox</div>
+      <div id="gmailContainer"><div class="loading-text">Connect Google to see your inbox.</div></div>
     </div>
   </div>
 </div>
@@ -801,6 +799,25 @@ function storeListKeys(pfx) { return Object.keys(_cache).filter(k => k.startsWit
 
 async function initSupabase() {
   _sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+  // Auth state listener — fires on OAuth redirect return + sign-out
+  _sb.auth.onAuthStateChange(async (event, session) => {
+    if (session?.provider_token) {
+      _googleToken = session.provider_token;
+      updateGoogleUI(session);
+    } else if (event === 'SIGNED_OUT') {
+      _googleToken = null;
+      updateGoogleUI(null);
+    }
+  });
+
+  // Restore existing session on page load (handles reload after OAuth redirect)
+  const { data: { session } } = await _sb.auth.getSession();
+  if (session?.provider_token) {
+    _googleToken = session.provider_token;
+    updateGoogleUI(session);
+  }
+
   const tables = [
     { table:'goals',             multi:true,  pk:'date_key', dc:'items', prefix:'goals:' },
     { table:'goal_streak',       single:true, pk:'id',       dc:'data',  ck:'goal_streak_v1'    },
@@ -1803,26 +1820,157 @@ function renderWeekArchive() {
   });
 }
 
-// ── Calendar & Email ──────────────────────────────────────────────────────────
-function connectCalendar() {
-  document.getElementById('calConnectedBadge').classList.add('show');
-  document.getElementById('calConnectLabel').textContent='Loading…';
-  localStorage.setItem('cal_connected','1');
-  setTimeout(()=>{
-    document.getElementById('calConnectLabel').textContent='Open in Claude →';
-    document.getElementById('calEventsContainer').innerHTML=
-      '<div class="loading-text">Use the Calendar integration in Claude to pull events, or paste them manually.</div>';
-  },3000);
+// ── Google OAuth & Calendar ───────────────────────────────────────────────────
+let _googleToken = null;
+
+async function connectGoogle() {
+  const btn = document.getElementById('googleConnectBtn');
+  if (btn) btn.style.opacity = '0.6';
+  const { error } = await _sb.auth.signInWithOAuth({
+    provider: 'google',
+    options: {
+      scopes: 'https://www.googleapis.com/auth/calendar.readonly https://www.googleapis.com/auth/gmail.readonly',
+      redirectTo: 'https://thepolymathexperiment.netlify.app',
+      queryParams: { access_type: 'offline', prompt: 'consent' }
+    }
+  });
+  if (error) { console.error('OAuth:', error); if (btn) btn.style.opacity = '1'; }
 }
-function connectGmail() {
-  document.getElementById('gmailConnectedBadge').classList.add('show');
-  document.getElementById('gmailConnectLabel').textContent='Loading…';
-  localStorage.setItem('gmail_connected','1');
-  setTimeout(()=>{
-    document.getElementById('gmailConnectLabel').textContent='Open in Claude →';
-    document.getElementById('gmailContainer').innerHTML=
-      '<div class="loading-text">Use the Gmail integration in Claude to pull emails, or paste them manually.</div>';
-  },3000);
+
+async function signOutGoogle() {
+  await _sb.auth.signOut();
+  _googleToken = null;
+  updateGoogleUI(null);
+}
+
+function updateGoogleUI(session) {
+  const badge  = document.getElementById('googleConnectedBadge');
+  const status = document.getElementById('googleConnectStatus');
+  const label  = document.getElementById('googleConnectLabel');
+  const row    = document.getElementById('googleUserRow');
+  const email  = document.getElementById('googleUserEmail');
+  const btn    = document.getElementById('googleConnectBtn');
+  if (session?.user) {
+    if (badge)  badge.classList.add('show');
+    if (status) status.textContent = '';
+    if (label)  label.textContent  = 'Google Account';
+    if (row)    { row.style.display = 'flex'; }
+    if (email)  email.textContent   = session.user.email || '';
+    if (btn)    btn.onclick = ()=>{};
+  } else {
+    if (badge)  badge.classList.remove('show');
+    if (status) status.textContent = 'Sign in →';
+    if (label)  label.textContent  = 'Connect Google Account';
+    if (row)    row.style.display  = 'none';
+    if (btn)    btn.onclick = connectGoogle;
+    const calCont = document.getElementById('calEventsContainer');
+    const gmCont  = document.getElementById('gmailContainer');
+    if (calCont) calCont.innerHTML = '<div class="loading-text">Connect Google to see your calendar.</div>';
+    if (gmCont)  gmCont.innerHTML  = '<div class="loading-text">Connect Google to see your inbox.</div>';
+  }
+}
+
+async function loadGoogleData(token) {
+  await Promise.all([fetchCalendarEvents(token), fetchGmailData(token)]);
+}
+
+const _dotColors = ['var(--green)','var(--yellow)','var(--blue)','var(--red)'];
+function _hashColor(s) { let h=0; for(const c of s) h=(h*31+c.charCodeAt(0))>>>0; return _dotColors[h%4]; }
+
+async function fetchCalendarEvents(token) {
+  const cont = document.getElementById('calEventsContainer'); if (!cont) return;
+  cont.innerHTML = '<div class="loading-text">Loading events…</div>';
+  try {
+    const now = new Date().toISOString();
+    const end = new Date(Date.now()+7*24*3600*1000).toISOString();
+    const res = await fetch(
+      `https://www.googleapis.com/calendar/v3/calendars/primary/events?timeMin=${encodeURIComponent(now)}&timeMax=${encodeURIComponent(end)}&singleEvents=true&orderBy=startTime&maxResults=30`,
+      { headers: { Authorization: `Bearer ${token}` } }
+    );
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error?.message || res.status);
+    renderCalendarEvents(data.items || []);
+  } catch(e) {
+    cont.innerHTML = `<div class="loading-text" style="color:var(--red)">Calendar error: ${esc(e.message)}</div>`;
+  }
+}
+
+function renderCalendarEvents(events) {
+  const cont = document.getElementById('calEventsContainer'); if (!cont) return;
+  if (!events.length) { cont.innerHTML='<div class="loading-text">No events in the next 7 days.</div>'; return; }
+  const groups={};
+  events.forEach(ev=>{
+    const dk = ev.start?.dateTime ? ev.start.dateTime.slice(0,10) : ev.start?.date;
+    if (!groups[dk]) groups[dk]=[];
+    groups[dk].push(ev);
+  });
+  const DAYS=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+  const MONTHS=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  cont.innerHTML='';
+  Object.keys(groups).sort().forEach(date=>{
+    const [y,m,d]=date.split('-').map(Number);
+    const dt=new Date(y,m-1,d);
+    const wrap=document.createElement('div'); wrap.style.marginBottom='18px';
+    wrap.innerHTML=`<div style="font-family:var(--mono);font-size:9px;font-weight:700;letter-spacing:0.14em;color:var(--text3);text-transform:uppercase;margin-bottom:8px">${DAYS[dt.getDay()]}, ${MONTHS[m-1]} ${d}</div>`;
+    groups[date].forEach(ev=>{
+      const title=ev.summary||'(no title)';
+      const color=_hashColor(title);
+      let time='All day';
+      if (ev.start?.dateTime) {
+        const fmt=t=>{let h=t.getHours(),m=String(t.getMinutes()).padStart(2,'0');const ap=h>=12?'PM':'AM';h=h%12||12;return`${h}:${m} ${ap}`;};
+        time=`${fmt(new Date(ev.start.dateTime))} – ${fmt(new Date(ev.end?.dateTime||ev.start.dateTime))}`;
+      }
+      const evEl=document.createElement('div');
+      evEl.style.cssText='display:flex;gap:10px;padding:8px 0;border-bottom:0.5px solid var(--border);align-items:flex-start';
+      evEl.innerHTML=`<div style="width:5px;height:5px;border-radius:50%;background:${color};flex-shrink:0;margin-top:5px"></div>
+        <div style="flex:1;min-width:0">
+          <div style="font-size:12px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${esc(title)}</div>
+          <div style="font-family:var(--mono);font-size:10px;color:var(--text3);margin-top:2px">${time}${ev.location?` · ${esc(ev.location.split(',')[0])}`:''}}</div>
+        </div>`;
+      wrap.appendChild(evEl);
+    });
+    cont.appendChild(wrap);
+  });
+}
+
+async function fetchGmailData(token) {
+  const cont = document.getElementById('gmailContainer'); if (!cont) return;
+  cont.innerHTML = '<div class="loading-text">Loading inbox…</div>';
+  try {
+    const [labelRes, msgRes] = await Promise.all([
+      fetch('https://www.googleapis.com/gmail/v1/users/me/labels/INBOX', { headers:{Authorization:`Bearer ${token}`} }),
+      fetch('https://www.googleapis.com/gmail/v1/users/me/messages?q=is:unread+in:inbox&maxResults=5', { headers:{Authorization:`Bearer ${token}`} })
+    ]);
+    const labelData = await labelRes.json();
+    if (!labelRes.ok) throw new Error(labelData.error?.message || labelRes.status);
+    const msgData = await msgRes.json();
+    const unread = labelData.messagesUnread || 0;
+    const total  = labelData.messagesTotal  || 0;
+    let html = `<div style="margin-bottom:18px;padding-bottom:14px;border-bottom:0.5px solid var(--border)">
+      <div style="font-size:38px;font-weight:800;letter-spacing:-0.04em;font-variant-numeric:tabular-nums;line-height:1">${unread}</div>
+      <div style="font-family:var(--mono);font-size:9px;font-weight:700;letter-spacing:0.16em;text-transform:uppercase;color:var(--text3);margin-top:6px">Unread · ${total} total</div>
+    </div>`;
+    if (msgData.messages?.length) {
+      const msgs = await Promise.all(msgData.messages.map(m=>
+        fetch(`https://www.googleapis.com/gmail/v1/users/me/messages/${m.id}?format=metadata&metadataHeaders=From&metadataHeaders=Subject&metadataHeaders=Date`,
+          {headers:{Authorization:`Bearer ${token}`}}).then(r=>r.json())
+      ));
+      html += `<div style="font-family:var(--mono);font-size:9px;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:var(--text3);margin-bottom:8px">Recent Unread</div>`;
+      msgs.forEach(msg=>{
+        const hdr=msg.payload?.headers||[];
+        const subject=hdr.find(h=>h.name==='Subject')?.value||'(no subject)';
+        const from=hdr.find(h=>h.name==='From')?.value||'';
+        const fromName=from.replace(/<[^>]+>/,'').replace(/"/g,'').trim()||from;
+        html+=`<div style="padding:8px 0;border-bottom:0.5px solid var(--border)">
+          <div style="font-size:11px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${esc(subject)}</div>
+          <div style="font-family:var(--mono);font-size:9px;color:var(--text3);margin-top:2px">${esc(fromName)}</div>
+        </div>`;
+      });
+    }
+    cont.innerHTML = html;
+  } catch(e) {
+    cont.innerHTML = `<div class="loading-text" style="color:var(--red)">Gmail error: ${esc(e.message)}</div>`;
+  }
 }
 
 // ── Navigation ────────────────────────────────────────────────────────────────
@@ -1837,6 +1985,7 @@ function showPage(id, el) {
   if(id==='nomadica')    renderNomadica();
   if(id==='books')       renderBooks();
   if(id==='weeklyreview') renderWeeklyReview();
+  if(id==='calendar' && _googleToken) loadGoogleData(_googleToken);
 }
 
 // ── Util ──────────────────────────────────────────────────────────────────────
@@ -1902,14 +2051,7 @@ function esc(s) {
   const capInp=document.getElementById('nom-capture-input');
   if(capInp) capInp.addEventListener('keydown',e=>{if(e.key==='Enter')addCapture();});
 
-  if (localStorage.getItem('cal_connected')) {
-    document.getElementById('calConnectedBadge').classList.add('show');
-    document.getElementById('calConnectLabel').textContent='Open in Claude →';
-  }
-  if (localStorage.getItem('gmail_connected')) {
-    document.getElementById('gmailConnectedBadge').classList.add('show');
-    document.getElementById('gmailConnectLabel').textContent='Open in Claude →';
-  }
+  // Google auth UI is restored in initSupabase via getSession()
 })();
 </script>
 </body>

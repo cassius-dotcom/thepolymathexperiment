@@ -409,6 +409,37 @@ input[type=number]::-webkit-outer-spin-button{opacity:0.5}
 .verdict-btn.v-didnt.sel{background:rgba(255,107,107,0.1);color:var(--red);border-color:rgba(255,107,107,0.3)}
 .verdict-btn.v-inc.sel{background:rgba(242,192,99,0.1);color:var(--yellow);border-color:rgba(242,192,99,0.3)}
 
+/* ── Micro-interactions ──────────────────────────────────────────────────── */
+/* Button press spring — skip checkboxes and their wrappers */
+button{transition:transform 200ms cubic-bezier(0.34,1.56,0.64,1)}
+button:active{transform:scale(0.96);transition:transform 80ms ease-out}
+/* Exempt goal checkboxes */
+.goal-check-wrap input[type=checkbox]:active{transform:none}
+/* bn-more-item (div, not button) */
+.bn-more-item{transition:transform 200ms cubic-bezier(0.34,1.56,0.64,1) !important}
+.bn-more-item:active{transform:scale(0.96) !important;transition:transform 80ms ease-out !important}
+
+/* Card hover lift — only on true hover devices */
+@media(hover:hover){
+  .card{transition:transform 150ms ease,border-color 150ms ease}
+  .card:hover{transform:translateY(-2px);border-color:var(--border2)}
+}
+
+/* Nav tab active underline indicator */
+.nav-tab{position:relative;overflow:visible}
+.nav-tab.active::after{content:'';position:absolute;bottom:0;left:10%;height:1.5px;background:var(--yellow);border-radius:1px;animation:tab-line-in 220ms cubic-bezier(0.22,1,0.36,1) forwards}
+@keyframes tab-line-in{from{width:0;left:50%}to{width:80%;left:10%}}
+
+/* Goal done flash overlay */
+@keyframes goal-done-flash{0%{opacity:0.7}100%{opacity:0}}
+
+/* XP floating label */
+@keyframes xp-float-up{0%{opacity:1;transform:translateY(0)}100%{opacity:0;transform:translateY(-40px)}}
+.xp-float-el2{position:fixed;pointer-events:none;font-family:var(--mono);font-size:12px;font-weight:700;color:var(--green);z-index:9999;white-space:nowrap;animation:xp-float-up 800ms ease-out forwards}
+
+/* Ring burst particle */
+.ring-burst-dot{position:fixed;width:5px;height:5px;border-radius:50%;background:var(--green);pointer-events:none;z-index:100;transition:transform 600ms cubic-bezier(0.22,1,0.36,1),opacity 600ms ease-out}
+
 .bottom-nav{display:none;position:fixed;bottom:0;left:0;right:0;height:64px;background:rgba(6,6,8,0.97);backdrop-filter:blur(24px);border-top:0.5px solid rgba(255,255,255,0.12);z-index:300;align-items:stretch;padding-bottom:env(safe-area-inset-bottom,0px)}
 .bn-tab{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;cursor:pointer;border:none;background:transparent;color:rgba(118,116,110,1);font-family:'JetBrains Mono',monospace;font-size:8.5px;font-weight:600;padding:6px 2px;-webkit-tap-highlight-color:transparent}
 .bn-tab.active{color:#FAFAFA}
@@ -1360,6 +1391,7 @@ function buildGoalRow(goal, idx, key, readOnly, reloadFn) {
   const cb = document.createElement('input'); cb.type = 'checkbox'; cb.checked = goal.done;
   if (readOnly) { cb.disabled = true; cb.title = 'Activates at 6 AM tomorrow'; }
   cb.addEventListener('change', () => {
+    if (cb.checked) flashGoalRow(li);
     const gs = storeGet(key) || []; gs[idx].done = cb.checked; storeSet(key, gs); reloadFn();
   });
   const box = document.createElement('span'); box.className = 'goal-check-box';
@@ -1466,7 +1498,12 @@ function renderTodayHeader(goals) {
     bar.appendChild(s);
   });
   const card = document.getElementById('todayCard');
+  const wasAllDone = card.classList.contains('gm-all-done');
   card.classList.toggle('gm-all-done', total>0 && done===total);
+  if (total>0 && done===total && !wasAllDone && _ringBurstFiredDay !== getActiveDateString()) {
+    _ringBurstFiredDay = getActiveDateString();
+    setTimeout(triggerRingBurst, 320);
+  }
   document.getElementById('gmPushBtn').style.display = (total>0 && goals.some(g=>!g.done)) ? 'block':'none';
 }
 
@@ -1852,6 +1889,7 @@ function saveSkillXP(inp) {
 
   // 4. Radar + attribute cards (no full re-render)
   _updateCharRadar(state);
+  showXPFloat(`+${val} XP`, inp);
 }
 function saveAnthropicKey() {
   const inp=document.getElementById('anthropicKeyInput'), st=document.getElementById('anthropicKeyStatus');
@@ -2204,7 +2242,7 @@ function showXPFlash(text) {
   const el=document.createElement('div'); el.className='xp-flash-el'; el.textContent=text;
   document.body.appendChild(el); setTimeout(()=>el.remove(),2600);
 }
-function awardBookXP(book) {
+function awardBookXP(book, srcEl) {
   const state=loadCharState();
   const skey=book.domain+'_'+book.skill;
   const amt=25;
@@ -2212,6 +2250,7 @@ function awardBookXP(book) {
   storeSet('cassius_char_v1',state);
   book.xpAwarded=amt;
   showXPFlash(`+${amt} XP → ${book.skill}`);
+  showXPFloat(`+${amt} XP`, srcEl);
 }
 function renderBooks() {
   const books=(getBooks()||[]).filter(b => bookFilter === 'all' || b.status === bookFilter);
@@ -2808,6 +2847,49 @@ async function fetchGmailData(token) {
   } catch(e) {
     cont.innerHTML = `<div class="loading-text" style="color:var(--red)">Gmail error: ${esc(e.message)}</div>`;
   }
+}
+
+// ── Micro-interaction helpers ─────────────────────────────────────────────────
+function flashGoalRow(li) {
+  const rect = li.getBoundingClientRect();
+  const el = document.createElement('div');
+  el.style.cssText = `position:fixed;top:${rect.top}px;left:${rect.left}px;width:${rect.width}px;height:${rect.height}px;border-radius:10px;background:rgba(107,227,164,0.22);pointer-events:none;z-index:100;animation:goal-done-flash 400ms ease-out forwards`;
+  document.body.appendChild(el);
+  setTimeout(() => el.remove(), 420);
+}
+
+let _ringBurstFiredDay = null;
+function triggerRingBurst() {
+  const ring = document.querySelector('.ring-svg-wrap');
+  if (!ring) return;
+  const rect = ring.getBoundingClientRect();
+  const cx = rect.left + rect.width/2, cy = rect.top + rect.height/2;
+  for (let i = 0; i < 8; i++) {
+    const dot = document.createElement('div');
+    dot.className = 'ring-burst-dot';
+    const angle = (i/8) * Math.PI * 2;
+    dot.style.left = (cx - 2.5) + 'px';
+    dot.style.top  = (cy - 2.5) + 'px';
+    document.body.appendChild(dot);
+    requestAnimationFrame(() => requestAnimationFrame(() => {
+      dot.style.transform = `translate(${Math.cos(angle)*68}px,${Math.sin(angle)*68}px)`;
+      dot.style.opacity = '0';
+    }));
+    setTimeout(() => dot.remove(), 660);
+  }
+}
+
+function showXPFloat(text, sourceEl) {
+  const el = document.createElement('div');
+  el.className = 'xp-float-el2';
+  el.textContent = text;
+  if (sourceEl) {
+    const r = sourceEl.getBoundingClientRect();
+    el.style.left = (r.left + r.width/2 - 24) + 'px';
+    el.style.top  = (r.top - 8) + 'px';
+  } else { el.style.right = '28px'; el.style.bottom = '110px'; }
+  document.body.appendChild(el);
+  setTimeout(() => el.remove(), 820);
 }
 
 // ── Morning Ritual ────────────────────────────────────────────────────────────

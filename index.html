@@ -1829,7 +1829,7 @@ function deleteCapture(i) {
 
 // ── Books ─────────────────────────────────────────────────────────────────────
 function getBooks(){return storeGet('cassius_books')||[];}
-function saveBooks(arr){localStorage.setItem('cassius_books',JSON.stringify(arr));}
+function saveBooks(arr){storeSet('cassius_books',arr);}
 function showXPFlash(text) {
   const el=document.createElement('div'); el.className='xp-flash-el'; el.textContent=text;
   document.body.appendChild(el); setTimeout(()=>el.remove(),2600);

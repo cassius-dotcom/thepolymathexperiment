@@ -1959,7 +1959,7 @@ function renderWeeklyReview() {
 function createWeekEntry() {
   const all=storeGet('cassius_weekly')||{};
   if(!all[currentReviewWeek]) all[currentReviewWeek]={wins:'',losses:'',different:'',freewrite:'',rating:0,updatedAt:Date.now()};
-  localStorage.setItem('cassius_weekly',JSON.stringify(all));
+  storeSet('cassius_weekly',all);
   renderWeeklyReview();
 }
 function navigateWeek(dir) {
@@ -1982,7 +1982,7 @@ function saveCurrentReview() {
   const entry={wins:get('wr-wins'),losses:get('wr-losses'),different:get('wr-different'),freewrite:get('wr-freewrite'),rating:currentReviewRating,updatedAt:Date.now()};
   const all=storeGet('cassius_weekly')||{};
   all[currentReviewWeek]=entry;
-  localStorage.setItem('cassius_weekly',JSON.stringify(all));
+  storeSet('cassius_weekly',all);
   const flash=document.getElementById('wr-save-flash');
   if(flash){flash.classList.add('show');setTimeout(()=>flash.classList.remove('show'),1500);}
 }

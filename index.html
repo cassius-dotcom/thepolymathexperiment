@@ -1938,6 +1938,7 @@ function populateBookSkills() {
 // ── Weekly Review ─────────────────────────────────────────────────────────────
 let currentReviewWeek = getISOWeekKey();
 let currentReviewRating = 0;
+let currentShadowRating = 0;
 let reviewSaveTimer = null;
 
 function renderWeeklyReview() {
@@ -1955,15 +1956,25 @@ function renderWeeklyReview() {
     currentReviewRating=0;
   } else {
     currentReviewRating=entry.rating||0;
+    currentShadowRating=entry.shadowRating||0;
     const sections=[
-      {id:'wr-wins',label:'Wins',ph:'What went well this week? Victories, progress, moments of excellence.',val:entry.wins||'',h:100},
-      {id:'wr-losses',label:'Losses & Lessons',ph:'What didn\'t go as planned? What did it teach you?',val:entry.losses||'',h:100},
-      {id:'wr-different',label:'What I\'d Do Differently',ph:'If you ran this week again, what changes would you make?',val:entry.different||'',h:80},
-      {id:'wr-freewrite',label:'Free Write',ph:'Anything else. Observations, ideas, gratitude, reflections.',val:entry.freewrite||'',h:120},
+      {id:'wr-wins',      label:'Wins & Execution',          ph:'Where did you produce, follow through, and hold the standard this week?',                         val:entry.wins||'',      h:100},
+      {id:'wr-losses',    label:'Losses & Honest Assessment', ph:'Where did you fall short? Be accurate, not dramatic. No victim language.',                        val:entry.losses||'',    h:100},
+      {id:'wr-shadow',    label:'Shadow Audit',               ph:'Which failure mode showed up? Arrogance, emotional coldness, work addiction, isolation, impulse?', val:entry.shadow||'',    h:80 },
+      {id:'wr-capacity',  label:'Capacity vs Comfort',        ph:'Where did you choose comfort over capacity? Where did you choose well?',                          val:entry.capacity||'',  h:80 },
+      {id:'wr-different', label:"What I'd Do Differently",    ph:'If you ran this week again, what changes would you make? Be specific.',                           val:entry.different||'', h:80 },
+      {id:'wr-next',      label:"Next Week's Standard",       ph:"What is the one non-negotiable you are committing to next week? Not a wish — a standard.",        val:entry.next||'',      h:60 },
     ];
     const ratingBtns=Array.from({length:10},(_,j)=>{
       const n=j+1;
       return `<button class="rating-btn${currentReviewRating===n?' selected':''}" onclick="setReviewRating(${n})">${n}</button>`;
+    }).join('');
+    const shadowLabels=['None','Minor','Moderate','Significant','Dominated'];
+    const shadowBtns=shadowLabels.map((lbl,j)=>{
+      const n=j+1;
+      const sel=currentShadowRating===n;
+      const color=n>=3?'var(--red)':n===2?'var(--yellow)':'var(--green)';
+      return `<button class="rating-btn" style="${sel?`background:${color};color:#0A0A0B;border-color:${color}`:''}" onclick="setShadowRating(${n})">${lbl}</button>`;
     }).join('');
     content.innerHTML=sections.map(s=>`
       <div class="card" style="margin-bottom:12px">
@@ -1971,6 +1982,10 @@ function renderWeeklyReview() {
         <textarea class="review-textarea" id="${s.id}" style="min-height:${s.h}px" placeholder="${s.ph}" oninput="debounceSaveReview()">${esc(s.val)}</textarea>
       </div>`).join('')+`
       <div class="card">
+        <div class="rating-row" style="border-top:none;padding-top:0;margin-bottom:10px">
+          <span class="rating-lbl">Shadow risk level this week:</span>
+          ${shadowBtns}
+        </div>
         <div class="rating-row">
           <span class="rating-lbl">Rate this week:</span>
           ${ratingBtns}
@@ -1982,7 +1997,7 @@ function renderWeeklyReview() {
 }
 function createWeekEntry() {
   const all=storeGet('cassius_weekly')||{};
-  if(!all[currentReviewWeek]) all[currentReviewWeek]={wins:'',losses:'',different:'',freewrite:'',rating:0,updatedAt:Date.now()};
+  if(!all[currentReviewWeek]) all[currentReviewWeek]={wins:'',losses:'',shadow:'',capacity:'',different:'',next:'',rating:0,shadowRating:0,updatedAt:Date.now()};
   storeSet('cassius_weekly',all);
   renderWeeklyReview();
 }
@@ -1998,12 +2013,21 @@ function setReviewRating(n) {
   currentReviewRating=n; saveCurrentReview();
   document.querySelectorAll('.rating-btn').forEach((b,i)=>{b.classList.toggle('selected',i+1===n);});
 }
+function setShadowRating(n) {
+  currentShadowRating=n; saveCurrentReview();
+  const shadowLabels=['None','Minor','Moderate','Significant','Dominated'];
+  const colors=['var(--green)','var(--yellow)','var(--red)','var(--red)','var(--red)'];
+  document.querySelectorAll('.rating-row:first-child .rating-btn').forEach((b,i)=>{
+    const sel=i+1===n; const c=colors[i];
+    b.style.background=sel?c:''; b.style.color=sel?'#0A0A0B':''; b.style.borderColor=sel?c:'';
+  });
+}
 function debounceSaveReview() {
   clearTimeout(reviewSaveTimer); reviewSaveTimer=setTimeout(saveCurrentReview,800);
 }
 function saveCurrentReview() {
   const get=id=>{const el=document.getElementById(id);return el?el.value:'';};
-  const entry={wins:get('wr-wins'),losses:get('wr-losses'),different:get('wr-different'),freewrite:get('wr-freewrite'),rating:currentReviewRating,updatedAt:Date.now()};
+  const entry={wins:get('wr-wins'),losses:get('wr-losses'),shadow:get('wr-shadow'),capacity:get('wr-capacity'),different:get('wr-different'),next:get('wr-next'),rating:currentReviewRating,shadowRating:currentShadowRating,updatedAt:Date.now()};
   const all=storeGet('cassius_weekly')||{};
   all[currentReviewWeek]=entry;
   storeSet('cassius_weekly',all);
@@ -2022,8 +2046,12 @@ function renderWeekArchive() {
     const rColor=r>=8?'var(--green)':r>=5?'var(--yellow)':'var(--red)';
     const wNum=parseInt(k.split('-W')[1]);
     const row=document.createElement('div'); row.className='archive-row';
+    const sr=e.shadowRating||0;
+    const srColor=sr>=3?'var(--red)':sr===2?'var(--yellow)':'var(--green)';
+    const srLabels=['','None','Minor','Moderate','Significant','Dominated'];
     row.innerHTML=`<span class="archive-week-lbl">Wk ${wNum} · ${k.split('-W')[0]}</span>
       <span class="archive-preview">${esc((e.wins||'').slice(0,60)||'—')}</span>
+      ${sr?`<span class="r-badge" style="background:${srColor}1a;color:${srColor};border:0.5px solid ${srColor}44">${srLabels[sr]}</span>`:''}
       ${r?`<span class="r-badge" style="background:${rColor}1a;color:${rColor};border:0.5px solid ${rColor}44">${r}/10</span>`:''}`;
     row.onclick=()=>{currentReviewWeek=k;renderWeeklyReview();};
     arch.appendChild(row);

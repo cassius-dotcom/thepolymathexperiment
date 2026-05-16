@@ -1422,8 +1422,8 @@ function renderCharacterPage() {
         <div class="domain-name">${d.name}</div>
         <div class="domain-level" style="color:${d.color}88">LV ${lv}</div>
       </div>
-      <div class="bar-wrap" style="margin-bottom:8px"><div class="bar-fill" style="width:${bf}%;background:${d.color}88"></div></div>
-      <div class="domain-meta"><div class="domain-tag">${d.tag}</div><div class="domain-xp">${xp} XP</div></div>
+      <div class="bar-wrap" style="margin-bottom:8px"><div id="dc-bar-${d.id}" class="bar-fill" style="width:${bf}%;background:${d.color}88"></div></div>
+      <div class="domain-meta"><div class="domain-tag">${d.tag}</div><div class="domain-xp" id="dc-xp-${d.id}">${xp} XP</div></div>
       <ul class="skill-list">`;
     d.skills.forEach(sk=>{
       const skey=`${d.id}_${sk}`, sxp=state.skills[skey]||0;
@@ -1431,7 +1431,7 @@ function renderCharacterPage() {
       h+=`<li class="skill-row">
         <div class="skill-dot" style="background:${isDev?d.color:'var(--text3)'}"></div>
         <div class="skill-name">${sk}</div>
-        <div class="skill-bar-wrap"><div class="bar-fill" style="width:${sxp}%;background:${d.color}88"></div></div>
+        <div class="skill-bar-wrap"><div class="bar-fill" data-skey="${skey}" style="width:${sxp}%;background:${d.color}88"></div></div>
         <input class="skill-xp-input" type="number" min="0" max="100" value="${sxp}"
           data-key="${skey}" onclick="event.stopPropagation()" onchange="saveSkillXP(this)">
         <button class="dev-add-btn ${isDev?'active-dev':''}" onclick="event.stopPropagation();addToDeveloping('${d.id}','${esc(sk)}')" title="${isDev?'In Developing':'Add to Developing'}">${isDev?'✓':'+'}</button>
@@ -1449,7 +1449,7 @@ function renderCharacterPage() {
         <button onclick="removeFromDeveloping('${dv.domain}','${esc(dv.skill)}')" style="background:none;border:none;color:var(--text3);cursor:pointer;font-size:15px;line-height:1;padding:0;transition:color .15s" onmouseover="this.style.color='var(--red)'" onmouseout="this.style.color='var(--text3)'" title="Remove">×</button>
       </div>
       <div class="dev-domain">${d.name}</div>
-      <div class="bar-wrap"><div class="bar-fill" style="width:${sxp}%;background:${d.color}88"></div></div>
+      <div class="bar-wrap"><div class="bar-fill" data-devkey="${dv.domain}_${dv.skill}" style="width:${sxp}%;background:${d.color}88"></div></div>
     </div>`;
   });
   const verse=BIBLE_VERSES[new Date().getDay()];
@@ -1513,13 +1513,56 @@ function removeFromDeveloping(domain, skill) {
 function toggleDomain(id) {
   const card = document.getElementById('dc-'+id); if(card) card.classList.toggle('expanded');
 }
+function _updateCharRadar(state) {
+  const wrap = document.querySelector('.radar-wrap');
+  if (wrap) wrap.innerHTML = buildRadarSVG(state);
+  const tx = totalXP(state);
+  const txEl = document.getElementById('charTotalXP');
+  if (txEl) txEl.textContent = tx;
+  ATTRS_MAP.forEach(a => {
+    const xp = domainXP(state, a.domain);
+    const fill = Math.min((xp/700)*100, 100);
+    document.querySelectorAll('.attr-card').forEach(card => {
+      if (card.querySelector('.attr-label')?.textContent.trim() === a.label) {
+        const vEl = card.querySelector('.attr-value');
+        const bEl = card.querySelector('.bar-fill');
+        if (vEl) vEl.textContent = Math.round(xp/10);
+        if (bEl) bEl.style.width = fill + '%';
+      }
+    });
+  });
+}
+
 function saveSkillXP(inp) {
   const state = loadCharState();
   const val = Math.max(0, Math.min(100, parseInt(inp.value,10)||0));
   inp.value = val;
-  state.skills[inp.dataset.key] = val;
+  const skey = inp.dataset.key;
+  state.skills[skey] = val;
   storeSet('cassius_char_v1', state);
-  renderCharacterPage();
+
+  // 1. Skill bar in-place
+  const skillBar = document.querySelector(`.bar-fill[data-skey="${skey}"]`);
+  if (skillBar) skillBar.style.width = val + '%';
+
+  // 2. Parent domain bar + XP label
+  const domainId = skey.split('_')[0];
+  const domain = DOMAINS_DATA.find(d => d.id === domainId);
+  if (domain) {
+    const xp = domainXP(state, domainId);
+    const bf = Math.min((xp / (domain.skills.length * 100)) * 100, 100);
+    const domBar = document.getElementById('dc-bar-' + domainId);
+    const domXP  = document.getElementById('dc-xp-'  + domainId);
+    if (domBar) domBar.style.width = bf + '%';
+    if (domXP)  domXP.textContent  = xp + ' XP';
+  }
+
+  // 3. Developing card bar
+  const devBar = document.querySelector(`.bar-fill[data-devkey="${skey}"]`);
+  if (devBar) devBar.style.width = val + '%';
+
+  // 4. Radar + attribute cards (no full re-render)
+  _updateCharRadar(state);
 }
 function saveHevyKey() {
   const inp=document.getElementById('hevyKeyInput'), st=document.getElementById('hevyStatusLabel');
@@ -1708,26 +1751,53 @@ function renderNomadica() {
   loadNomTodo('daily','nomadica_daily:'+aDate);
   loadNomTodo('weekly','nomadica_weekly:'+wKey);
   loadNomTodo('monthly','nomadica_monthly:'+mKey);
-  // Calendar
-  if(localStorage.getItem('nom_cal_connected')){
-    const b=document.getElementById('nom-cal-badge'),l=document.getElementById('nom-cal-label');
-    if(b)b.classList.add('show'); if(l)l.textContent='Open in Claude →';
-  }
+  // Calendar — auto-refresh if previously connected and token available
+  if (localStorage.getItem('nom_cal_connected') && _googleToken) connectNomCal();
   renderCaptures();
 }
 function saveKPI(key, val) {
   const kpis=storeGet('nomadica_kpis')||{};
   kpis[key]=val; storeSet('nomadica_kpis',kpis);
 }
-function connectNomCal() {
+async function connectNomCal() {
+  const cont  = document.getElementById('nom-cal-content');
+  const badge = document.getElementById('nom-cal-badge');
+  const label = document.getElementById('nom-cal-label');
+  if (!_googleToken) {
+    if (cont) cont.innerHTML = '<div class="loading-text">Sign in on the Calendar &amp; Email tab first, then come back.</div>';
+    return;
+  }
   localStorage.setItem('nom_cal_connected','1');
-  const b=document.getElementById('nom-cal-badge'),l=document.getElementById('nom-cal-label');
-  if(b)b.classList.add('show'); if(l)l.textContent='Loading…';
-  setTimeout(()=>{
-    if(l)l.textContent='Open in Claude →';
-    const c=document.getElementById('nom-cal-content');
-    if(c)c.innerHTML='<div class="loading-text">Open Claude and use the Google Calendar integration to sync events.</div>';
-  },3000);
+  if (badge) badge.classList.add('show');
+  if (label) label.textContent = 'Connected';
+  if (cont)  cont.innerHTML = '<div class="loading-text">Loading today…</div>';
+  try {
+    const now   = new Date();
+    const start = new Date(now.getFullYear(), now.getMonth(), now.getDate()).toISOString();
+    const end   = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59).toISOString();
+    const res   = await fetch(
+      `https://www.googleapis.com/calendar/v3/calendars/primary/events?timeMin=${encodeURIComponent(start)}&timeMax=${encodeURIComponent(end)}&singleEvents=true&orderBy=startTime&maxResults=20`,
+      { headers: { Authorization: `Bearer ${_googleToken}` } }
+    );
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error?.message || res.status);
+    const evs = data.items || [];
+    if (!evs.length) { if (cont) cont.innerHTML = '<div class="loading-text">No events today.</div>'; return; }
+    cont.innerHTML = '';
+    evs.forEach(ev => {
+      const title = ev.summary || '(no title)';
+      const color = _hashColor(title);
+      const time  = ev.start?.dateTime ? _fmtTime(ev.start.dateTime) : 'All day';
+      const row   = document.createElement('div');
+      row.style.cssText = 'display:flex;gap:10px;padding:7px 0;border-bottom:0.5px solid var(--border);align-items:center';
+      row.innerHTML = `<div style="width:5px;height:5px;border-radius:50%;background:${color};flex-shrink:0"></div>
+        <div style="font-family:var(--mono);font-size:10px;color:var(--text3);flex-shrink:0;min-width:58px">${time}</div>
+        <div style="font-size:12px;font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(title)}</div>`;
+      cont.appendChild(row);
+    });
+  } catch(e) {
+    if (cont) cont.innerHTML = `<div class="loading-text" style="color:var(--red)">Error: ${esc(e.message)}</div>`;
+  }
 }
 function renderCaptures() {
   const list=document.getElementById('nom-capture-list'); if(!list)return;

@@ -89,6 +89,10 @@ body::after{content:'';position:fixed;inset:0;background-image:url("data:image/s
 /* DAY RING */
 .ring-container{display:flex;justify-content:center;align-items:center;gap:28px;flex-wrap:wrap;margin-bottom:24px}
 .ring-svg-wrap{width:168px;height:168px;position:relative;flex-shrink:0}
+.day-ring-card .ring-svg-wrap{width:72px !important;height:72px !important}
+.day-ring-card .ring-pct{font-size:20px !important}
+.day-ring-card .ring-phase{font-size:7px !important}
+.day-ring-card .ring-clock{display:none}
 .ring-svg-wrap svg{width:100%;height:100%}
 .ring-center{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
 .ring-pct{font-size:40px;font-weight:800;letter-spacing:-0.04em;font-variant-numeric:tabular-nums;line-height:1}
@@ -597,20 +601,6 @@ button:active{transform:scale(0.96);transition:transform 80ms ease-out}
       <div class="ring-status" id="ringStatus" style="font-size:13px;font-weight:700">Loading…</div>
       <div class="ring-remain" id="ringRemain" style="font-size:11px;margin-top:2px"></div>
       <div class="ring-range" style="font-size:10px;margin-top:1px;color:var(--text3)">8:00 AM – 12:00 AM</div>
-    </div>
-  </div>
-
-  <div class="ticker-row">
-    <div class="goal-ticker" id="goalTicker" aria-live="polite" aria-atomic="true">
-      <div class="goal-ticker-led"><span class="goal-ticker-led-dot"></span></div>
-      <div class="goal-ticker-label">GOALS</div>
-      <div class="goal-ticker-stage" id="goalTickerStage">
-        <div class="goal-ticker-row">
-          <span class="goal-ticker-status" style="color:var(--text3)">·</span>
-          <span class="goal-ticker-text">Loading…</span>
-        </div>
-      </div>
-      <div class="goal-ticker-meta" id="goalTickerMeta">0/0</div>
     </div>
   </div>
 

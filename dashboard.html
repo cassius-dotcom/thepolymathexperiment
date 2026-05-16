@@ -1,0 +1,1204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cassius OS</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=JetBrains+Mono:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #060608;
+  --bg2: rgba(255,255,255,0.03);
+  --bg3: rgba(255,255,255,0.055);
+  --border: rgba(255,255,255,0.07);
+  --border2: rgba(255,255,255,0.12);
+  --text1: #FAFAFA;
+  --text2: #B8B6B0;
+  --text3: #76746E;
+  --green: #6BE3A4;
+  --yellow: #F2C063;
+  --red: #FF6B6B;
+  --blue: #7EB8F7;
+  --display: 'Syne', sans-serif;
+  --mono: 'JetBrains Mono', ui-monospace, monospace;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--text1);font-family:var(--display);min-height:100vh;overflow-x:hidden}
+body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellipse at 82% 14%,rgba(224,118,88,0.13) 0%,transparent 60%),radial-gradient(ellipse at 18% 90%,rgba(100,120,200,0.07) 0%,transparent 60%);pointer-events:none;z-index:0}
+body::after{content:'';position:fixed;inset:0;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");pointer-events:none;z-index:0;opacity:0.4}
+
+.card{background:var(--bg2);border:0.5px solid var(--border);border-radius:14px;padding:20px 22px;backdrop-filter:blur(20px)}
+
+.section-label{font-family:var(--mono);font-size:9px;font-weight:700;letter-spacing:0.22em;text-transform:uppercase;color:var(--text3);display:flex;align-items:center;gap:10px;margin-bottom:14px}
+.section-label::before{content:'';display:block;width:16px;height:0.5px;background:var(--text3);opacity:0.5;flex-shrink:0}
+.section-label::after{content:'';flex:1;height:0.5px;background:linear-gradient(90deg,rgba(255,255,255,0.07),transparent)}
+
+/* NAV */
+.nav{position:fixed;top:0;left:0;right:0;height:52px;background:rgba(6,6,8,0.85);backdrop-filter:blur(20px);border-bottom:0.5px solid var(--border);display:flex;align-items:center;padding:0 24px;z-index:100}
+.nav-brand{font-size:13px;font-weight:800;letter-spacing:-0.02em;margin-right:32px;white-space:nowrap;flex-shrink:0}
+.nav-brand .sep{color:var(--text3);font-weight:400}
+.nav-tabs{display:flex;gap:2px;overflow-x:auto;scrollbar-width:none;flex:1}
+.nav-tabs::-webkit-scrollbar{display:none}
+.nav-tab{font-family:var(--mono);font-size:10px;font-weight:500;letter-spacing:0.06em;color:var(--text3);padding:6px 12px;border-radius:6px;cursor:pointer;border:none;background:transparent;white-space:nowrap;transition:color .15s,background .15s}
+.nav-tab:hover{color:var(--text2);background:var(--bg2)}
+.nav-tab.active{color:var(--text1);background:var(--bg3)}
+
+/* PAGES */
+.page{display:none;padding:80px 24px 64px;max-width:1100px;margin:0 auto;position:relative;z-index:1}
+.page.active{display:block}
+
+/* DASHBOARD */
+.dash-title{font-size:30px;font-weight:800;letter-spacing:-0.04em;background:linear-gradient(180deg,#FFF 0%,#C7C4BC 120%);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:16px}
+
+/* TICKER */
+.ticker-row{margin-bottom:16px}
+.goal-ticker{display:flex;align-items:center;gap:10px;padding:7px 14px;border-radius:10px;background:linear-gradient(180deg,rgba(0,0,0,0.42) 0%,rgba(0,0,0,0.30) 100%);border:0.5px solid var(--border);position:relative;overflow:hidden}
+.goal-ticker-led{display:flex;align-items:center}
+.goal-ticker-led-dot{width:7px;height:7px;border-radius:50%;background:var(--green);box-shadow:0 0 8px rgba(107,227,164,0.7);animation:ledpulse 1.6s ease-in-out infinite}
+@keyframes ledpulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:0.45;transform:scale(0.85)}}
+.goal-ticker-label{font-family:var(--mono);font-size:9.5px;font-weight:800;letter-spacing:0.18em;color:var(--text3);text-transform:uppercase}
+.goal-ticker-stage{flex:1;height:22px;position:relative;overflow:hidden}
+.goal-ticker-row{display:flex;align-items:center;gap:8px;height:22px;font-family:var(--mono);font-size:12.5px;font-weight:600;color:var(--text1);white-space:nowrap;position:absolute;width:100%}
+.goal-ticker-meta{font-family:var(--mono);font-size:11px;font-weight:700;color:var(--text2);padding:3px 8px;border-radius:20px;background:rgba(255,255,255,0.04);letter-spacing:0.04em}
+@keyframes ticker-leave{from{opacity:1;transform:translateY(0)}to{opacity:0;transform:translateY(-100%)}}
+@keyframes ticker-enter{from{opacity:0;transform:translateY(100%)}to{opacity:1;transform:translateY(0)}}
+.is-leaving{animation:ticker-leave 0.45s cubic-bezier(0.55,0,0.55,1) forwards}
+.is-entering{animation:ticker-enter 0.45s cubic-bezier(0.22,1,0.36,1) forwards}
+
+/* DAY RING */
+.ring-container{display:flex;justify-content:center;align-items:center;gap:28px;flex-wrap:wrap;margin-bottom:24px}
+.ring-svg-wrap{width:168px;height:168px;position:relative;flex-shrink:0}
+.ring-svg-wrap svg{width:100%;height:100%}
+.ring-center{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.ring-pct{font-size:40px;font-weight:800;letter-spacing:-0.04em;font-variant-numeric:tabular-nums;line-height:1}
+.ring-phase{font-family:var(--mono);font-size:9px;font-weight:700;letter-spacing:0.16em;text-transform:uppercase;color:var(--text3);margin-top:3px}
+.ring-clock{font-family:var(--mono);font-size:10.5px;color:var(--text3);margin-top:2px}
+.ring-info{max-width:260px;display:flex;flex-direction:column;gap:6px}
+.ring-status{font-size:14px;font-weight:700}
+.ring-remain{font-family:var(--mono);font-size:12px;color:var(--text2)}
+.ring-range{font-family:var(--mono);font-size:11px;color:var(--text3)}
+
+/* TWO-COL GRID */
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media(max-width:720px){.two-col{grid-template-columns:1fr}}
+
+/* GM CARD */
+.gm-card{position:relative;overflow:hidden}
+.gm-card-header{display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:10px;margin-bottom:14px}
+.gm-eyebrow{font-family:var(--mono);font-size:10px;text-transform:uppercase;letter-spacing:0.16em;color:var(--text3);margin-bottom:5px}
+.gm-progress-row{display:flex;align-items:baseline;gap:6px}
+.gm-progress-num{font-size:38px;font-weight:800;letter-spacing:-0.045em;font-variant-numeric:tabular-nums;line-height:1}
+.gm-progress-total{font-family:var(--mono);font-size:18px;color:var(--text3)}
+.gm-progress-label{font-size:10px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--text3)}
+.gm-streak{display:inline-flex;align-items:center;gap:5px;padding:7px 11px;border-radius:30px;background:rgba(255,255,255,0.04);font-family:var(--mono);font-size:12px;font-weight:700;color:var(--text3);border:1px solid transparent;white-space:nowrap}
+.gm-streak.active{background:rgba(242,192,99,0.1);color:var(--yellow);border-color:rgba(242,192,99,0.32)}
+.gm-bar{display:flex;gap:4px;height:6px;margin-bottom:14px}
+.gm-bar:empty{display:none}
+.gm-bar-seg{flex:1;border-radius:3px;background:var(--bg3);transition:background .3s}
+.gm-bar-seg-done{background:var(--green);box-shadow:0 0 6px rgba(107,227,164,0.4)}
+.gm-all-done{background:radial-gradient(ellipse at 50% -20%,rgba(107,227,164,0.08) 0%,transparent 60%),var(--bg2)}
+.gm-all-done .gm-progress-num{color:var(--green)!important;-webkit-text-fill-color:var(--green)!important}
+.gm-all-done .gm-progress-label{color:var(--green)!important}
+.gm-card-tomorrow .gm-progress-row{display:none}
+
+/* GOAL LIST */
+.goal-list{list-style:none}
+.goal-item{display:flex;align-items:center;gap:10px;padding:10px 12px;margin-bottom:5px;background:rgba(255,255,255,0.03);border:0.5px solid var(--border);border-radius:10px;transition:background .15s;cursor:default}
+.goal-item:hover{background:rgba(255,255,255,0.05)}
+.goal-item.done{opacity:0.45;background:rgba(107,227,164,0.04)}
+.goal-item.done .goal-text{text-decoration:line-through;text-decoration-color:rgba(255,255,255,0.4)}
+.goal-item.queued{background:rgba(242,192,99,0.10);box-shadow:inset 3px 0 0 0 var(--yellow)}
+.goal-item.queued .goal-text{color:#FFE2A8}
+@keyframes queue-flash{0%{background:rgba(242,192,99,0.32);transform:scale(1.015)}100%{background:rgba(242,192,99,0.10);transform:scale(1)}}
+.queue-flashing{animation:queue-flash 0.48s ease-out}
+
+.drag-handle{font-size:14px;opacity:0;cursor:grab;letter-spacing:-2px;color:var(--text3);transition:opacity .15s;user-select:none;flex-shrink:0}
+.goal-item:hover .drag-handle{opacity:1}
+
+.goal-check-wrap{position:relative;width:20px;height:20px;flex-shrink:0;cursor:pointer}
+.goal-check-wrap input[type=checkbox]{position:absolute;inset:0;opacity:0;cursor:pointer;z-index:2;width:100%;height:100%;margin:0}
+.goal-check-box{position:absolute;inset:0;border-radius:6px;border:1.5px solid var(--border2);background:rgba(255,255,255,0.03);transition:all .2s;display:flex;align-items:center;justify-content:center}
+.goal-check-box::after{content:'';display:none;width:5px;height:9px;border:2px solid #0A0A0B;border-top:none;border-left:none;transform:rotate(45deg) translateY(-1px)}
+.goal-check-wrap input:checked~.goal-check-box{background:var(--green);border-color:var(--green);box-shadow:0 0 12px rgba(107,227,164,0.4)}
+.goal-check-wrap input:checked~.goal-check-box::after{display:block;animation:checkmark .2s cubic-bezier(0.34,1.56,0.64,1) forwards}
+@keyframes checkmark{from{transform:rotate(45deg) scale(0) translateY(-1px)}to{transform:rotate(45deg) scale(1) translateY(-1px)}}
+
+.goal-text{flex:1;font-size:12.5px;font-weight:500;outline:none;word-break:break-word;min-width:0}
+.goal-text[contenteditable=true]{background:rgba(255,255,255,0.04);border-radius:4px;padding:2px 6px}
+
+.goal-queue-btn,.goal-delete-btn{background:none;border:none;cursor:pointer;padding:2px 4px;border-radius:4px;transition:all .15s;font-size:13px;flex-shrink:0}
+.goal-queue-btn{color:var(--text3);opacity:0.55}
+.goal-queue-btn.active{color:var(--yellow);filter:drop-shadow(0 0 4px rgba(242,192,99,0.65));opacity:1}
+.goal-delete-btn{color:var(--text3);opacity:0;transition:opacity .15s,color .15s}
+.goal-item:hover .goal-delete-btn{opacity:1}
+.goal-delete-btn:hover{color:var(--red)}
+
+.goal-empty{font-size:12px;color:var(--text3);font-style:italic;padding:12px 0;text-align:center}
+.show-more-btn{width:100%;background:none;border:0.5px dashed var(--border2);border-radius:8px;padding:8px;color:var(--text3);font-family:var(--mono);font-size:10px;cursor:pointer;margin-top:6px;transition:color .15s}
+.show-more-btn:hover{color:var(--text2)}
+.gm-push-btn{width:100%;background:none;border:0.5px dashed var(--border);border-radius:8px;padding:8px;color:var(--text3);font-family:var(--mono);font-size:10px;cursor:pointer;margin-top:8px;transition:color .15s}
+.gm-push-btn:hover{color:var(--text1)}
+
+/* INPUTS / BUTTONS */
+.gm-input-wrap{display:flex;gap:6px;margin-top:14px;padding-top:14px;border-top:0.5px solid var(--border);flex-wrap:wrap}
+.glass-input{flex:1;background:rgba(255,255,255,0.04);border:0.5px solid var(--border2);border-radius:8px;padding:9px 12px;color:var(--text1);font-family:var(--display);font-size:12.5px;outline:none;min-width:100px}
+.glass-input::placeholder{color:var(--text3)}
+.glass-input:focus{border-color:rgba(255,255,255,0.2)}
+.glass-select{background:rgba(255,255,255,0.04);border:0.5px solid var(--border2);border-radius:8px;padding:9px 12px;color:var(--text1);font-family:var(--display);font-size:12.5px;outline:none;cursor:pointer}
+.glass-select option{background:#1a1a1e}
+.btn-primary{background:linear-gradient(180deg,#FFF 0%,#E8E5DD 100%);color:#0A0A0B;font-weight:700;padding:9px 16px;border-radius:8px;border:none;cursor:pointer;font-family:var(--display);font-size:12.5px;transition:transform .1s;white-space:nowrap}
+.btn-primary:hover{transform:translateY(-1px)}
+.btn-glass{background:rgba(255,255,255,0.05);border:0.5px solid rgba(255,255,255,0.1);border-radius:8px;color:var(--text1);font-weight:600;padding:9px 14px;cursor:pointer;font-family:var(--display);font-size:12.5px;transition:background .15s;white-space:nowrap}
+.btn-glass:hover{background:rgba(255,255,255,0.08)}
+.polish-status{font-family:var(--mono);font-size:10px;color:var(--text3);width:100%;margin-top:5px}
+
+/* CHARACTER */
+.char-header{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:16px;padding-bottom:24px;border-bottom:0.5px solid var(--border);margin-bottom:24px}
+.char-header-left{display:flex;align-items:center;gap:16px}
+.char-avatar{width:64px;height:64px;border-radius:12px;background:var(--bg3);border:0.5px solid var(--border2);display:flex;align-items:center;justify-content:center;font-size:24px;font-weight:800;flex-shrink:0}
+.char-name{font-size:30px;font-weight:800;letter-spacing:-0.04em;margin-bottom:4px}
+.char-class{font-family:var(--mono);font-size:10px;font-weight:700;letter-spacing:0.2em;text-transform:uppercase;color:var(--text3)}
+.char-stats{display:flex;gap:20px;flex-wrap:wrap}
+.char-stat-pill{display:flex;flex-direction:column;align-items:center;gap:4px}
+.char-stat-label{font-family:var(--mono);font-size:9px;font-weight:700;letter-spacing:0.16em;text-transform:uppercase;color:var(--text3)}
+.char-stat-value{font-size:22px;font-weight:800;letter-spacing:-0.03em}
+
+.attrs-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:24px}
+@media(max-width:720px){.attrs-grid{grid-template-columns:repeat(2,1fr)}}
+.attr-card{background:var(--bg2);border:0.5px solid var(--border);border-radius:10px;padding:14px 16px}
+.attr-label{font-family:var(--mono);font-size:9px;font-weight:700;letter-spacing:0.16em;text-transform:uppercase;color:var(--text3);margin-bottom:6px}
+.attr-value{font-size:26px;font-weight:800;letter-spacing:-0.03em;margin-bottom:8px}
+.bar-wrap{height:2px;background:rgba(255,255,255,0.06);border-radius:2px;overflow:hidden}
+.bar-fill{height:100%;border-radius:2px;transition:width .5s ease}
+
+.domains-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-bottom:24px}
+@media(max-width:720px){.domains-grid{grid-template-columns:1fr}}
+.domain-card{background:var(--bg2);border:0.5px solid var(--border);border-radius:12px;padding:16px 18px;cursor:pointer;transition:background .15s;overflow:hidden}
+.domain-card:hover{background:var(--bg3)}
+.domain-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
+.domain-name{font-size:13px;font-weight:700}
+.domain-level{font-family:var(--mono);font-size:11px;font-weight:700}
+.domain-meta{display:flex;justify-content:space-between;align-items:center}
+.domain-tag{font-family:var(--mono);font-size:8.5px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:var(--text3)}
+.domain-xp{font-family:var(--mono);font-size:10px;color:var(--text3)}
+.skill-list{display:none;margin-top:12px;padding-top:12px;border-top:0.5px solid var(--border);list-style:none}
+.domain-card.expanded .skill-list{display:block}
+.skill-row{display:flex;align-items:center;gap:8px;padding:5px 0}
+.skill-dot{width:5px;height:5px;border-radius:50%;flex-shrink:0}
+.skill-name{flex:1;font-size:11px;color:var(--text2)}
+.skill-bar-wrap{width:70px;height:1.5px;background:rgba(255,255,255,0.06);border-radius:2px;overflow:hidden;flex-shrink:0}
+.skill-xp-input{width:44px;background:rgba(255,255,255,0.04);border:0.5px solid var(--border);border-radius:4px;color:var(--text2);font-family:var(--mono);font-size:10px;padding:2px 4px;text-align:right;outline:none;flex-shrink:0}
+.skill-xp-input:focus{border-color:rgba(255,255,255,0.2)}
+
+.developing-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:24px}
+@media(max-width:720px){.developing-grid{grid-template-columns:1fr}}
+.dev-card{background:var(--bg2);border:0.5px solid var(--border);border-radius:10px;padding:14px 16px}
+.dev-skill{font-size:12px;font-weight:700;margin-bottom:4px}
+.dev-domain{font-family:var(--mono);font-size:9px;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:var(--text3);margin-bottom:8px}
+
+.bible-card{border-left:2px solid rgba(255,255,255,0.1)!important;padding-left:20px!important;margin-bottom:24px}
+.bible-quote{font-size:14px;font-style:italic;color:var(--text2);line-height:1.7;margin-bottom:8px}
+.bible-ref{font-family:var(--mono);font-size:9px;font-weight:700;letter-spacing:0.18em;text-transform:uppercase;color:var(--text3)}
+
+.hevy-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.hevy-input{flex:1;min-width:180px;background:rgba(255,255,255,0.04);border:0.5px solid var(--border2);border-radius:8px;padding:8px 12px;color:var(--text1);font-family:var(--mono);font-size:12px;outline:none}
+.hevy-input:focus{border-color:rgba(255,255,255,0.2)}
+.hevy-status{font-family:var(--mono);font-size:10px;color:var(--text3)}
+
+/* PAGES GENERAL */
+.page-title{font-size:26px;font-weight:800;letter-spacing:-0.04em;margin-bottom:6px}
+.page-subtitle{font-family:var(--mono);font-size:11px;color:var(--text3);margin-bottom:28px}
+.empty-state{text-align:center;font-family:var(--mono);font-size:11px;color:var(--text3);padding:32px 16px}
+
+/* PROJECTS */
+.projects-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-bottom:24px}
+@media(max-width:720px){.projects-grid{grid-template-columns:1fr}}
+.project-card{background:var(--bg2);border:0.5px solid var(--border);border-radius:12px;padding:16px 18px}
+.project-card-header{display:flex;align-items:center;gap:8px;margin-bottom:8px;flex-wrap:wrap}
+.project-name{font-size:13px;font-weight:700;flex:1}
+.domain-badge{font-family:var(--mono);font-size:8.5px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;padding:3px 8px;border-radius:20px}
+.project-desc{font-size:11px;color:var(--text2);line-height:1.5;margin-bottom:10px}
+.project-progress-row{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+.project-pct{font-family:var(--mono);font-size:11px;color:var(--text2);flex-shrink:0}
+.project-bar-wrap{flex:1;height:3px;background:rgba(255,255,255,0.06);border-radius:3px;overflow:hidden}
+.project-meta{font-family:var(--mono);font-size:10px;color:var(--text3);display:flex;gap:12px;flex-wrap:wrap}
+.delete-btn{background:none;border:none;color:var(--text3);cursor:pointer;font-size:16px;padding:2px 4px;border-radius:4px;transition:color .15s;line-height:1}
+.delete-btn:hover{color:var(--red)}
+
+.add-project-form{background:rgba(255,255,255,0.025);border:0.5px solid var(--border);border-radius:14px;padding:20px 22px}
+.form-row{display:flex;gap:8px;margin-bottom:8px;flex-wrap:wrap}
+
+/* EXPERIMENTS */
+.experiments-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-bottom:24px}
+@media(max-width:720px){.experiments-grid{grid-template-columns:1fr}}
+.exp-card{background:var(--bg2);border:0.5px solid var(--border);border-radius:12px;padding:16px 18px}
+.exp-card-header{display:flex;align-items:center;gap:8px;margin-bottom:8px;flex-wrap:wrap}
+.exp-name{font-size:13px;font-weight:700;flex:1}
+.status-badge{font-family:var(--mono);font-size:8.5px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;padding:3px 8px;border-radius:20px}
+.status-active{background:rgba(107,227,164,0.1);color:var(--green);border:0.5px solid rgba(107,227,164,0.2)}
+.status-completed{background:rgba(126,184,247,0.1);color:var(--blue);border:0.5px solid rgba(126,184,247,0.2)}
+.status-paused{background:rgba(242,192,99,0.1);color:var(--yellow);border:0.5px solid rgba(242,192,99,0.2)}
+.exp-hypothesis{font-size:11px;color:var(--text2);font-style:italic;line-height:1.5;margin-bottom:8px}
+.exp-meta{font-family:var(--mono);font-size:10px;color:var(--text3);margin-bottom:10px;display:flex;gap:12px;flex-wrap:wrap}
+.exp-toggle{width:100%;background:none;border:0.5px dashed var(--border2);border-radius:8px;padding:7px;color:var(--text3);font-family:var(--mono);font-size:10px;cursor:pointer;transition:color .15s}
+.exp-toggle:hover{color:var(--text2)}
+.exp-log{display:none;margin-top:10px}
+.exp-log.open{display:block}
+.log-entry{padding:8px 0;border-bottom:0.5px solid var(--border)}
+.log-date{font-family:var(--mono);font-size:9px;color:var(--text3);margin-bottom:3px}
+.log-note{font-size:11px;color:var(--text2);line-height:1.5}
+.log-add-row{display:flex;gap:6px;margin-top:10px}
+
+/* CALENDAR */
+.connect-btn{width:100%;background:rgba(255,255,255,0.04);border:0.5px solid var(--border2);border-radius:10px;padding:14px 18px;color:var(--text1);cursor:pointer;display:flex;align-items:center;gap:12px;margin-bottom:10px;transition:background .15s;text-align:left}
+.connect-btn:hover{background:rgba(255,255,255,0.07)}
+.connect-icon{font-size:18px;flex-shrink:0}
+.connect-label{flex:1;font-size:13px;font-weight:600}
+.connect-status-text{font-family:var(--mono);font-size:11px;color:var(--text3)}
+.connected-badge{display:none;align-items:center;gap:4px;font-family:var(--mono);font-size:10px;font-weight:700;color:var(--green)}
+.connected-badge::before{content:'●';font-size:8px}
+.connected-badge.show{display:flex}
+.loading-text{font-family:var(--mono);font-size:11px;color:var(--text3);padding:16px 0}
+
+input[type=number]::-webkit-inner-spin-button,
+input[type=number]::-webkit-outer-spin-button{opacity:0.5}
+</style>
+</head>
+<body>
+
+<nav class="nav">
+  <div class="nav-brand">CASSIUS <span class="sep">/ OS</span></div>
+  <div class="nav-tabs">
+    <button class="nav-tab active" onclick="showPage('dashboard',this)">Dashboard</button>
+    <button class="nav-tab" onclick="showPage('character',this)">Character</button>
+    <button class="nav-tab" onclick="showPage('domains',this)">Domains</button>
+    <button class="nav-tab" onclick="showPage('lab',this)">Lab</button>
+    <button class="nav-tab" onclick="showPage('calendar',this)">Calendar &amp; Email</button>
+  </div>
+</nav>
+
+<!-- PAGE: DASHBOARD -->
+<div id="page-dashboard" class="page active">
+  <h1 class="dash-title" id="dashTitle">Good morning, Cassius.</h1>
+
+  <div class="ticker-row">
+    <div class="goal-ticker" id="goalTicker" aria-live="polite" aria-atomic="true">
+      <div class="goal-ticker-led"><span class="goal-ticker-led-dot"></span></div>
+      <div class="goal-ticker-label">GOALS</div>
+      <div class="goal-ticker-stage" id="goalTickerStage">
+        <div class="goal-ticker-row">
+          <span class="goal-ticker-status" style="color:var(--text3)">·</span>
+          <span class="goal-ticker-text">Loading…</span>
+        </div>
+      </div>
+      <div class="goal-ticker-meta" id="goalTickerMeta">0/0</div>
+    </div>
+  </div>
+
+  <div class="ring-container">
+    <div class="ring-svg-wrap">
+      <svg viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
+            <feGaussianBlur stdDeviation="2.5" result="blur"/>
+            <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+          </filter>
+        </defs>
+        <circle cx="60" cy="60" r="52" fill="none" stroke="rgba(255,255,255,0.06)" stroke-width="8"/>
+        <circle id="ringFill" cx="60" cy="60" r="52" fill="none" stroke="#6BE3A4" stroke-width="8"
+          stroke-linecap="round" transform="rotate(-90 60 60)" filter="url(#glow)"
+          style="transition:stroke-dasharray 0.7s cubic-bezier(0.22,1,0.36,1),stroke-dashoffset 0.7s cubic-bezier(0.22,1,0.36,1),stroke 0.7s"/>
+      </svg>
+      <div class="ring-center">
+        <div class="ring-pct" id="ringPct">—</div>
+        <div class="ring-phase" id="ringPhase">SLEEPING</div>
+        <div class="ring-clock" id="ringClock">—</div>
+      </div>
+    </div>
+    <div class="ring-info">
+      <div class="ring-status" id="ringStatus">😴 Still sleeping</div>
+      <div class="ring-remain" id="ringRemain">Loading…</div>
+      <div class="ring-range">8:00 AM – 12:00 AM</div>
+    </div>
+  </div>
+
+  <div class="section-label">To Do List</div>
+
+  <div class="two-col">
+    <!-- TODAY -->
+    <div class="card gm-card" id="todayCard">
+      <div class="gm-card-header">
+        <div>
+          <div class="gm-eyebrow" id="todayLabel">Today</div>
+          <div class="gm-progress-row">
+            <span class="gm-progress-num" id="gmProgressNum">0</span>
+            <span class="gm-progress-total" id="gmProgressTotal"></span>
+            <span class="gm-progress-label" id="gmProgressLabel">no goals yet</span>
+          </div>
+        </div>
+        <div id="gmStreak" class="gm-streak">⚡ <span id="gmStreakNum">0</span> day streak</div>
+      </div>
+      <div class="gm-bar" id="gmBar"></div>
+      <ul class="goal-list" id="goalList"></ul>
+      <div class="goal-empty" id="emptyState">No goals for today yet — add one below.</div>
+      <button class="gm-push-btn" id="gmPushBtn" style="display:none">Push remaining to tomorrow →</button>
+      <div class="gm-input-wrap">
+        <input class="glass-input" id="goalInput" type="text" placeholder="Add a goal for today…">
+        <button class="btn-primary" id="goalAddBtn">Add</button>
+        <button class="btn-glass" id="goalPolishBtn">✦ Polish</button>
+        <div class="polish-status" id="polishStatus"></div>
+      </div>
+    </div>
+
+    <!-- TOMORROW -->
+    <div class="card gm-card gm-card-tomorrow" id="tomorrowCard">
+      <div class="gm-card-header">
+        <div>
+          <div class="gm-eyebrow" id="tomorrowLabel">Plan Tomorrow</div>
+          <div style="font-size:11px;color:var(--text3);margin-top:2px">Write tonight, locked until 6 AM.</div>
+        </div>
+        <span id="gmTomorrowCount" style="font-family:var(--mono);font-size:10px;color:var(--text3)"></span>
+      </div>
+      <ul class="goal-list" id="tomorrowList"></ul>
+      <div class="goal-empty" id="tomorrowEmpty">No goals planned for tomorrow yet.</div>
+      <div class="gm-input-wrap">
+        <input class="glass-input" id="tomorrowInput" type="text" placeholder="Plan a goal for tomorrow…">
+        <button class="btn-primary" id="tomorrowAddBtn">Add</button>
+        <button class="btn-glass" id="tomorrowPolishBtn">✦ Polish</button>
+        <div class="polish-status" id="tomorrowStatus"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- PAGE: CHARACTER -->
+<div id="page-character" class="page">
+  <div id="characterPageContent"></div>
+</div>
+
+<!-- PAGE: DOMAINS -->
+<div id="page-domains" class="page">
+  <div class="page-title">Domains &amp; Projects</div>
+  <div class="page-subtitle">Track projects that build your domains over time.</div>
+  <div class="section-label">Projects</div>
+  <div class="projects-grid" id="projectsGrid"></div>
+  <div class="section-label">New Project</div>
+  <div class="add-project-form">
+    <div class="form-row">
+      <input class="glass-input" id="projName" type="text" placeholder="Project name…" style="flex:2">
+      <select class="glass-select" id="projDomain"></select>
+    </div>
+    <div class="form-row">
+      <input class="glass-input" id="projDesc" type="text" placeholder="Description…" style="flex:1">
+    </div>
+    <div class="form-row">
+      <input class="glass-input" id="projProgress" type="number" min="0" max="100" placeholder="Progress %" style="width:110px;flex:none">
+      <input class="glass-input" id="projDeadline" type="date" style="flex:1">
+      <button class="btn-primary" onclick="addProject()">Add Project</button>
+    </div>
+  </div>
+</div>
+
+<!-- PAGE: LAB -->
+<div id="page-lab" class="page">
+  <div class="page-title">Lab &amp; Experiments</div>
+  <div class="page-subtitle">Track what you're testing and whether it actually works.</div>
+  <div class="section-label">Experiments</div>
+  <div class="experiments-grid" id="experimentsGrid"></div>
+  <div class="section-label">New Experiment</div>
+  <div class="add-project-form">
+    <div class="form-row">
+      <input class="glass-input" id="expName" type="text" placeholder="Experiment name…" style="flex:2">
+      <select class="glass-select" id="expStatus">
+        <option value="Active">Active</option>
+        <option value="Completed">Completed</option>
+        <option value="Paused">Paused</option>
+      </select>
+    </div>
+    <div class="form-row">
+      <input class="glass-input" id="expHyp" type="text" placeholder="Hypothesis…" style="flex:1">
+    </div>
+    <div class="form-row">
+      <input class="glass-input" id="expStart" type="date" style="flex:1">
+      <input class="glass-input" id="expDuration" type="text" placeholder="Duration (e.g. 30 days)" style="flex:1">
+      <button class="btn-primary" onclick="addExperiment()">Start Experiment</button>
+    </div>
+  </div>
+</div>
+
+<!-- PAGE: CALENDAR & EMAIL -->
+<div id="page-calendar" class="page">
+  <div class="page-title">Calendar &amp; Email</div>
+  <div class="page-subtitle">Connect your Google account to pull in live data.</div>
+  <div style="max-width:420px;margin-bottom:24px">
+    <button class="connect-btn" onclick="connectCalendar()">
+      <span class="connect-icon">📅</span>
+      <span class="connect-label">Google Calendar</span>
+      <span class="connected-badge" id="calConnectedBadge">Connected</span>
+      <span class="connect-status-text" id="calConnectLabel">Connect →</span>
+    </button>
+    <button class="connect-btn" onclick="connectGmail()">
+      <span class="connect-icon">✉️</span>
+      <span class="connect-label">Gmail</span>
+      <span class="connected-badge" id="gmailConnectedBadge">Connected</span>
+      <span class="connect-status-text" id="gmailConnectLabel">Connect →</span>
+    </button>
+  </div>
+  <div class="two-col">
+    <div>
+      <div class="section-label">Today's Events</div>
+      <div id="calEventsContainer"><div class="loading-text">Connect Google Calendar to see events.</div></div>
+    </div>
+    <div>
+      <div class="section-label">Recent Emails</div>
+      <div id="gmailContainer"><div class="loading-text">Connect Gmail to see emails.</div></div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── API Key ──────────────────────────────────────────────────────────────────
+const ANTHROPIC_API_KEY = '';
+
+// ── Domains Data ─────────────────────────────────────────────────────────────
+const DOMAINS_DATA = [
+  { id:'body',    name:'Body & Training',          color:'#E8A87C', tag:'Physical',
+    skills:['Strength Training','Mobility & Flexibility','Cardiovascular Endurance','Nutrition & Diet','Sleep Optimization','Body Composition','Recovery Protocols'] },
+  { id:'mind',    name:'Mind & Philosophy',         color:'#A78BFA', tag:'Cognitive',
+    skills:['Stoic Practice','Critical Thinking','Deep Focus','Memory & Retention','Intellectual Curiosity','Logical Reasoning','Mental Resilience'] },
+  { id:'faith',   name:'Faith',                     color:'#93C5FD', tag:'Spiritual',
+    skills:['Scripture Study','Prayer Discipline','Theological Understanding','Discernment','Community & Service','Spiritual Warfare','Gratitude Practice'] },
+  { id:'wealth',  name:'Wealth',                    color:'#6BE3A4', tag:'Financial',
+    skills:['Financial Literacy','Investing','Business Building','Income Streams','Sales & Negotiation','Asset Management','Frugality & Discipline'] },
+  { id:'writing', name:'Writing & Communication',   color:'#F2C063', tag:'Expression',
+    skills:['Prose Craft','Persuasive Writing','Rhetoric & Oratory','Storytelling','Active Listening','Non-verbal Communication','Content Strategy'] },
+  { id:'psych',   name:'Psychology & People',       color:'#F472B6', tag:'Social',
+    skills:['Emotional Intelligence','Human Behavior','Influence & Persuasion','Conflict Resolution','Leadership','Empathy','Social Dynamics'] },
+  { id:'history', name:'History & Strategy',        color:'#FB923C', tag:'Strategic',
+    skills:['Military History','Political Theory','Strategic Thinking','Pattern Recognition','Geopolitics','Ancient Civilizations','Decision Making'] },
+  { id:'art',     name:'Art & Culture',             color:'#34D399', tag:'Aesthetic',
+    skills:['Visual Aesthetics','Music Appreciation','Literature','Film & Cinema','Architecture','Cultural Literacy','Creative Expression'] }
+];
+
+const ATTRS_MAP = [
+  { label:'Strength',  domain:'body' },
+  { label:'Intellect', domain:'mind' },
+  { label:'Faith',     domain:'faith' },
+  { label:'Wealth',    domain:'wealth' },
+  { label:'Charisma',  domain:'writing' },
+  { label:'Wisdom',    domain:'psych' },
+  { label:'Strategy',  domain:'history' },
+  { label:'Culture',   domain:'art' },
+];
+
+const BIBLE_VERSES = [
+  { ref:'Philippians 4:13',    text:'"I can do all things through Christ who strengthens me."' },
+  { ref:'2 Timothy 1:7',       text:'"For God gave us a spirit not of fear but of power and love and self-control."' },
+  { ref:'Proverbs 3:5',        text:'"Trust in the Lord with all your heart and lean not on your own understanding."' },
+  { ref:'Joshua 1:9',          text:'"Be strong and courageous. Do not be afraid; do not be discouraged."' },
+  { ref:'Psalm 23:1',          text:'"The Lord is my shepherd; I shall not want."' },
+  { ref:'Matthew 7:7',         text:'"Ask and it will be given to you; seek and you will find."' },
+  { ref:'2 Corinthians 5:7',   text:'"For we walk by faith, not by sight."' },
+];
+
+// ── Storage ──────────────────────────────────────────────────────────────────
+function storeGet(key) {
+  try { return JSON.parse(localStorage.getItem(key)); } catch(e) { return null; }
+}
+function storeSet(key, val) {
+  localStorage.setItem(key, JSON.stringify(val));
+  window.dispatchEvent(new CustomEvent('goals-changed'));
+}
+function storeDelete(key) { localStorage.removeItem(key); }
+function storeListKeys(pfx) {
+  const out = [];
+  for (let i = 0; i < localStorage.length; i++) {
+    const k = localStorage.key(i);
+    if (k && k.startsWith(pfx)) out.push(k);
+  }
+  return out;
+}
+
+// ── Date Logic ───────────────────────────────────────────────────────────────
+function getActiveDateString() {
+  const now = new Date();
+  if (now.getHours() < 6) now.setDate(now.getDate() - 1);
+  return now.toISOString().slice(0, 10);
+}
+function getTomorrowDateString() {
+  const now = new Date();
+  if (now.getHours() < 6) return now.toISOString().slice(0, 10);
+  const t = new Date(now);
+  t.setDate(t.getDate() + 1);
+  return t.toISOString().slice(0, 10);
+}
+function formatDate(str) {
+  const [y, m, d] = str.split('-').map(Number);
+  const date = new Date(y, m - 1, d);
+  const days   = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+  const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  return `${days[date.getDay()]}, ${months[date.getMonth()]} ${date.getDate()}`;
+}
+function todayISOStr() { return new Date().toISOString().slice(0, 10); }
+
+// ── Rollover ─────────────────────────────────────────────────────────────────
+function doRollover() {
+  const activeDate = getActiveDateString();
+  const oldKeys = storeListKeys('goals:').filter(k => k.slice(6) < activeDate);
+  if (!oldKeys.length) return;
+  const todayKey = 'goals:' + activeDate;
+  const todayGoals = storeGet(todayKey) || [];
+  const seen = new Set(todayGoals.map(g => g.text.trim().toLowerCase()));
+  let changed = false;
+  oldKeys.sort().forEach(k => {
+    const goals = storeGet(k) || [];
+    goals.filter(g => !g.done).forEach(g => {
+      const norm = g.text.trim().toLowerCase();
+      if (!seen.has(norm)) { todayGoals.push({ text: g.text, done: false }); seen.add(norm); changed = true; }
+    });
+    storeDelete(k);
+  });
+  if (changed) localStorage.setItem(todayKey, JSON.stringify(todayGoals));
+}
+
+// ── Streak ───────────────────────────────────────────────────────────────────
+function doStreak() {
+  const state = storeGet('goal_streak_v1') || { count: 0, lastProcessedDate: null };
+  const activeDate = getActiveDateString();
+  const keys = storeListKeys('goals:').filter(k => k.slice(6) < activeDate).sort();
+  const toProcess = state.lastProcessedDate ? keys.filter(k => k.slice(6) > state.lastProcessedDate) : keys;
+  toProcess.forEach(k => {
+    const goals = storeGet(k) || [];
+    if (!goals.length) return;
+    state.count = goals.every(g => g.done) ? state.count + 1 : 0;
+    state.lastProcessedDate = k.slice(6);
+  });
+  localStorage.setItem('goal_streak_v1', JSON.stringify(state));
+  return state.count;
+}
+
+// ── Day Ring ─────────────────────────────────────────────────────────────────
+const SUN_PAL = [
+  [255,216,158],[255,205,121],[255,227,143],[255,183,106],
+  [255,149,89],[243,111,79],[226,93,122],[123,91,176],[47,58,102]
+];
+function lerpColor(a, b, t) { return a.map((v,i) => Math.round(v + (b[i]-v)*t)); }
+function sunColor(pct) {
+  const t = pct / 100 * (SUN_PAL.length - 1);
+  const lo = Math.floor(t), hi = Math.min(lo+1, SUN_PAL.length-1);
+  const [r,g,b] = lerpColor(SUN_PAL[lo], SUN_PAL[hi], t - lo);
+  return `rgb(${r},${g},${b})`;
+}
+function fmtClock(d) {
+  let h = d.getHours(); const m = String(d.getMinutes()).padStart(2,'0');
+  const ap = h >= 12 ? 'PM' : 'AM'; h = h % 12 || 12;
+  return `${h}:${m} ${ap}`;
+}
+function updateDayBar() {
+  const now = new Date();
+  const h = now.getHours() + now.getMinutes()/60;
+  const C = 2*Math.PI*52;
+  const ring = document.getElementById('ringFill');
+  const pctEl = document.getElementById('ringPct');
+  const phaseEl = document.getElementById('ringPhase');
+  const clockEl = document.getElementById('ringClock');
+  const statusEl = document.getElementById('ringStatus');
+  const remainEl = document.getElementById('ringRemain');
+  const titleEl = document.getElementById('dashTitle');
+  ring.style.strokeDasharray = C;
+  clockEl.textContent = fmtClock(now);
+  if (titleEl) {
+    if (h < 12) titleEl.textContent = 'Good morning, Cassius.';
+    else if (h < 17) titleEl.textContent = 'Good afternoon, Cassius.';
+    else titleEl.textContent = 'Good evening, Cassius.';
+  }
+  if (h < 8) {
+    ring.style.strokeDashoffset = C; ring.style.stroke = '#4D4B47';
+    pctEl.textContent = '—'; phaseEl.textContent = 'SLEEPING';
+    statusEl.textContent = '😴 Still sleeping';
+    const mins = Math.round((8 - h)*60);
+    remainEl.textContent = `${Math.floor(mins/60)}h ${mins%60}m until wake-up`;
+  } else if (h >= 24) {
+    ring.style.strokeDashoffset = 0; ring.style.stroke = '#E25D7A';
+    pctEl.textContent = '100%'; phaseEl.textContent = 'PAST BEDTIME';
+    statusEl.textContent = '⚠️ Past bedtime'; remainEl.textContent = 'Sleep!';
+  } else {
+    const pct = (h - 8) / 16 * 100;
+    ring.style.strokeDashoffset = C * (1 - pct/100);
+    ring.style.stroke = sunColor(pct);
+    pctEl.textContent = Math.round(pct) + '%';
+    let phase, status;
+    if (pct < 25)      { phase='MORNING';   status='☀️ Morning — fresh start'; }
+    else if (pct < 50) { phase='MIDDAY';    status='⚡ Midday — keep moving'; }
+    else if (pct < 75) { phase='AFTERNOON'; status='🔥 Afternoon — push it'; }
+    else if (pct < 90) { phase='EVENING';   status='⏳ Evening — wrap up'; }
+    else               { phase='BEDTIME';   status='🌙 Bedtime soon'; }
+    phaseEl.textContent = phase; statusEl.textContent = status;
+    const rem = 24 - h;
+    remainEl.textContent = `${Math.floor(rem)}h ${Math.round((rem%1)*60)}m remaining`;
+  }
+}
+
+// ── Ticker ───────────────────────────────────────────────────────────────────
+let tickerInterval = null, cycleIdx = 0, firstTick = true;
+
+function getTickerData() {
+  const goals = storeGet('goals:' + getActiveDateString()) || [];
+  const done = goals.filter(g => g.done).length, total = goals.length;
+  const pending = goals.filter(g => !g.done);
+  if (!total)       return { items:[{st:'empty', text:'No goals set for today — add one to get rolling.'}], done, total };
+  if (done===total) return { items:[{st:'done',  text:'✓ All goals done — solid day.'}], done, total };
+  return { items: pending.map(g => ({st:'pending', text:g.text})), done, total };
+}
+
+function buildTickerRow(item) {
+  const row = document.createElement('div');
+  row.className = 'goal-ticker-row';
+  const s = document.createElement('span'); s.className = 'goal-ticker-status';
+  s.style.color = item.st === 'done' ? 'var(--green)' : 'var(--text3)';
+  s.textContent  = item.st === 'done' ? '✓' : (item.st === 'empty' ? '·' : '○');
+  const t = document.createElement('span'); t.className = 'goal-ticker-text'; t.textContent = item.text;
+  row.appendChild(s); row.appendChild(t);
+  return row;
+}
+
+function tick() {
+  const stage = document.getElementById('goalTickerStage');
+  const meta  = document.getElementById('goalTickerMeta');
+  const { items, done, total } = getTickerData();
+  meta.textContent = `${done}/${total}`;
+  if (!items.length) return;
+  const item = items[cycleIdx % items.length];
+  cycleIdx = (cycleIdx + 1) % items.length;
+  const existing = stage.querySelector('.goal-ticker-row');
+  if (firstTick) {
+    firstTick = false;
+    if (existing) existing.remove();
+    stage.appendChild(buildTickerRow(item));
+    return;
+  }
+  if (existing) { existing.classList.add('is-leaving'); setTimeout(()=>existing.remove(), 460); }
+  setTimeout(() => { const row = buildTickerRow(item); row.classList.add('is-entering'); stage.appendChild(row); }, 30);
+}
+
+function startTicker() {
+  tick();
+  if (tickerInterval) clearInterval(tickerInterval);
+  tickerInterval = setInterval(tick, 5000);
+}
+
+window.addEventListener('goals-changed', () => { cycleIdx = 0; tick(); });
+
+// ── Goal Row ─────────────────────────────────────────────────────────────────
+function buildGoalRow(goal, idx, key, readOnly, reloadFn) {
+  const li = document.createElement('li');
+  li.className = 'goal-item' + (goal.done ? ' done':'') + (goal.queued ? ' queued':'');
+  li.dataset.idx = idx;
+  li.draggable = !readOnly;
+
+  if (!readOnly) {
+    const h = document.createElement('span');
+    h.className = 'drag-handle'; h.textContent = '⋮⋮'; h.setAttribute('aria-hidden','true');
+    li.appendChild(h);
+  }
+
+  const wrap = document.createElement('label'); wrap.className = 'goal-check-wrap';
+  const cb = document.createElement('input'); cb.type = 'checkbox'; cb.checked = goal.done;
+  if (readOnly) { cb.disabled = true; cb.title = 'Activates at 6 AM tomorrow'; }
+  cb.addEventListener('change', () => {
+    const gs = storeGet(key) || []; gs[idx].done = cb.checked; storeSet(key, gs); reloadFn();
+  });
+  const box = document.createElement('span'); box.className = 'goal-check-box';
+  wrap.appendChild(cb); wrap.appendChild(box); li.appendChild(wrap);
+
+  const txt = document.createElement('div'); txt.className = 'goal-text'; txt.textContent = goal.text;
+  txt.addEventListener('click', () => {
+    if (readOnly) return;
+    txt.contentEditable = 'true'; txt.focus();
+    const r = document.createRange(); r.selectNodeContents(txt); r.collapse(false);
+    window.getSelection().removeAllRanges(); window.getSelection().addRange(r);
+  });
+  txt.addEventListener('blur', () => {
+    const v = txt.textContent.trim();
+    if (v && v !== goal.text) { const gs = storeGet(key)||[]; gs[idx].text = v; storeSet(key, gs); }
+    else { txt.textContent = goal.text; }
+    txt.contentEditable = 'false';
+  });
+  txt.addEventListener('keydown', e => {
+    if (e.key==='Enter'){e.preventDefault();txt.blur();}
+    if (e.key==='Escape'){txt.textContent=goal.text;txt.contentEditable='false';}
+  });
+  li.appendChild(txt);
+
+  const qb = document.createElement('button'); qb.className = 'goal-queue-btn'+(goal.queued?' active':'');
+  qb.title='Queue for tomorrow'; qb.textContent='⚡';
+  if (readOnly) qb.disabled = true;
+  qb.addEventListener('click', () => {
+    const gs = storeGet(key)||[]; gs[idx].queued = !gs[idx].queued; storeSet(key, gs);
+    li.classList.add('queue-flashing'); setTimeout(()=>reloadFn(), 480);
+  });
+  li.appendChild(qb);
+
+  const db = document.createElement('button'); db.className = 'goal-delete-btn';
+  db.title='Delete'; db.textContent='×';
+  db.addEventListener('click', () => {
+    const gs = storeGet(key)||[]; gs.splice(idx,1); storeSet(key, gs); reloadFn();
+  });
+  li.appendChild(db);
+  return li;
+}
+
+// ── Drag Reorder ─────────────────────────────────────────────────────────────
+function wireDragReorder(listEl, key, reloadFn) {
+  let src = null;
+  listEl.addEventListener('dragstart', e => {
+    const li = e.target.closest('.goal-item'); if (!li) return;
+    src = parseInt(li.dataset.idx, 10); e.dataTransfer.effectAllowed='move';
+  });
+  listEl.addEventListener('dragover', e => {
+    e.preventDefault();
+    const li = e.target.closest('.goal-item'); if (!li) return;
+    listEl.querySelectorAll('.goal-item').forEach(el => el.style.borderTopColor='');
+    li.style.borderTopColor = 'rgba(255,255,255,0.3)';
+  });
+  listEl.addEventListener('dragleave', e => {
+    const li = e.target.closest('.goal-item'); if (li) li.style.borderTopColor='';
+  });
+  listEl.addEventListener('drop', e => {
+    e.preventDefault();
+    const li = e.target.closest('.goal-item'); if (!li) return;
+    li.style.borderTopColor='';
+    const dest = parseInt(li.dataset.idx, 10);
+    if (src===null || src===dest) return;
+    const gs = storeGet(key)||[]; const [m] = gs.splice(src,1); gs.splice(dest,0,m);
+    storeSet(key, gs); reloadFn(); src=null;
+  });
+}
+
+// ── Render List ──────────────────────────────────────────────────────────────
+function renderListInto(goals, listEl, emptyEl, key, readOnly, reloadFn) {
+  listEl.innerHTML = '';
+  emptyEl.style.display = goals.length ? 'none' : 'block';
+  const LIMIT = 5;
+  const visible = goals.slice(0, LIMIT);
+  const hidden  = goals.slice(LIMIT);
+  visible.forEach((g,i) => listEl.appendChild(buildGoalRow(g, i, key, readOnly, reloadFn)));
+  if (hidden.length) {
+    let expanded = false;
+    const btn = document.createElement('button'); btn.className='show-more-btn';
+    btn.textContent = `Show ${hidden.length} more ▾`;
+    const hc = document.createElement('div'); hc.style.display='none';
+    hidden.forEach((g,i) => hc.appendChild(buildGoalRow(g, i+LIMIT, key, readOnly, reloadFn)));
+    btn.addEventListener('click', () => {
+      expanded = !expanded; hc.style.display = expanded?'block':'none';
+      btn.textContent = expanded ? 'Show less ▴' : `Show ${hidden.length} more ▾`;
+    });
+    listEl.appendChild(btn); listEl.appendChild(hc);
+  }
+  if (!readOnly) wireDragReorder(listEl, key, reloadFn);
+}
+
+// ── Today Header ─────────────────────────────────────────────────────────────
+function renderTodayHeader(goals) {
+  const done = goals.filter(g=>g.done).length, total = goals.length;
+  document.getElementById('gmProgressNum').textContent = done;
+  document.getElementById('gmProgressTotal').textContent = total ? `/${total}` : '';
+  document.getElementById('gmProgressLabel').textContent =
+    !total ? 'no goals yet' : (done===total ? 'all done — solid day' : 'complete');
+  const bar = document.getElementById('gmBar'); bar.innerHTML='';
+  goals.forEach(g => {
+    const s = document.createElement('div');
+    s.className = 'gm-bar-seg' + (g.done ? ' gm-bar-seg-done':'');
+    bar.appendChild(s);
+  });
+  const card = document.getElementById('todayCard');
+  card.classList.toggle('gm-all-done', total>0 && done===total);
+  document.getElementById('gmPushBtn').style.display = (total>0 && goals.some(g=>!g.done)) ? 'block':'none';
+}
+
+function renderStreak() {
+  const n = doStreak();
+  document.getElementById('gmStreakNum').textContent = n;
+  document.getElementById('gmStreak').classList.toggle('active', n>0);
+}
+
+function renderTomorrowCount(goals) {
+  document.getElementById('gmTomorrowCount').textContent = goals.length ? `${goals.length} planned` : '';
+}
+
+function loadToday() {
+  const key = 'goals:' + getActiveDateString();
+  const goals = storeGet(key)||[];
+  renderTodayHeader(goals);
+  renderListInto(goals, document.getElementById('goalList'), document.getElementById('emptyState'), key, false, loadToday);
+}
+function loadTomorrow() {
+  const key = 'goals:' + getTomorrowDateString();
+  const goals = storeGet(key)||[];
+  renderTomorrowCount(goals);
+  renderListInto(goals, document.getElementById('tomorrowList'), document.getElementById('tomorrowEmpty'), key, true, loadTomorrow);
+}
+
+// ── Add Handlers ─────────────────────────────────────────────────────────────
+async function polishText(text) {
+  const res = await fetch('https://api.anthropic.com/v1/messages', {
+    method:'POST',
+    headers:{'Content-Type':'application/json','x-api-key':ANTHROPIC_API_KEY,
+      'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
+    body: JSON.stringify({ model:'claude-sonnet-4-5', max_tokens:1000,
+      messages:[{role:'user',content:`Clean up this goal into a clear, concise, actionable statement. Return ONLY a one-element JSON array with the cleaned goal text. No preamble, no fences, no explanation. Goal: "${text}"`}]
+    })
+  });
+  if (!res.ok) throw new Error(`API ${res.status}`);
+  const data = await res.json();
+  return JSON.parse(data.content[0].text.trim())[0];
+}
+
+function makeAddHandlers(inputEl, addBtn, polishBtn, key, statusEl, reloadFn) {
+  function doAdd() {
+    const text = inputEl.value.trim(); if (!text) return;
+    const gs = storeGet(key)||[]; gs.push({text,done:false}); storeSet(key,gs);
+    inputEl.value=''; reloadFn();
+  }
+  addBtn.addEventListener('click', doAdd);
+  inputEl.addEventListener('keydown', e => { if (e.key==='Enter') doAdd(); });
+  polishBtn.addEventListener('click', async () => {
+    const text = inputEl.value.trim(); if (!text) return;
+    if (!ANTHROPIC_API_KEY) {
+      statusEl.textContent='Polish needs an Anthropic API key — added as-typed.';
+      setTimeout(()=>{statusEl.textContent=''},3500); doAdd(); return;
+    }
+    polishBtn.disabled=true; statusEl.textContent='Polishing…';
+    try {
+      inputEl.value = await polishText(text);
+      statusEl.textContent='✦ Polished — press Add to confirm.';
+      setTimeout(()=>{statusEl.textContent=''},3000);
+    } catch(e) {
+      statusEl.style.color='var(--red)';
+      statusEl.textContent='Error: '+e.message+' — added as-typed.';
+      setTimeout(()=>{statusEl.textContent='';statusEl.style.color=''},4000);
+      doAdd();
+    } finally { polishBtn.disabled=false; }
+  });
+}
+
+document.getElementById('gmPushBtn').addEventListener('click', () => {
+  if (!confirm('Push all unchecked goals to tomorrow?')) return;
+  const todayKey = 'goals:'+getActiveDateString(), tmrKey = 'goals:'+getTomorrowDateString();
+  const today = storeGet(todayKey)||[], tmr = storeGet(tmrKey)||[];
+  const seen = new Set(tmr.map(g=>g.text.trim().toLowerCase()));
+  today.filter(g=>!g.done).forEach(g=>{
+    const n=g.text.trim().toLowerCase(); if(!seen.has(n)){tmr.push({text:g.text,done:false});seen.add(n);}
+  });
+  storeSet(todayKey, today.filter(g=>g.done));
+  storeSet(tmrKey, tmr);
+  loadToday(); loadTomorrow();
+});
+
+// ── Character ─────────────────────────────────────────────────────────────────
+function loadCharState() {
+  return storeGet('cassius_char_v1') || {
+    skills:{},
+    developing:[
+      {domain:'body',    skill:'Strength Training'},
+      {domain:'mind',    skill:'Deep Focus'},
+      {domain:'writing', skill:'Prose Craft'}
+    ]
+  };
+}
+function domainXP(state, id) {
+  const d = DOMAINS_DATA.find(x=>x.id===id); if(!d) return 0;
+  return d.skills.reduce((s,sk)=>s+(state.skills[`${id}_${sk}`]||0),0);
+}
+function totalXP(state) { return DOMAINS_DATA.reduce((s,d)=>s+domainXP(state,d.id),0); }
+
+function renderCharacterPage() {
+  const state = loadCharState();
+  const tx = totalXP(state), level = Math.floor(tx/100)+1;
+  let h = `
+    <div class="char-header">
+      <div class="char-header-left">
+        <div class="char-avatar">C</div>
+        <div>
+          <div class="char-name">Cassius</div>
+          <div class="char-class">Conqueror · Level ${level}</div>
+        </div>
+      </div>
+      <div class="char-stats">
+        <div class="char-stat-pill"><div class="char-stat-label">Total XP</div><div class="char-stat-value" id="charTotalXP">${tx}</div></div>
+        <div class="char-stat-pill"><div class="char-stat-label">Domains</div><div class="char-stat-value">8</div></div>
+        <div class="char-stat-pill"><div class="char-stat-label">Skills</div><div class="char-stat-value">56</div></div>
+      </div>
+    </div>
+    <div class="section-label">Core Attributes</div>
+    <div class="attrs-grid">`;
+  ATTRS_MAP.forEach(a=>{
+    const xp=domainXP(state,a.domain), val=Math.round(xp/10);
+    const d=DOMAINS_DATA.find(x=>x.id===a.domain);
+    const fill=Math.min((xp/700)*100,100);
+    h+=`<div class="attr-card">
+      <div class="attr-label">${a.label}</div>
+      <div class="attr-value">${val}</div>
+      <div class="bar-wrap"><div class="bar-fill" style="width:${fill}%;background:${d.color}88"></div></div>
+    </div>`;
+  });
+  h+=`</div><div class="section-label">Domains</div><div class="domains-grid" id="domainsGrid">`;
+  DOMAINS_DATA.forEach(d=>{
+    const xp=domainXP(state,d.id), lv=Math.floor(xp/50);
+    const bf=Math.min((xp/(d.skills.length*100))*100,100);
+    h+=`<div class="domain-card" id="dc-${d.id}" onclick="toggleDomain('${d.id}')">
+      <div class="domain-header">
+        <div class="domain-name">${d.name}</div>
+        <div class="domain-level" style="color:${d.color}88">LV ${lv}</div>
+      </div>
+      <div class="bar-wrap" style="margin-bottom:8px"><div class="bar-fill" style="width:${bf}%;background:${d.color}88"></div></div>
+      <div class="domain-meta"><div class="domain-tag">${d.tag}</div><div class="domain-xp">${xp} XP</div></div>
+      <ul class="skill-list">`;
+    d.skills.forEach(sk=>{
+      const skey=`${d.id}_${sk}`, sxp=state.skills[skey]||0;
+      const isDev=state.developing.some(x=>x.domain===d.id&&x.skill===sk);
+      h+=`<li class="skill-row">
+        <div class="skill-dot" style="background:${isDev?d.color:'var(--text3)'}"></div>
+        <div class="skill-name">${sk}</div>
+        <div class="skill-bar-wrap"><div class="bar-fill" style="width:${sxp}%;background:${d.color}88"></div></div>
+        <input class="skill-xp-input" type="number" min="0" max="100" value="${sxp}"
+          data-key="${skey}" onclick="event.stopPropagation()" onchange="saveSkillXP(this)">
+      </li>`;
+    });
+    h+=`</ul></div>`;
+  });
+  h+=`</div><div class="section-label">Currently Developing</div><div class="developing-grid">`;
+  state.developing.forEach(dv=>{
+    const d=DOMAINS_DATA.find(x=>x.id===dv.domain); if(!d)return;
+    const sxp=state.skills[`${dv.domain}_${dv.skill}`]||0;
+    h+=`<div class="dev-card">
+      <div class="dev-skill">${dv.skill}</div>
+      <div class="dev-domain">${d.name}</div>
+      <div class="bar-wrap"><div class="bar-fill" style="width:${sxp}%;background:${d.color}88"></div></div>
+    </div>`;
+  });
+  const verse = BIBLE_VERSES[new Date().getDay()];
+  h+=`</div>
+  <div class="section-label">Daily Scripture</div>
+  <div class="card bible-card">
+    <div class="bible-quote">${verse.text}</div>
+    <div class="bible-ref">${verse.ref}</div>
+  </div>
+  <div class="section-label">Hevy Integration</div>
+  <div class="card" style="margin-bottom:24px">
+    <div class="hevy-row">
+      <input class="hevy-input" id="hevyKeyInput" type="password" placeholder="Hevy API Key…">
+      <button class="btn-primary" onclick="saveHevyKey()">Save</button>
+      <span class="hevy-status" id="hevyStatusLabel"></span>
+    </div>
+  </div>`;
+  document.getElementById('characterPageContent').innerHTML = h;
+  const hk = localStorage.getItem('hevy_api_key');
+  if (hk) {
+    const inp=document.getElementById('hevyKeyInput'); if(inp) inp.value=hk;
+    const st=document.getElementById('hevyStatusLabel');
+    if(st){st.textContent='Key saved';st.style.color='var(--green)';}
+  }
+}
+
+function toggleDomain(id) {
+  const card = document.getElementById('dc-'+id); if(card) card.classList.toggle('expanded');
+}
+function saveSkillXP(inp) {
+  const state = loadCharState();
+  const val = Math.max(0, Math.min(100, parseInt(inp.value,10)||0));
+  inp.value = val;
+  state.skills[inp.dataset.key] = val;
+  storeSet('cassius_char_v1', state);
+  renderCharacterPage();
+}
+function saveHevyKey() {
+  const inp=document.getElementById('hevyKeyInput'), st=document.getElementById('hevyStatusLabel');
+  if(!inp)return;
+  localStorage.setItem('hevy_api_key', inp.value.trim());
+  if(st){st.textContent='Key saved';st.style.color='var(--green)';setTimeout(()=>{if(st)st.textContent=''},3000);}
+}
+
+// ── Projects ──────────────────────────────────────────────────────────────────
+function renderProjects() {
+  const projects = storeGet('cassius_projects')||[];
+  const grid = document.getElementById('projectsGrid'); if(!grid)return;
+  if (!projects.length) { grid.innerHTML='<div class="empty-state">No projects yet. Add one below.</div>'; return; }
+  grid.innerHTML='';
+  projects.forEach((p,i)=>{
+    const d=DOMAINS_DATA.find(x=>x.id===p.domain), color=d?d.color:'#fff', tag=d?d.tag:p.domain;
+    const card=document.createElement('div'); card.className='project-card';
+    card.innerHTML=`
+      <div class="project-card-header">
+        <div class="project-name">${esc(p.name)}</div>
+        <span class="domain-badge" style="background:${color}1a;border:0.5px solid ${color}8c;color:${color}">${esc(tag)}</span>
+        <button class="delete-btn" onclick="deleteProject(${i})">×</button>
+      </div>
+      <div class="project-desc">${esc(p.desc||'')}</div>
+      <div class="project-progress-row">
+        <span class="project-pct">${p.progress||0}%</span>
+        <div class="project-bar-wrap"><div class="bar-fill" style="width:${p.progress||0}%;background:${color}"></div></div>
+      </div>
+      <div class="project-meta">
+        <span>Domain: ${esc(d?d.name:p.domain)}</span>
+        ${p.deadline?`<span>Due: ${esc(p.deadline)}</span>`:''}
+      </div>`;
+    grid.appendChild(card);
+  });
+}
+function addProject() {
+  const name=document.getElementById('projName').value.trim(); if(!name)return;
+  const proj={name,domain:document.getElementById('projDomain').value,
+    desc:document.getElementById('projDesc').value.trim(),
+    progress:parseInt(document.getElementById('projProgress').value,10)||0,
+    deadline:document.getElementById('projDeadline').value,
+    created:todayISOStr()};
+  const ps=storeGet('cassius_projects')||[]; ps.push(proj); storeSet('cassius_projects',ps);
+  ['projName','projDesc','projProgress','projDeadline'].forEach(id=>{document.getElementById(id).value='';});
+  renderProjects();
+}
+function deleteProject(i) {
+  if(!confirm('Delete this project?'))return;
+  const ps=storeGet('cassius_projects')||[]; ps.splice(i,1); storeSet('cassius_projects',ps); renderProjects();
+}
+
+// ── Experiments ───────────────────────────────────────────────────────────────
+function renderExperiments() {
+  const exps=storeGet('cassius_experiments')||[];
+  const grid=document.getElementById('experimentsGrid'); if(!grid)return;
+  if (!exps.length){grid.innerHTML='<div class="empty-state">No experiments yet. Start one below.</div>';return;}
+  grid.innerHTML='';
+  exps.forEach((exp,i)=>{
+    const sc='status-'+exp.status.toLowerCase();
+    const card=document.createElement('div'); card.className='exp-card';
+    const logsHtml=(exp.logs||[]).map(l=>`
+      <div class="log-entry"><div class="log-date">${esc(l.date)}</div><div class="log-note">${esc(l.note)}</div></div>`).join('');
+    card.innerHTML=`
+      <div class="exp-card-header">
+        <div class="exp-name">${esc(exp.name)}</div>
+        <span class="status-badge ${sc}">${esc(exp.status)}</span>
+        <button class="delete-btn" onclick="deleteExperiment(${i})">×</button>
+      </div>
+      <div class="exp-hypothesis">"${esc(exp.hypothesis||'')}"</div>
+      <div class="exp-meta">
+        ${exp.startDate?`<span>Started: ${esc(exp.startDate)}</span>`:''}
+        ${exp.duration?`<span>Duration: ${esc(exp.duration)}</span>`:''}
+      </div>
+      <button class="exp-toggle" onclick="toggleExpLog(this)">View log (${(exp.logs||[]).length} entries) ▾</button>
+      <div class="exp-log">
+        ${logsHtml}
+        <div class="log-add-row">
+          <input class="glass-input" type="text" placeholder="Add a log note…" style="flex:1;font-size:11px;padding:7px 10px">
+          <button class="btn-glass" onclick="logExperiment(${i},this)" style="font-size:11px;padding:7px 12px">Log it</button>
+        </div>
+      </div>`;
+    grid.appendChild(card);
+  });
+}
+function toggleExpLog(btn) {
+  const log=btn.nextElementSibling; log.classList.toggle('open');
+  const open=log.classList.contains('open');
+  const n=log.querySelectorAll('.log-entry').length;
+  btn.textContent = open ? 'Hide log ▴' : `View log (${n} entries) ▾`;
+}
+function addExperiment() {
+  const name=document.getElementById('expName').value.trim(); if(!name)return;
+  const exp={name,status:document.getElementById('expStatus').value,
+    hypothesis:document.getElementById('expHyp').value.trim(),
+    startDate:document.getElementById('expStart').value,
+    duration:document.getElementById('expDuration').value.trim(),logs:[]};
+  const exps=storeGet('cassius_experiments')||[]; exps.push(exp); storeSet('cassius_experiments',exps);
+  ['expName','expHyp','expDuration'].forEach(id=>{document.getElementById(id).value='';});
+  renderExperiments();
+}
+function deleteExperiment(i) {
+  if(!confirm('Delete this experiment?'))return;
+  const exps=storeGet('cassius_experiments')||[]; exps.splice(i,1); storeSet('cassius_experiments',exps); renderExperiments();
+}
+function logExperiment(i, btn) {
+  const inp=btn.previousElementSibling, note=inp.value.trim(); if(!note)return;
+  const exps=storeGet('cassius_experiments')||[];
+  if(!exps[i].logs) exps[i].logs=[];
+  exps[i].logs.push({date:todayISOStr(),note}); storeSet('cassius_experiments',exps); renderExperiments();
+}
+
+// ── Calendar & Email ──────────────────────────────────────────────────────────
+function connectCalendar() {
+  document.getElementById('calConnectedBadge').classList.add('show');
+  document.getElementById('calConnectLabel').textContent='Loading…';
+  localStorage.setItem('cal_connected','1');
+  setTimeout(()=>{
+    document.getElementById('calConnectLabel').textContent='Open in Claude →';
+    document.getElementById('calEventsContainer').innerHTML=
+      '<div class="loading-text">Use the Calendar integration in Claude to pull events, or paste them manually.</div>';
+  },3000);
+}
+function connectGmail() {
+  document.getElementById('gmailConnectedBadge').classList.add('show');
+  document.getElementById('gmailConnectLabel').textContent='Loading…';
+  localStorage.setItem('gmail_connected','1');
+  setTimeout(()=>{
+    document.getElementById('gmailConnectLabel').textContent='Open in Claude →';
+    document.getElementById('gmailContainer').innerHTML=
+      '<div class="loading-text">Use the Gmail integration in Claude to pull emails, or paste them manually.</div>';
+  },3000);
+}
+
+// ── Navigation ────────────────────────────────────────────────────────────────
+function showPage(id, el) {
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(t=>t.classList.remove('active'));
+  const pg=document.getElementById('page-'+id); if(pg) pg.classList.add('active');
+  if(el) el.classList.add('active');
+  if(id==='character') renderCharacterPage();
+  if(id==='domains')   renderProjects();
+  if(id==='lab')       renderExperiments();
+}
+
+// ── Util ──────────────────────────────────────────────────────────────────────
+function esc(s) {
+  return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+// ── Init ──────────────────────────────────────────────────────────────────────
+(function init() {
+  doRollover();
+
+  const aDate = getActiveDateString(), tDate = getTomorrowDateString();
+  document.getElementById('todayLabel').textContent    = `Today — ${formatDate(aDate)}`;
+  document.getElementById('tomorrowLabel').textContent = `Plan Tomorrow — ${formatDate(tDate)}`;
+
+  makeAddHandlers(
+    document.getElementById('goalInput'), document.getElementById('goalAddBtn'),
+    document.getElementById('goalPolishBtn'), 'goals:'+aDate,
+    document.getElementById('polishStatus'), loadToday);
+  makeAddHandlers(
+    document.getElementById('tomorrowInput'), document.getElementById('tomorrowAddBtn'),
+    document.getElementById('tomorrowPolishBtn'), 'goals:'+tDate,
+    document.getElementById('tomorrowStatus'), loadTomorrow);
+
+  loadToday(); loadTomorrow(); renderStreak();
+
+  // Populate domain select
+  const sel=document.getElementById('projDomain');
+  DOMAINS_DATA.forEach(d=>{ const o=document.createElement('option'); o.value=d.id; o.textContent=d.name; sel.appendChild(o); });
+
+  updateDayBar(); setInterval(updateDayBar, 60000);
+  startTicker();
+
+  const es=document.getElementById('expStart'); if(es) es.value=todayISOStr();
+
+  if (localStorage.getItem('cal_connected')) {
+    document.getElementById('calConnectedBadge').classList.add('show');
+    document.getElementById('calConnectLabel').textContent='Open in Claude →';
+  }
+  if (localStorage.getItem('gmail_connected')) {
+    document.getElementById('gmailConnectedBadge').classList.add('show');
+    document.getElementById('gmailConnectLabel').textContent='Open in Claude →';
+  }
+})();
+</script>
+</body>
+</html>

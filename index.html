@@ -1361,14 +1361,35 @@ function makeAddHandlers(inputEl, addBtn, polishBtn, key, statusEl, reloadFn) {
 }
 
 document.getElementById('gmPushBtn').addEventListener('click', () => {
-  if (!confirm('Push all unchecked goals to tomorrow?')) return;
-  const todayKey = 'goals:'+getActiveDateString(), tmrKey = 'goals:'+getTomorrowDateString();
-  const today = storeGet(todayKey)||[], tmr = storeGet(tmrKey)||[];
-  const seen = new Set(tmr.map(g=>g.text.trim().toLowerCase()));
-  today.filter(g=>!g.done).forEach(g=>{
-    const n=g.text.trim().toLowerCase(); if(!seen.has(n)){tmr.push({text:g.text,done:false});seen.add(n);}
-  });
-  storeSet(todayKey, today.filter(g=>g.done));
+  const todayKey = 'goals:'+getActiveDateString();
+  const tmrKey   = 'goals:'+getTomorrowDateString();
+  const today    = storeGet(todayKey) || [];
+  const tmr      = storeGet(tmrKey)   || [];
+  const seen     = new Set(tmr.map(g => g.text.trim().toLowerCase()));
+
+  const toPush = today.filter(g => !g.done && !seen.has(g.text.trim().toLowerCase()));
+  const dupes  = today.filter(g => !g.done &&  seen.has(g.text.trim().toLowerCase()));
+
+  if (!toPush.length && !dupes.length) {
+    alert('Nothing left to push — all goals are done.');
+    return;
+  }
+
+  let msg = '';
+  if (toPush.length) {
+    msg += `Pushing ${toPush.length} goal${toPush.length > 1 ? 's' : ''} to tomorrow:\n`;
+    toPush.forEach(g => { msg += `  · ${g.text}\n`; });
+  }
+  if (dupes.length) {
+    msg += `\nSkipping ${dupes.length} already on tomorrow's list:\n`;
+    dupes.forEach(g => { msg += `  · ${g.text}\n`; });
+  }
+  msg += '\nProceed?';
+
+  if (!confirm(msg)) return;
+
+  toPush.forEach(g => { tmr.push({ text: g.text, done: false }); seen.add(g.text.trim().toLowerCase()); });
+  storeSet(todayKey, today.filter(g => g.done));
   storeSet(tmrKey, tmr);
   loadToday(); loadTomorrow();
 });

@@ -54,7 +54,22 @@ body::after{content:'';position:fixed;inset:0;background-image:url("data:image/s
 .page.page-enter{animation:page-enter-anim 200ms ease-out forwards}
 
 /* DASHBOARD */
-.dash-title{font-size:30px;font-weight:800;letter-spacing:-0.04em;background:linear-gradient(180deg,#FFF 0%,#C7C4BC 120%);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:16px}
+.dash-greeting-time{font-family:var(--mono);font-size:10px;font-weight:700;letter-spacing:0.18em;text-transform:uppercase;color:var(--yellow);margin-bottom:6px}
+.dash-greeting-name{font-size:28px;font-weight:800;letter-spacing:-0.03em;line-height:1.1;margin-bottom:20px;background:linear-gradient(180deg,#FFF 0%,#C7C4BC 120%);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+.dash-greeting-name .muted{-webkit-text-fill-color:rgba(250,250,250,0.25)}
+.hero-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px}
+.hero-card{background:rgba(255,255,255,0.04);border:0.5px solid rgba(255,255,255,0.08);border-radius:16px;padding:14px;display:flex;flex-direction:column;gap:5px;cursor:pointer;-webkit-tap-highlight-color:transparent}
+.hero-card-label{font-family:var(--mono);font-size:9px;font-weight:700;letter-spacing:0.16em;text-transform:uppercase;color:rgba(250,250,250,0.3)}
+.hero-card-value{font-size:26px;font-weight:800;color:#FAFAFA;line-height:1}
+.hero-card-sub{font-family:var(--mono);font-size:10px;color:rgba(250,250,250,0.35)}
+.hero-progress{height:3px;background:rgba(255,255,255,0.08);border-radius:2px;margin-top:2px;overflow:hidden}
+.hero-progress-fill{height:100%;border-radius:2px;transition:width .4s cubic-bezier(0.22,1,0.36,1)}
+.day-ring-card{background:rgba(255,255,255,0.04);border:0.5px solid rgba(255,255,255,0.08);border-radius:16px;padding:14px 18px;margin-bottom:16px;display:flex;align-items:center;gap:16px}
+.day-ring-card .ring-info{max-width:unset;flex:1}
+.principle-dash-card{background:rgba(242,192,99,0.05);border:0.5px solid rgba(242,192,99,0.18);border-radius:14px;padding:14px 16px;margin-bottom:16px;cursor:pointer;-webkit-tap-highlight-color:transparent}
+.principle-dash-eyebrow{font-family:var(--mono);font-size:9px;font-weight:700;letter-spacing:0.16em;text-transform:uppercase;color:rgba(242,192,99,0.5);margin-bottom:4px}
+.principle-dash-title{font-size:13px;font-weight:800;color:var(--yellow);margin-bottom:4px}
+.principle-dash-body{font-family:var(--mono);font-size:10px;color:rgba(250,250,250,0.4);line-height:1.6}
 
 /* TICKER */
 .ticker-row{margin-bottom:16px}
@@ -466,7 +481,6 @@ button:active{transform:scale(0.96);transition:transform 80ms ease-out}
   .page{padding:64px 14px 88px !important}
 
   /* Typography */
-  .dash-title{font-size:22px !important}
   .page-title{font-size:20px !important}
   .page-subtitle{font-size:10px !important;margin-bottom:18px !important}
 
@@ -546,33 +560,45 @@ button:active{transform:scale(0.96);transition:transform 80ms ease-out}
 
 <!-- PAGE: DASHBOARD -->
 <div id="page-dashboard" class="page active">
-  <h1 class="dash-title" id="dashTitle">The standard doesn't change. Execute, Cassius.</h1>
 
-  <div class="quote-strip" id="quoteStrip">
-    <div class="card" id="bibleQuoteCard">
-      <div class="quote-eyebrow" id="bibleEyebrow">SCRIPTURE</div>
-      <div class="quote-text" id="bibleText"></div>
-      <div class="quote-ref" id="bibleRef"></div>
+  <div class="dash-greeting-time" id="dashGreetingTime">Good morning</div>
+  <div class="dash-greeting-name">Execute,<br><span class="muted">Cassius.</span></div>
+
+  <div class="hero-row">
+    <div class="hero-card" onclick="bnNav('ritual')">
+      <div class="hero-card-label">Ritual</div>
+      <div class="hero-card-value" id="heroRitualVal">0/6</div>
+      <div class="hero-progress"><div class="hero-progress-fill" id="heroRitualBar" style="width:0%;background:#6BE3A4"></div></div>
+      <div class="hero-card-sub" id="heroRitualSub">Not started</div>
     </div>
-    <div class="card" id="stoicQuoteCard">
-      <div class="quote-eyebrow" id="stoicEyebrow">WISDOM</div>
-      <div class="quote-text" id="stoicText"></div>
-      <div class="quote-ref" id="stoicRef"></div>
+    <div class="hero-card" onclick="document.getElementById('goalInput')?.focus()">
+      <div class="hero-card-label">Goals</div>
+      <div class="hero-card-value" id="heroGoalsVal">0/0</div>
+      <div class="hero-progress"><div class="hero-progress-fill" id="heroGoalsBar" style="width:0%;background:#F2C063"></div></div>
+      <div class="hero-card-sub" id="heroGoalsSub">No goals yet</div>
     </div>
   </div>
 
-  <div class="card" id="filterCard" style="margin-bottom:16px">
-    <div style="display:flex;align-items:center;justify-content:space-between;cursor:pointer" onclick="toggleFilters()">
-      <div class="section-label" style="margin-bottom:0">Decision Filters</div>
-      <button class="btn-ghost" id="filterToggleBtn" style="font-size:10px">▾ Show</button>
+  <div class="day-ring-card">
+    <div class="ring-svg-wrap" style="width:72px;height:72px;flex-shrink:0">
+      <svg viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="60" cy="60" r="52" fill="none" stroke="rgba(255,255,255,0.06)" stroke-width="8"/>
+        <circle id="ringFill" cx="60" cy="60" r="52" fill="none" stroke="#6BE3A4" stroke-width="8"
+          stroke-linecap="round" transform="rotate(-90 60 60)"
+          style="transition:stroke-dasharray 0.7s cubic-bezier(0.22,1,0.36,1),stroke 0.7s"/>
+      </svg>
+      <div class="ring-center">
+        <div class="ring-pct" id="ringPct" style="font-size:22px">—</div>
+        <div class="ring-phase" id="ringPhase" style="font-size:7px">—</div>
+        <div class="ring-clock" id="ringClock" style="display:none"></div>
+      </div>
     </div>
-    <ol id="filterList" style="display:none;margin-top:14px;padding-left:18px"></ol>
+    <div class="ring-info">
+      <div class="ring-status" id="ringStatus" style="font-size:13px;font-weight:700">Loading…</div>
+      <div class="ring-remain" id="ringRemain" style="font-size:11px;margin-top:2px"></div>
+      <div class="ring-range" style="font-size:10px;margin-top:1px;color:var(--text3)">8:00 AM – 12:00 AM</div>
+    </div>
   </div>
-
-  <div id="ritualSummaryCard" style="margin-bottom:8px"></div>
-  <div id="winsSummaryCard" style="margin-bottom:8px"></div>
-  <div id="booksSummaryCard" style="margin-bottom:8px"></div>
-  <div id="principlesSummaryCard" style="margin-bottom:16px"></div>
 
   <div class="ticker-row">
     <div class="goal-ticker" id="goalTicker" aria-live="polite" aria-atomic="true">
@@ -588,85 +614,78 @@ button:active{transform:scale(0.96);transition:transform 80ms ease-out}
     </div>
   </div>
 
-  <div class="ring-container">
-    <div class="ring-svg-wrap">
-      <svg viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg">
-        <defs>
-          <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
-            <feGaussianBlur stdDeviation="2.5" result="blur"/>
-            <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
-          </filter>
-        </defs>
-        <circle cx="60" cy="60" r="52" fill="none" stroke="rgba(255,255,255,0.06)" stroke-width="8"/>
-        <circle id="ringFill" cx="60" cy="60" r="52" fill="none" stroke="#6BE3A4" stroke-width="8"
-          stroke-linecap="round" transform="rotate(-90 60 60)" filter="url(#glow)"
-          style="transition:stroke-dasharray 0.7s cubic-bezier(0.22,1,0.36,1),stroke-dashoffset 0.7s cubic-bezier(0.22,1,0.36,1),stroke 0.7s"/>
-      </svg>
-      <div class="ring-center">
-        <div class="ring-pct" id="ringPct">—</div>
-        <div class="ring-phase" id="ringPhase">SLEEPING</div>
-        <div class="ring-clock" id="ringClock">—</div>
+  <div class="section-label">Today's Goals</div>
+  <div class="card gm-card" id="todayCard">
+    <div class="gm-card-header">
+      <div>
+        <div class="gm-eyebrow" id="todayLabel">Today</div>
+        <div class="gm-progress-row">
+          <span class="gm-progress-num" id="gmProgressNum">0</span>
+          <span class="gm-progress-total" id="gmProgressTotal"></span>
+          <span class="gm-progress-label" id="gmProgressLabel">no goals yet</span>
+        </div>
       </div>
+      <div id="gmStreak" class="gm-streak">⚡ <span id="gmStreakNum">0</span> day streak</div>
     </div>
-    <div class="ring-info">
-      <div class="ring-status" id="ringStatus">😴 Still sleeping</div>
-      <div class="ring-remain" id="ringRemain">Loading…</div>
-      <div class="ring-range">8:00 AM – 12:00 AM</div>
+    <div class="gm-bar" id="gmBar"></div>
+    <div style="display:flex;gap:6px;margin-bottom:8px">
+      <button class="filter-btn active" data-goalfilter="all"    onclick="filterGoals(this)">All</button>
+      <button class="filter-btn"        data-goalfilter="active"  onclick="filterGoals(this)">Active</button>
+      <button class="filter-btn"        data-goalfilter="done"    onclick="filterGoals(this)">Done</button>
+    </div>
+    <ul class="goal-list" id="goalList"></ul>
+    <div class="goal-empty" id="emptyState">No goals for today yet — add one below.</div>
+    <button class="gm-push-btn" id="gmPushBtn" style="display:none">Push remaining to tomorrow →</button>
+    <div class="gm-input-wrap">
+      <input class="glass-input" id="goalInput" type="text" placeholder="Add a goal for today…">
+      <button class="btn-primary" id="goalAddBtn">Add</button>
+      <button class="btn-glass" id="goalPolishBtn">✦ Polish</button>
+      <div class="polish-status" id="polishStatus"></div>
     </div>
   </div>
 
-  <div class="section-label">To Do List</div>
-
-  <div class="two-col">
-    <!-- TODAY -->
-    <div class="card gm-card" id="todayCard">
-      <div class="gm-card-header">
-        <div>
-          <div class="gm-eyebrow" id="todayLabel">Today</div>
-          <div class="gm-progress-row">
-            <span class="gm-progress-num" id="gmProgressNum">0</span>
-            <span class="gm-progress-total" id="gmProgressTotal"></span>
-            <span class="gm-progress-label" id="gmProgressLabel">no goals yet</span>
-          </div>
-        </div>
-        <div id="gmStreak" class="gm-streak">⚡ <span id="gmStreakNum">0</span> day streak</div>
+  <div class="section-label" style="margin-top:20px">Tomorrow</div>
+  <div class="card gm-card gm-card-tomorrow" id="tomorrowCard">
+    <div class="gm-card-header">
+      <div>
+        <div class="gm-eyebrow" id="tomorrowLabel">Plan Tomorrow</div>
+        <div style="font-size:11px;color:var(--text3);margin-top:2px">Write tonight, locked until 6 AM.</div>
       </div>
-      <div class="gm-bar" id="gmBar"></div>
-      <div style="display:flex;gap:6px;margin-bottom:8px">
-        <button class="filter-btn active" data-goalfilter="all"    onclick="filterGoals(this)">All</button>
-        <button class="filter-btn"        data-goalfilter="active"  onclick="filterGoals(this)">Active</button>
-        <button class="filter-btn"        data-goalfilter="done"    onclick="filterGoals(this)">Done</button>
-      </div>
-      <ul class="goal-list" id="goalList"></ul>
-      <div class="goal-empty" id="emptyState">No goals for today yet — add one below.</div>
-      <button class="gm-push-btn" id="gmPushBtn" style="display:none">Push remaining to tomorrow →</button>
-      <div class="gm-input-wrap">
-        <input class="glass-input" id="goalInput" type="text" placeholder="Add a goal for today…">
-        <button class="btn-primary" id="goalAddBtn">Add</button>
-        <button class="btn-glass" id="goalPolishBtn">✦ Polish</button>
-        <div class="polish-status" id="polishStatus"></div>
-      </div>
+      <span id="gmTomorrowCount" style="font-family:var(--mono);font-size:10px;color:var(--text3)"></span>
     </div>
-
-    <!-- TOMORROW -->
-    <div class="card gm-card gm-card-tomorrow" id="tomorrowCard">
-      <div class="gm-card-header">
-        <div>
-          <div class="gm-eyebrow" id="tomorrowLabel">Plan Tomorrow</div>
-          <div style="font-size:11px;color:var(--text3);margin-top:2px">Write tonight, locked until 6 AM.</div>
-        </div>
-        <span id="gmTomorrowCount" style="font-family:var(--mono);font-size:10px;color:var(--text3)"></span>
-      </div>
-      <ul class="goal-list" id="tomorrowList"></ul>
-      <div class="goal-empty" id="tomorrowEmpty">No goals planned for tomorrow yet.</div>
-      <div class="gm-input-wrap">
-        <input class="glass-input" id="tomorrowInput" type="text" placeholder="Plan a goal for tomorrow…">
-        <button class="btn-primary" id="tomorrowAddBtn">Add</button>
-        <button class="btn-glass" id="tomorrowPolishBtn">✦ Polish</button>
-        <div class="polish-status" id="tomorrowStatus"></div>
-      </div>
+    <ul class="goal-list" id="tomorrowList"></ul>
+    <div class="goal-empty" id="tomorrowEmpty">No goals planned for tomorrow yet.</div>
+    <div class="gm-input-wrap">
+      <input class="glass-input" id="tomorrowInput" type="text" placeholder="Plan a goal for tomorrow…">
+      <button class="btn-primary" id="tomorrowAddBtn">Add</button>
+      <button class="btn-glass" id="tomorrowPolishBtn">✦ Polish</button>
+      <div class="polish-status" id="tomorrowStatus"></div>
     </div>
   </div>
+
+  <div class="card" id="filterCard" style="margin-bottom:16px;margin-top:20px">
+    <div style="display:flex;align-items:center;justify-content:space-between;cursor:pointer" onclick="toggleFilters()">
+      <div class="section-label" style="margin-bottom:0">Decision Filters</div>
+      <button class="btn-ghost" id="filterToggleBtn" style="font-size:10px">▾ Show</button>
+    </div>
+    <ol id="filterList" style="display:none;margin-top:14px;padding-left:18px"></ol>
+  </div>
+
+  <div id="principlesDashCard" style="margin-bottom:16px"></div>
+
+  <div class="quote-strip" id="quoteStrip" style="margin-bottom:20px">
+    <div class="card" id="bibleQuoteCard">
+      <div class="quote-eyebrow" id="bibleEyebrow">SCRIPTURE</div>
+      <div class="quote-text" id="bibleText"></div>
+      <div class="quote-ref" id="bibleRef"></div>
+    </div>
+    <div class="card" id="stoicQuoteCard">
+      <div class="quote-eyebrow" id="stoicEyebrow">WISDOM</div>
+      <div class="quote-text" id="stoicText"></div>
+      <div class="quote-ref" id="stoicRef"></div>
+    </div>
+  </div>
+
 </div>
 
 <!-- PAGE: MORNING RITUAL -->
@@ -1560,6 +1579,7 @@ function loadToday() {
   renderTodayHeader(goals);
   const filtered = goals.filter(g => goalFilter === 'all' || (goalFilter === 'done' ? g.done : !g.done));
   renderListInto(filtered, document.getElementById('goalList'), document.getElementById('emptyState'), key, false, loadToday);
+  updateHeroCards();
 }
 function loadTomorrow() {
   const key = 'goals:' + getTomorrowDateString();
@@ -3022,6 +3042,47 @@ function showXPFloat(text, sourceEl) {
   setTimeout(() => el.remove(), 820);
 }
 
+// ── Hero Cards ────────────────────────────────────────────────────────────────
+function updateHeroCards() {
+  const rituals = getUserRituals(), rState = getRitualState();
+  const rDone = rituals.filter(r => rState[r.id]).length, rTotal = rituals.length;
+  const rPct  = rTotal ? Math.round((rDone/rTotal)*100) : 0;
+  const rvEl = document.getElementById('heroRitualVal');
+  const rbEl = document.getElementById('heroRitualBar');
+  const rsEl = document.getElementById('heroRitualSub');
+  if (rvEl) rvEl.textContent = `${rDone}/${rTotal}`;
+  if (rbEl) rbEl.style.width = rPct + '%';
+  if (rsEl) rsEl.textContent = rDone === rTotal ? 'Standard held ✓' : `${rTotal - rDone} remaining`;
+
+  const goals = storeGet('goals:' + getActiveDateString()) || [];
+  const gDone = goals.filter(g => g.done).length, gTotal = goals.length;
+  const gPct  = gTotal ? Math.round((gDone/gTotal)*100) : 0;
+  const gvEl = document.getElementById('heroGoalsVal');
+  const gbEl = document.getElementById('heroGoalsBar');
+  const gsEl = document.getElementById('heroGoalsSub');
+  if (gvEl) gvEl.textContent = `${gDone}/${gTotal}`;
+  if (gbEl) gbEl.style.width = gPct + '%';
+  if (gsEl) gsEl.textContent = gTotal === 0 ? 'No goals yet' : gDone === gTotal ? 'All done ✓' : `${gTotal - gDone} remaining`;
+
+  const h = new Date().getHours();
+  const greetEl = document.getElementById('dashGreetingTime');
+  if (greetEl) {
+    if (h < 12) greetEl.textContent = '☀️ Good morning';
+    else if (h < 17) greetEl.textContent = '⚡ Afternoon';
+    else greetEl.textContent = '🌙 Evening';
+  }
+
+  const pdEl = document.getElementById('principlesDashCard');
+  if (pdEl && typeof PRINCIPLES !== 'undefined' && PRINCIPLES.length) {
+    const p = PRINCIPLES[new Date().getDay() % PRINCIPLES.length];
+    pdEl.innerHTML = `<div class="principle-dash-card" onclick="showPage('principles',null)">
+      <div class="principle-dash-eyebrow">Today's Principle</div>
+      <div class="principle-dash-title">${esc(p.title)}</div>
+      <div class="principle-dash-body">${esc(p.body.slice(0,120))}…</div>
+    </div>`;
+  }
+}
+
 // ── Wins Journal ──────────────────────────────────────────────────────────────
 function getWins() { return storeGet('cassius_wins') || []; }
 function saveWins(arr) { storeSet('cassius_wins', arr); }
@@ -3108,7 +3169,7 @@ function getRitualState() {
 function setRitualDone(id, done) {
   const key = 'ritual:' + getActiveDateString();
   const state = getRitualState(); state[id] = done;
-  storeSet(key, state); renderRitualPage(); renderRitualSummary();
+  storeSet(key, state); renderRitualPage(); updateHeroCards();
 }
 function getUserRituals() { return storeGet('cassius_rituals') || DEFAULT_RITUALS; }
 
@@ -3333,10 +3394,7 @@ function esc(s) {
 
   // Google auth UI is restored in initSupabase via getSession()
   if (window.innerWidth <= 768) bnNav('dashboard');
-  renderRitualSummary();
-  renderWinsSummary();
-  renderBooksSummary();
-  renderPrinciplesSummary();
+  updateHeroCards();
 
   const fl = document.getElementById('filterList');
   if (fl) {

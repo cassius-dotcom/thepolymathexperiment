@@ -981,22 +981,24 @@ function todayISOStr() { return new Date().toISOString().slice(0, 10); }
 
 // ── Rollover ─────────────────────────────────────────────────────────────────
 function doRollover() {
-  const activeDate = getActiveDateString();
-  const oldKeys = storeListKeys('goals:').filter(k => k.slice(6) < activeDate);
-  if (!oldKeys.length) return;
-  const todayKey = 'goals:' + activeDate;
-  const todayGoals = storeGet(todayKey) || [];
-  const seen = new Set(todayGoals.map(g => g.text.trim().toLowerCase()));
-  let changed = false;
-  oldKeys.sort().forEach(k => {
-    const goals = storeGet(k) || [];
-    goals.filter(g => !g.done).forEach(g => {
-      const norm = g.text.trim().toLowerCase();
-      if (!seen.has(norm)) { todayGoals.push({ text: g.text, done: false }); seen.add(norm); changed = true; }
+  try {
+    const activeDate = getActiveDateString();
+    const oldKeys = storeListKeys('goals:').filter(k => k.slice(6) < activeDate);
+    if (!oldKeys.length) return;
+    const todayKey = 'goals:' + activeDate;
+    const todayGoals = storeGet(todayKey) || [];
+    const seen = new Set(todayGoals.map(g => g.text.trim().toLowerCase()));
+    let changed = false;
+    oldKeys.sort().forEach(k => {
+      const goals = storeGet(k) || [];
+      goals.filter(g => !g.done).forEach(g => {
+        const norm = g.text.trim().toLowerCase();
+        if (!seen.has(norm)) { todayGoals.push({ text: g.text, done: false }); seen.add(norm); changed = true; }
+      });
+      if (storeGet(k) !== null) storeDelete(k);
     });
-    storeDelete(k);
-  });
-  if (changed) localStorage.setItem(todayKey, JSON.stringify(todayGoals));
+    if (changed) localStorage.setItem(todayKey, JSON.stringify(todayGoals));
+  } catch(e) { console.warn('doRollover error:', e); }
 }
 
 // ── Streak ───────────────────────────────────────────────────────────────────

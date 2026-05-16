@@ -352,6 +352,53 @@ input[type=number]::-webkit-outer-spin-button{opacity:0.5}
 @keyframes sbd{0%,100%{opacity:.2;transform:scale(.8)}50%{opacity:1;transform:scale(1)}}
 .sb-lbl{font-family:var(--mono);font-size:10px;letter-spacing:.16em;color:var(--text3)}
 
+/* CALENDAR GRID */
+.cal-nav{display:flex;align-items:center;gap:10px;margin-bottom:16px;flex-wrap:wrap}
+.cal-nav-btn{font-family:var(--mono);font-size:13px;font-weight:700;padding:7px 13px;background:rgba(255,255,255,0.04);border:0.5px solid var(--border2);border-radius:8px;color:var(--text2);cursor:pointer;transition:all .15s}
+.cal-nav-btn:hover{color:var(--text1);background:var(--bg3)}
+.cal-month-lbl{flex:1;font-size:18px;font-weight:800;letter-spacing:-0.03em}
+.cal-layout{display:grid;grid-template-columns:1fr 300px;gap:14px;align-items:start}
+@media(max-width:800px){.cal-layout{grid-template-columns:1fr}}
+.cal-grid{border:0.5px solid var(--border);border-radius:12px;overflow:hidden;background:var(--bg2)}
+.cal-hdr{display:grid;grid-template-columns:repeat(7,1fr);border-bottom:0.5px solid var(--border)}
+.cal-hdr-cell{font-family:var(--mono);font-size:9px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:var(--text3);padding:9px 6px;text-align:center}
+.cal-week{display:grid;grid-template-columns:repeat(7,1fr)}
+.cal-day{min-height:76px;padding:6px 6px 4px;border-right:0.5px solid var(--border);border-bottom:0.5px solid var(--border);cursor:pointer;transition:background .12s;overflow:hidden}
+.cal-day:nth-child(7n){border-right:none}
+.cal-week:last-child .cal-day{border-bottom:none}
+.cal-day:hover{background:rgba(255,255,255,0.025)}
+.cal-day.sel{background:rgba(242,192,99,0.07)}
+.cal-day.other{opacity:0.28;pointer-events:none}
+.cal-day-num{font-family:var(--mono);font-size:11px;font-weight:700;color:var(--text2);line-height:1;margin-bottom:4px;width:20px;height:20px;display:flex;align-items:center;justify-content:center;border-radius:50%}
+.cal-day.today .cal-day-num{background:var(--yellow);color:#0A0A0B}
+.cal-pill{font-size:9.5px;font-weight:600;padding:2px 5px;border-radius:3px;margin-bottom:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.3}
+.cal-pill.done{opacity:0.35;text-decoration:line-through}
+.cal-overflow{font-family:var(--mono);font-size:9px;color:var(--text3);padding:1px 5px}
+/* Day panel */
+.cal-panel{background:var(--bg2);border:0.5px solid var(--border);border-radius:12px;padding:16px;position:sticky;top:72px}
+.cal-panel-title{font-size:13px;font-weight:800;letter-spacing:-0.02em;margin-bottom:14px;color:var(--text1)}
+.cal-ev-item{padding:10px 0;border-bottom:0.5px solid var(--border)}
+.cal-ev-item:last-child{border-bottom:none}
+.cal-ev-time{font-family:var(--mono);font-size:9.5px;color:var(--text3);margin-bottom:4px}
+.cal-ev-row{display:flex;align-items:center;gap:8px}
+.cal-ev-cb{width:15px;height:15px;border-radius:4px;border:1.5px solid var(--border2);background:none;cursor:pointer;flex-shrink:0;appearance:none;position:relative;transition:all .15s}
+.cal-ev-cb:checked{background:var(--green);border-color:var(--green)}
+.cal-ev-cb:checked::after{content:'';position:absolute;left:3px;top:1px;width:5px;height:8px;border:1.5px solid #0A0A0B;border-top:none;border-left:none;transform:rotate(45deg)}
+.cal-ev-name{flex:1;font-size:11.5px;font-weight:600;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.cal-ev-name.done{text-decoration:line-through;opacity:0.45}
+.cal-ev-del{background:none;border:none;color:var(--text3);cursor:pointer;font-size:15px;line-height:1;padding:0 2px;flex-shrink:0;transition:color .15s}
+.cal-ev-del:hover{color:var(--red)}
+.cal-ev-desc{font-size:10.5px;color:var(--text3);line-height:1.5;margin-top:4px;padding-left:23px;word-break:break-word}
+.cal-no-ev{font-family:var(--mono);font-size:10px;color:var(--text3);text-align:center;padding:20px 0}
+.cal-panel-add{width:100%;margin-top:12px;background:none;border:0.5px dashed var(--border2);border-radius:8px;padding:8px;color:var(--text3);font-family:var(--mono);font-size:10px;cursor:pointer;transition:color .15s}
+.cal-panel-add:hover{color:var(--text1)}
+/* Add event form */
+.cal-form{background:var(--bg2);border:0.5px solid var(--border);border-radius:12px;padding:18px;margin-top:14px}
+.cal-form-title{font-size:13px;font-weight:700;margin-bottom:14px}
+.cal-form-lbl{font-family:var(--mono);font-size:9px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:var(--text3);margin-bottom:4px;display:block}
+.cal-form-row{display:flex;gap:8px;margin-bottom:10px;flex-wrap:wrap}
+.cal-form-row>div{display:flex;flex-direction:column;flex:1;min-width:100px}
+
 /* VERDICT */
 .verdict-row{display:flex;gap:6px;margin-top:10px;flex-wrap:wrap;align-items:center}
 .verdict-btn{font-family:var(--mono);font-size:9px;font-weight:700;padding:4px 10px;border-radius:20px;border:0.5px solid var(--border2);background:none;color:var(--text3);cursor:pointer;transition:all .15s}
@@ -543,29 +590,19 @@ input[type=number]::-webkit-outer-spin-button{opacity:0.5}
 <!-- PAGE: CALENDAR & EMAIL -->
 <div id="page-calendar" class="page">
   <div class="page-title">Calendar &amp; Email</div>
-  <div class="page-subtitle">Live data from your Google account.</div>
-  <div style="max-width:480px;margin-bottom:28px">
-    <button class="connect-btn" id="googleConnectBtn" onclick="connectGoogle()">
+  <div style="display:flex;align-items:center;gap:14px;margin-bottom:24px;flex-wrap:wrap">
+    <button class="connect-btn" id="googleConnectBtn" onclick="connectGoogle()" style="max-width:340px;margin-bottom:0">
       <span class="connect-icon">🔗</span>
       <span class="connect-label" id="googleConnectLabel">Connect Google Account</span>
       <span class="connected-badge" id="googleConnectedBadge">Connected</span>
       <span class="connect-status-text" id="googleConnectStatus">Sign in →</span>
     </button>
-    <div id="googleUserRow" style="display:none;font-family:var(--mono);font-size:10px;color:var(--text3);padding:6px 2px;display:flex;justify-content:space-between;align-items:center">
+    <div id="googleUserRow" style="display:none;font-family:var(--mono);font-size:10px;color:var(--text3);display:flex;align-items:center;gap:10px">
       <span id="googleUserEmail"></span>
       <button onclick="signOutGoogle()" style="background:none;border:none;color:var(--text3);font-family:var(--mono);font-size:10px;cursor:pointer;text-decoration:underline">Sign out</button>
     </div>
   </div>
-  <div class="two-col">
-    <div>
-      <div class="section-label">Next 7 Days</div>
-      <div id="calEventsContainer"><div class="loading-text">Connect Google to see your calendar.</div></div>
-    </div>
-    <div>
-      <div class="section-label">Gmail Inbox</div>
-      <div id="gmailContainer"><div class="loading-text">Connect Google to see your inbox.</div></div>
-    </div>
-  </div>
+  <div id="calendarViewContainer"><div class="loading-text">Connect Google to see your calendar.</div></div>
 </div>
 
 <!-- PAGE: NOMADICA -->
@@ -805,9 +842,14 @@ async function initSupabase() {
     if (session?.provider_token) {
       _googleToken = session.provider_token;
       updateGoogleUI(session);
+      // Auto-render calendar if user is on the calendar tab after OAuth redirect
+      if (document.getElementById('page-calendar')?.classList.contains('active')) {
+        renderCalendarPage();
+      }
     } else if (event === 'SIGNED_OUT') {
       _googleToken = null;
       updateGoogleUI(null);
+      renderCalendarPage();
     }
   });
 
@@ -1871,66 +1913,281 @@ function updateGoogleUI(session) {
 }
 
 async function loadGoogleData(token) {
-  await Promise.all([fetchCalendarEvents(token), fetchGmailData(token)]);
+  await renderCalendarPage();
 }
 
 const _dotColors = ['var(--green)','var(--yellow)','var(--blue)','var(--red)'];
 function _hashColor(s) { let h=0; for(const c of s) h=(h*31+c.charCodeAt(0))>>>0; return _dotColors[h%4]; }
 
-async function fetchCalendarEvents(token) {
-  const cont = document.getElementById('calEventsContainer'); if (!cont) return;
-  cont.innerHTML = '<div class="loading-text">Loading events…</div>';
+// ── Calendar Grid ─────────────────────────────────────────────────────────────
+let calViewYear  = new Date().getFullYear();
+let calViewMonth = new Date().getMonth();
+let calEvents    = [];
+let calSelDay    = null;
+let calDoneIds   = new Set(JSON.parse(localStorage.getItem('cal_done_ids')||'[]'));
+
+function saveCalDone() { localStorage.setItem('cal_done_ids', JSON.stringify([...calDoneIds])); }
+
+function _fmtTime(dtStr) {
+  const t = new Date(dtStr);
+  let h = t.getHours(), m = String(t.getMinutes()).padStart(2,'0');
+  const ap = h >= 12 ? 'PM' : 'AM'; h = h % 12 || 12;
+  return `${h}:${m} ${ap}`;
+}
+
+async function loadCalendarMonth(year, month) {
+  const first = new Date(year, month, 1);
+  const last  = new Date(year, month + 1, 0, 23, 59, 59);
+  // Expand to full grid (Mon-start)
+  const startDow = (first.getDay() + 6) % 7;
+  const gridStart = new Date(first); gridStart.setDate(first.getDate() - startDow);
+  const endDow = (last.getDay() + 6) % 7;
+  const gridEnd = new Date(last); gridEnd.setDate(last.getDate() + (6 - endDow));
   try {
-    const now = new Date().toISOString();
-    const end = new Date(Date.now()+7*24*3600*1000).toISOString();
     const res = await fetch(
-      `https://www.googleapis.com/calendar/v3/calendars/primary/events?timeMin=${encodeURIComponent(now)}&timeMax=${encodeURIComponent(end)}&singleEvents=true&orderBy=startTime&maxResults=30`,
-      { headers: { Authorization: `Bearer ${token}` } }
+      `https://www.googleapis.com/calendar/v3/calendars/primary/events?timeMin=${encodeURIComponent(gridStart.toISOString())}&timeMax=${encodeURIComponent(gridEnd.toISOString())}&singleEvents=true&orderBy=startTime&maxResults=500`,
+      { headers: { Authorization: `Bearer ${_googleToken}` } }
     );
     const data = await res.json();
     if (!res.ok) throw new Error(data.error?.message || res.status);
-    renderCalendarEvents(data.items || []);
+    calEvents = data.items || [];
+  } catch(e) { console.warn('Cal load:', e.message); calEvents = []; }
+}
+
+async function renderCalendarPage() {
+  const cont = document.getElementById('calendarViewContainer'); if (!cont) return;
+  if (!_googleToken) { cont.innerHTML='<div class="loading-text">Connect Google to see your calendar.</div>'; return; }
+  cont.innerHTML = '<div class="loading-text">Loading calendar…</div>';
+  await loadCalendarMonth(calViewYear, calViewMonth);
+  renderCalGrid();
+}
+
+function renderCalGrid() {
+  const cont = document.getElementById('calendarViewContainer'); if (!cont) return;
+  const MONTHS = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+  const todayStr = new Date().toISOString().slice(0,10);
+  const first = new Date(calViewYear, calViewMonth, 1);
+  const last  = new Date(calViewYear, calViewMonth + 1, 0);
+  const startDow = (first.getDay() + 6) % 7;
+
+  // Build day list
+  const days = [];
+  for (let i = startDow; i > 0; i--) {
+    const d = new Date(first); d.setDate(d.getDate() - i);
+    days.push({ d, mine: false });
+  }
+  for (let i = 1; i <= last.getDate(); i++) days.push({ d: new Date(calViewYear, calViewMonth, i), mine: true });
+  while (days.length % 7) {
+    const prev = days[days.length-1].d;
+    const d = new Date(prev); d.setDate(prev.getDate()+1);
+    days.push({ d, mine: false });
+  }
+
+  // Events by date
+  const byDate = {};
+  calEvents.forEach(ev => {
+    const dk = ev.start?.dateTime ? ev.start.dateTime.slice(0,10) : ev.start?.date;
+    if (dk) { if (!byDate[dk]) byDate[dk]=[]; byDate[dk].push(ev); }
+  });
+
+  // Grid HTML
+  let grid = `<div class="cal-hdr">${['Mon','Tue','Wed','Thu','Fri','Sat','Sun'].map(d=>`<div class="cal-hdr-cell">${d}</div>`).join('')}</div>`;
+  for (let w = 0; w < days.length/7; w++) {
+    grid += '<div class="cal-week">';
+    for (let d = 0; d < 7; d++) {
+      const { d: date, mine } = days[w*7+d];
+      const ds = date.toISOString().slice(0,10);
+      const evs = byDate[ds] || [];
+      const cls = ['cal-day', !mine?'other':'', ds===todayStr?'today':'', ds===calSelDay?'sel':''].filter(Boolean).join(' ');
+      const MAX = 3;
+      const pills = evs.slice(0,MAX).map(ev => {
+        const c = _hashColor(ev.summary||'');
+        const done = calDoneIds.has(ev.id);
+        return `<div class="cal-pill${done?' done':''}" style="background:${c}22;color:${c}">${esc((ev.summary||'(no title)').slice(0,16))}</div>`;
+      }).join('');
+      const more = evs.length > MAX ? `<div class="cal-overflow">+${evs.length-MAX}</div>` : '';
+      grid += `<div class="${cls}" onclick="selectCalDay('${ds}')">
+        <div class="cal-day-num">${date.getDate()}</div>${pills}${more}
+      </div>`;
+    }
+    grid += '</div>';
+  }
+
+  // Day panel
+  const panelEvs = calSelDay ? (byDate[calSelDay]||[]) : [];
+  const panelHtml = buildDayPanel(calSelDay, panelEvs);
+
+  cont.innerHTML = `
+    <div class="cal-nav">
+      <button class="cal-nav-btn" onclick="navigateCalMonth(-1)">←</button>
+      <div class="cal-month-lbl">${MONTHS[calViewMonth]} ${calViewYear}</div>
+      <button class="cal-nav-btn" onclick="navigateCalMonth(1)">→</button>
+      <button class="btn-primary" style="font-size:11px;padding:7px 14px" onclick="openAddEventForm()">+ Add Event</button>
+    </div>
+    <div class="cal-layout">
+      <div class="cal-grid">${grid}</div>
+      <div id="calDayPanel">${panelHtml}</div>
+    </div>
+    <div id="calAddForm" style="display:none"></div>
+    <div style="margin-top:24px">
+      <div class="section-label">Gmail Inbox</div>
+      <div id="gmailContainer"><div class="loading-text">Loading…</div></div>
+    </div>`;
+
+  if (_googleToken) fetchGmailData(_googleToken);
+}
+
+function buildDayPanel(ds, evs) {
+  if (!ds) return `<div class="cal-panel"><div class="cal-no-ev" style="padding:32px 0">Select a day to see events.</div></div>`;
+  const [y,m,d] = ds.split('-').map(Number);
+  const dt = new Date(y,m-1,d);
+  const DAYS=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+  const MONS=['January','February','March','April','May','June','July','August','September','October','November','December'];
+  const title = `${DAYS[dt.getDay()]}, ${MONS[m-1]} ${d}`;
+  const evHtml = evs.length ? evs.map(ev=>{
+    const done = calDoneIds.has(ev.id);
+    let time = 'All day';
+    if (ev.start?.dateTime) time = `${_fmtTime(ev.start.dateTime)} – ${_fmtTime(ev.end?.dateTime||ev.start.dateTime)}`;
+    const desc = ev.description ? `<div class="cal-ev-desc">${esc(ev.description.slice(0,140))}</div>` : '';
+    return `<div class="cal-ev-item">
+      <div class="cal-ev-time">${time}</div>
+      <div class="cal-ev-row">
+        <input type="checkbox" class="cal-ev-cb" ${done?'checked':''} onchange="toggleCalDone('${ev.id}',this.checked)">
+        <span class="cal-ev-name${done?' done':''}" id="cen-${ev.id}">${esc(ev.summary||'(no title)')}</span>
+        <button class="cal-ev-del" onclick="deleteCalEvent('${ev.id}')" title="Delete">×</button>
+      </div>${desc}
+    </div>`;
+  }).join('') : `<div class="cal-no-ev">No events this day.</div>`;
+  return `<div class="cal-panel">
+    <div class="cal-panel-title">${title}</div>
+    ${evHtml}
+    <button class="cal-panel-add" onclick="openAddEventForm('${ds}')">+ Add Event for this day</button>
+  </div>`;
+}
+
+async function navigateCalMonth(dir) {
+  calViewMonth += dir;
+  if (calViewMonth > 11) { calViewMonth = 0; calViewYear++; }
+  if (calViewMonth < 0)  { calViewMonth = 11; calViewYear--; }
+  await loadCalendarMonth(calViewYear, calViewMonth);
+  renderCalGrid();
+}
+
+function selectCalDay(ds) {
+  calSelDay = ds;
+  const panel = document.getElementById('calDayPanel');
+  if (panel) {
+    const evs = calEvents.filter(ev => (ev.start?.dateTime||ev.start?.date||'').slice(0,10) === ds);
+    panel.innerHTML = buildDayPanel(ds, evs);
+  }
+  // Update selected highlight without full re-render
+  document.querySelectorAll('.cal-day').forEach(el => {
+    const onclick = el.getAttribute('onclick');
+    el.classList.toggle('sel', onclick && onclick.includes(`'${ds}'`));
+  });
+}
+
+function openAddEventForm(prefillDate) {
+  const formEl = document.getElementById('calAddForm'); if (!formEl) return;
+  const date = prefillDate || calSelDay || new Date().toISOString().slice(0,10);
+  formEl.style.display = 'block';
+  formEl.innerHTML = `<div class="cal-form">
+    <div class="cal-form-title">New Event</div>
+    <div class="cal-form-row">
+      <div style="flex:2">
+        <label class="cal-form-lbl">Title *</label>
+        <input class="glass-input" id="cef-title" type="text" placeholder="Event title…" style="width:100%">
+      </div>
+    </div>
+    <div class="cal-form-row">
+      <div>
+        <label class="cal-form-lbl">Date *</label>
+        <input class="glass-input" id="cef-date" type="date" value="${date}" style="width:100%">
+      </div>
+      <div>
+        <label class="cal-form-lbl">Start *</label>
+        <input class="glass-input" id="cef-start" type="time" value="09:00" style="width:100%">
+      </div>
+      <div>
+        <label class="cal-form-lbl">End *</label>
+        <input class="glass-input" id="cef-end" type="time" value="10:00" style="width:100%">
+      </div>
+    </div>
+    <div class="cal-form-row">
+      <div style="flex:1">
+        <label class="cal-form-lbl">Description</label>
+        <input class="glass-input" id="cef-desc" type="text" placeholder="Optional…" style="width:100%">
+      </div>
+    </div>
+    <div style="display:flex;gap:8px;align-items:center;margin-top:4px">
+      <button class="btn-primary" onclick="submitCalEvent()">Create Event</button>
+      <button class="btn-glass" onclick="document.getElementById('calAddForm').style.display='none'">Cancel</button>
+      <span id="cef-status" style="font-family:var(--mono);font-size:10px;color:var(--text3)"></span>
+    </div>
+  </div>`;
+  document.getElementById('cef-title').focus();
+}
+
+async function submitCalEvent() {
+  const title = document.getElementById('cef-title')?.value.trim();
+  const date  = document.getElementById('cef-date')?.value;
+  const start = document.getElementById('cef-start')?.value;
+  const end   = document.getElementById('cef-end')?.value;
+  const desc  = document.getElementById('cef-desc')?.value.trim();
+  const st    = document.getElementById('cef-status');
+  if (!title || !date || !start || !end) {
+    if (st) { st.style.color='var(--red)'; st.textContent='All fields marked * are required.'; } return;
+  }
+  if (st) { st.style.color='var(--text3)'; st.textContent='Creating…'; }
+  const tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
+  try {
+    const res = await fetch('https://www.googleapis.com/calendar/v3/calendars/primary/events', {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${_googleToken}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        summary: title, description: desc||undefined,
+        start: { dateTime: `${date}T${start}:00`, timeZone: tz },
+        end:   { dateTime: `${date}T${end}:00`,   timeZone: tz }
+      })
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error?.message || res.status);
+    calSelDay = date;
+    document.getElementById('calAddForm').style.display = 'none';
+    await loadCalendarMonth(calViewYear, calViewMonth);
+    renderCalGrid();
   } catch(e) {
-    cont.innerHTML = `<div class="loading-text" style="color:var(--red)">Calendar error: ${esc(e.message)}</div>`;
+    if (st) { st.style.color='var(--red)'; st.textContent='Error: '+e.message; }
   }
 }
 
-function renderCalendarEvents(events) {
-  const cont = document.getElementById('calEventsContainer'); if (!cont) return;
-  if (!events.length) { cont.innerHTML='<div class="loading-text">No events in the next 7 days.</div>'; return; }
-  const groups={};
-  events.forEach(ev=>{
-    const dk = ev.start?.dateTime ? ev.start.dateTime.slice(0,10) : ev.start?.date;
-    if (!groups[dk]) groups[dk]=[];
-    groups[dk].push(ev);
+function toggleCalDone(id, checked) {
+  if (checked) calDoneIds.add(id); else calDoneIds.delete(id);
+  saveCalDone();
+  const el = document.getElementById('cen-'+id);
+  if (el) el.className = 'cal-ev-name' + (checked?' done':'');
+  // Refresh pill in grid
+  document.querySelectorAll('.cal-pill').forEach(p => {
+    if (p.textContent && calEvents.find(e=>e.id===id&&(e.summary||'').slice(0,16)===p.textContent)) {
+      p.classList.toggle('done', checked);
+    }
   });
-  const DAYS=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
-  const MONTHS=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-  cont.innerHTML='';
-  Object.keys(groups).sort().forEach(date=>{
-    const [y,m,d]=date.split('-').map(Number);
-    const dt=new Date(y,m-1,d);
-    const wrap=document.createElement('div'); wrap.style.marginBottom='18px';
-    wrap.innerHTML=`<div style="font-family:var(--mono);font-size:9px;font-weight:700;letter-spacing:0.14em;color:var(--text3);text-transform:uppercase;margin-bottom:8px">${DAYS[dt.getDay()]}, ${MONTHS[m-1]} ${d}</div>`;
-    groups[date].forEach(ev=>{
-      const title=ev.summary||'(no title)';
-      const color=_hashColor(title);
-      let time='All day';
-      if (ev.start?.dateTime) {
-        const fmt=t=>{let h=t.getHours(),m=String(t.getMinutes()).padStart(2,'0');const ap=h>=12?'PM':'AM';h=h%12||12;return`${h}:${m} ${ap}`;};
-        time=`${fmt(new Date(ev.start.dateTime))} – ${fmt(new Date(ev.end?.dateTime||ev.start.dateTime))}`;
-      }
-      const evEl=document.createElement('div');
-      evEl.style.cssText='display:flex;gap:10px;padding:8px 0;border-bottom:0.5px solid var(--border);align-items:flex-start';
-      evEl.innerHTML=`<div style="width:5px;height:5px;border-radius:50%;background:${color};flex-shrink:0;margin-top:5px"></div>
-        <div style="flex:1;min-width:0">
-          <div style="font-size:12px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${esc(title)}</div>
-          <div style="font-family:var(--mono);font-size:10px;color:var(--text3);margin-top:2px">${time}${ev.location?` · ${esc(ev.location.split(',')[0])}`:''}}</div>
-        </div>`;
-      wrap.appendChild(evEl);
+}
+
+async function deleteCalEvent(id) {
+  if (!confirm('Delete this event from Google Calendar?')) return;
+  try {
+    const res = await fetch(`https://www.googleapis.com/calendar/v3/calendars/primary/events/${id}`, {
+      method: 'DELETE', headers: { Authorization: `Bearer ${_googleToken}` }
     });
-    cont.appendChild(wrap);
-  });
+    if (!res.ok && res.status !== 204) {
+      const d = await res.json().catch(()=>({}));
+      throw new Error(d.error?.message || res.status);
+    }
+    calDoneIds.delete(id); saveCalDone();
+    await loadCalendarMonth(calViewYear, calViewMonth);
+    renderCalGrid();
+  } catch(e) { alert('Delete failed: '+e.message); }
 }
 
 async function fetchGmailData(token) {
@@ -1985,7 +2242,7 @@ function showPage(id, el) {
   if(id==='nomadica')    renderNomadica();
   if(id==='books')       renderBooks();
   if(id==='weeklyreview') renderWeeklyReview();
-  if(id==='calendar' && _googleToken) loadGoogleData(_googleToken);
+  if(id==='calendar') renderCalendarPage();
 }
 
 // ── Util ──────────────────────────────────────────────────────────────────────

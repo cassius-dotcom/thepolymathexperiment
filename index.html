@@ -344,6 +344,14 @@ input[type=number]::-webkit-outer-spin-button{opacity:0.5}
 .archive-preview{flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .r-badge{font-family:var(--mono);font-size:9px;font-weight:700;padding:2px 7px;border-radius:10px;flex-shrink:0}
 
+/* LOADER */
+#sb-loader{position:fixed;inset:0;background:var(--bg);z-index:99999;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px}
+.sb-dots{display:flex;gap:7px}
+.sb-dot{width:8px;height:8px;border-radius:50%;background:var(--green);animation:sbd 1.2s ease-in-out infinite}
+.sb-dot:nth-child(2){animation-delay:.2s}.sb-dot:nth-child(3){animation-delay:.4s}
+@keyframes sbd{0%,100%{opacity:.2;transform:scale(.8)}50%{opacity:1;transform:scale(1)}}
+.sb-lbl{font-family:var(--mono);font-size:10px;letter-spacing:.16em;color:var(--text3)}
+
 /* VERDICT */
 .verdict-row{display:flex;gap:6px;margin-top:10px;flex-wrap:wrap;align-items:center}
 .verdict-btn{font-family:var(--mono);font-size:9px;font-weight:700;padding:4px 10px;border-radius:20px;border:0.5px solid var(--border2);background:none;color:var(--text3);cursor:pointer;transition:all .15s}
@@ -353,6 +361,8 @@ input[type=number]::-webkit-outer-spin-button{opacity:0.5}
 </style>
 </head>
 <body>
+
+<div id="sb-loader"><div class="sb-dots"><div class="sb-dot"></div><div class="sb-dot"></div><div class="sb-dot"></div></div><div class="sb-lbl">SYNCING DATA…</div></div>
 
 <nav class="nav">
   <div class="nav-brand">CASSIUS <span class="sep">/ OS</span></div>
@@ -682,9 +692,12 @@ input[type=number]::-webkit-outer-spin-button{opacity:0.5}
   <div id="wr-archive"></div>
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <script>
-// ── API Key ──────────────────────────────────────────────────────────────────
+// ── Keys ─────────────────────────────────────────────────────────────────────
 const ANTHROPIC_API_KEY = '';
+const SUPABASE_URL = 'https://tilulkkukndyqpouizba.supabase.co';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRpbHVsa2t1a25keXFwb3VpemJhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg4OTkxOTEsImV4cCI6MjA5NDQ3NTE5MX0.ffe0dbJKXHjA29JU2inOqCB1baJaJ-X0eDpen1_extc';
 
 // ── Domains Data ─────────────────────────────────────────────────────────────
 const DOMAINS_DATA = [
@@ -739,22 +752,76 @@ const STOIC_QUOTES = [ // indexed by getDay(): 0=Sun … 6=Sat
   { author:'Seneca',          text:'"Waste no more time arguing what a good man should be. Be one."' },
 ];
 
-// ── Storage ──────────────────────────────────────────────────────────────────
-function storeGet(key) {
-  try { return JSON.parse(localStorage.getItem(key)); } catch(e) { return null; }
+// ── Supabase storage layer ────────────────────────────────────────────────────
+let _sb = null;
+const _cache = {};
+
+function _route(key) {
+  if (key.startsWith('goals:'))
+    return { table:'goals',             pk:'date_key', pkv:key.slice(6), dc:'items' };
+  if (key === 'goal_streak_v1')
+    return { table:'goal_streak',        pk:'id',       pkv:1,            dc:'data'  };
+  if (key === 'cassius_char_v1')
+    return { table:'character_data',     pk:'id',       pkv:1,            dc:'data'  };
+  if (key === 'cassius_books')
+    return { table:'books',              pk:'id',       pkv:1,            dc:'data'  };
+  if (key === 'cassius_weekly')
+    return { table:'weekly_reviews',     pk:'id',       pkv:1,            dc:'data'  };
+  if (key === 'cassius_projects')
+    return { table:'projects',           pk:'id',       pkv:1,            dc:'data'  };
+  if (key === 'cassius_experiments')
+    return { table:'experiments',        pk:'id',       pkv:1,            dc:'data'  };
+  if (key === 'nomadica_kpis')
+    return { table:'nomadica_kpis',      pk:'id',       pkv:1,            dc:'data'  };
+  if (key.startsWith('nomadica_daily:') || key.startsWith('nomadica_weekly:') || key.startsWith('nomadica_monthly:'))
+    return { table:'nomadica_todos',     pk:'todo_key', pkv:key,          dc:'items' };
+  if (key === 'nomadica_captures')
+    return { table:'nomadica_captures',  pk:'id',       pkv:1,            dc:'data'  };
+  return null;
 }
+
+function storeGet(key) { return _cache.hasOwnProperty(key) ? _cache[key] : null; }
+
 function storeSet(key, val) {
-  localStorage.setItem(key, JSON.stringify(val));
+  _cache[key] = val;
   window.dispatchEvent(new CustomEvent('goals-changed'));
+  const r = _route(key); if (!r || !_sb) return;
+  _sb.from(r.table).upsert({ [r.pk]: r.pkv, [r.dc]: val }, { onConflict: r.pk })
+    .then(({ error }) => { if (error) console.warn('sb write:', r.table, error.message); });
 }
-function storeDelete(key) { localStorage.removeItem(key); }
-function storeListKeys(pfx) {
-  const out = [];
-  for (let i = 0; i < localStorage.length; i++) {
-    const k = localStorage.key(i);
-    if (k && k.startsWith(pfx)) out.push(k);
-  }
-  return out;
+
+function storeDelete(key) {
+  delete _cache[key];
+  const r = _route(key); if (!r || !_sb) return;
+  _sb.from(r.table).delete().eq(r.pk, r.pkv)
+    .then(({ error }) => { if (error) console.warn('sb delete:', r.table, error.message); });
+}
+
+function storeListKeys(pfx) { return Object.keys(_cache).filter(k => k.startsWith(pfx)); }
+
+async function initSupabase() {
+  _sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+  const tables = [
+    { table:'goals',             multi:true,  pk:'date_key', dc:'items', prefix:'goals:' },
+    { table:'goal_streak',       single:true, pk:'id',       dc:'data',  ck:'goal_streak_v1'    },
+    { table:'character_data',    single:true, pk:'id',       dc:'data',  ck:'cassius_char_v1'   },
+    { table:'books',             single:true, pk:'id',       dc:'data',  ck:'cassius_books'     },
+    { table:'weekly_reviews',    single:true, pk:'id',       dc:'data',  ck:'cassius_weekly'    },
+    { table:'projects',          single:true, pk:'id',       dc:'data',  ck:'cassius_projects'  },
+    { table:'experiments',       single:true, pk:'id',       dc:'data',  ck:'cassius_experiments'},
+    { table:'nomadica_kpis',     single:true, pk:'id',       dc:'data',  ck:'nomadica_kpis'     },
+    { table:'nomadica_todos',    multi:true,  pk:'todo_key', dc:'items', prefix:''              },
+    { table:'nomadica_captures', single:true, pk:'id',       dc:'data',  ck:'nomadica_captures' },
+  ];
+  await Promise.all(tables.map(async t => {
+    try {
+      const { data, error } = await _sb.from(t.table).select('*');
+      if (error) { console.warn('sb load:', t.table, error.message); return; }
+      if (!data?.length) return;
+      if (t.multi) data.forEach(row => { _cache[(t.prefix||'') + row[t.pk]] = row[t.dc]; });
+      else { const row = data[0]; if (row) _cache[t.ck] = row[t.dc]; }
+    } catch(e) { console.warn('sb fetch:', t.table, e.message); }
+  }));
 }
 
 // ── Date Logic ───────────────────────────────────────────────────────────────
@@ -1778,7 +1845,9 @@ function esc(s) {
 }
 
 // ── Init ──────────────────────────────────────────────────────────────────────
-(function init() {
+(async function init() {
+  await initSupabase();
+  document.getElementById('sb-loader').style.display = 'none';
   doRollover();
 
   const aDate = getActiveDateString(), tDate = getTomorrowDateString();

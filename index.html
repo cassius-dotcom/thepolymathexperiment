@@ -412,13 +412,13 @@ input[type=number]::-webkit-outer-spin-button{opacity:0.5}
 @media(max-width:768px){
   .nav{padding:0 16px;height:48px}
   .nav-brand{margin-right:12px;font-size:12px}
-  .nav-tabs{display:none}
-  #globalSearch{display:none}
-  #liveClock{display:none}
+  .nav-tabs{display:none!important}
+  #globalSearch{display:none!important}
+  #liveClock{display:none!important}
   .page{padding:64px 16px 90px}
-  .bottom-nav{display:flex}
+  .bottom-nav{display:flex!important}
 }
-.bottom-nav{display:none;position:fixed;bottom:0;left:0;right:0;height:72px;background:rgba(6,6,8,0.95);backdrop-filter:blur(24px);border-top:0.5px solid var(--border2);z-index:200;align-items:stretch;padding-bottom:env(safe-area-inset-bottom)}
+.bottom-nav{display:none!important;position:fixed;bottom:0;left:0;right:0;height:72px;background:rgba(6,6,8,0.95);backdrop-filter:blur(24px);border-top:0.5px solid var(--border2);z-index:200;align-items:stretch;padding-bottom:env(safe-area-inset-bottom)}
 .bn-tab{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;cursor:pointer;border:none;background:transparent;color:var(--text3);font-family:var(--mono);font-size:9px;font-weight:600;letter-spacing:0.04em;padding:8px 4px;transition:color .15s;-webkit-tap-highlight-color:transparent;min-width:0}
 .bn-tab.active{color:var(--text1)}
 .bn-tab svg{width:22px;height:22px;stroke:currentColor;fill:none;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0}
@@ -2853,7 +2853,7 @@ function esc(s) {
   if(capInp) capInp.addEventListener('keydown',e=>{if(e.key==='Enter')addCapture();});
 
   // Google auth UI is restored in initSupabase via getSession()
-  bnNav('dashboard');
+  if (window.innerWidth <= 768) bnNav('dashboard');
 
   const fl = document.getElementById('filterList');
   if (fl) {

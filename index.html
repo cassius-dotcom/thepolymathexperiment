@@ -761,6 +761,7 @@ input[type=number]::-webkit-outer-spin-button{opacity:0.5}
     <button class="week-nav-btn" onclick="navigateWeek(1)">→</button>
     <button class="btn-ghost" onclick="createWeekEntry()" style="margin-left:8px">+ New Entry</button>
     <span class="save-flash" id="wr-save-flash">Saved</span>
+    <button class="btn-ghost" onclick="exportWeeklyReviews()" style="margin-left:auto">↓ Export All</button>
   </div>
   <div id="wr-content"></div>
   <div class="section-label" style="margin-top:28px">Past Reviews</div>
@@ -2230,6 +2231,44 @@ function saveCurrentReview() {
   const flash=document.getElementById('wr-save-flash');
   if(flash){flash.classList.add('show');setTimeout(()=>flash.classList.remove('show'),1500);}
 }
+function exportWeeklyReviews() {
+  const all = storeGet('cassius_weekly') || {};
+  const keys = Object.keys(all).sort();
+  if (!keys.length) { alert('No reviews to export yet.'); return; }
+
+  let md = `# Cassius OS — Weekly Reviews\nExported: ${new Date().toLocaleDateString('en-US', {weekday:'long',year:'numeric',month:'long',day:'numeric'})}\n\n---\n\n`;
+
+  keys.forEach(k => {
+    const e = all[k]; if (!e) return;
+    const wNum = parseInt(k.split('-W')[1]);
+    const range = getWeekRangeLabel(k);
+    const rating = e.rating ? `${e.rating}/10` : 'Unrated';
+    const shadowRating = e.shadowRating ? `Shadow Risk: ${e.shadowRating}/5` : '';
+
+    md += `## Week ${wNum} · ${range}\n`;
+    md += `**Rating:** ${rating}${shadowRating ? '  |  **' + shadowRating + '**' : ''}\n\n`;
+
+    if (e.wins)      md += `### Wins & Execution\n${e.wins}\n\n`;
+    if (e.losses)    md += `### Losses & Honest Assessment\n${e.losses}\n\n`;
+    if (e.shadow)    md += `### Shadow Audit\n${e.shadow}\n\n`;
+    if (e.capacity)  md += `### Capacity vs Comfort\n${e.capacity}\n\n`;
+    if (e.different) md += `### What I'd Do Differently\n${e.different}\n\n`;
+    if (e.next)      md += `### Next Week's Standard\n${e.next}\n\n`;
+
+    md += `---\n\n`;
+  });
+
+  const blob = new Blob([md], { type: 'text/markdown' });
+  const url  = URL.createObjectURL(blob);
+  const a    = document.createElement('a');
+  a.href     = url;
+  a.download = `cassius-reviews-${new Date().toISOString().slice(0,10)}.md`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
 function renderWeekArchive() {
   const arch=document.getElementById('wr-archive'); if(!arch)return;
   const all=storeGet('cassius_weekly')||{};

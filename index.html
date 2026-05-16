@@ -322,6 +322,9 @@ input[type=number]::-webkit-outer-spin-button{opacity:0.5}
 .book-notes{font-size:11px;color:var(--text2);font-style:italic;margin-top:8px;line-height:1.5}
 .btn-ghost{background:none;border:0.5px solid var(--border2);border-radius:6px;color:var(--text2);font-family:var(--mono);font-size:10px;font-weight:600;padding:5px 10px;cursor:pointer;transition:color .15s,border-color .15s;white-space:nowrap}
 .btn-ghost:hover{color:var(--text1);border-color:rgba(255,255,255,0.25)}
+.filter-btn{font-family:var(--mono);font-size:10px;font-weight:700;padding:5px 12px;border-radius:20px;border:0.5px solid var(--border2);background:none;color:var(--text3);cursor:pointer;transition:all .15s}
+.filter-btn:hover{color:var(--text1)}
+.filter-btn.active{background:rgba(255,255,255,0.08);color:var(--text1);border-color:rgba(255,255,255,0.2)}
 @keyframes xp-flash-anim{0%{opacity:0;transform:translateY(8px)}15%{opacity:1;transform:translateY(0)}80%{opacity:1}100%{opacity:0}}
 .xp-flash-el{position:fixed;bottom:24px;right:24px;background:rgba(107,227,164,0.1);border:0.5px solid rgba(107,227,164,0.3);border-radius:8px;padding:8px 14px;font-family:var(--mono);font-size:11px;font-weight:700;color:var(--green);z-index:9999;animation:xp-flash-anim 2.5s ease forwards;pointer-events:none}
 
@@ -509,6 +512,11 @@ input[type=number]::-webkit-outer-spin-button{opacity:0.5}
         <div id="gmStreak" class="gm-streak">⚡ <span id="gmStreakNum">0</span> day streak</div>
       </div>
       <div class="gm-bar" id="gmBar"></div>
+      <div style="display:flex;gap:6px;margin-bottom:8px">
+        <button class="filter-btn active" data-goalfilter="all"    onclick="filterGoals(this)">All</button>
+        <button class="filter-btn"        data-goalfilter="active"  onclick="filterGoals(this)">Active</button>
+        <button class="filter-btn"        data-goalfilter="done"    onclick="filterGoals(this)">Done</button>
+      </div>
       <ul class="goal-list" id="goalList"></ul>
       <div class="goal-empty" id="emptyState">No goals for today yet — add one below.</div>
       <button class="gm-push-btn" id="gmPushBtn" style="display:none">Push remaining to tomorrow →</button>
@@ -576,6 +584,12 @@ input[type=number]::-webkit-outer-spin-button{opacity:0.5}
   <div class="page-title">Lab &amp; Experiments</div>
   <div class="page-subtitle">Track what you're testing and whether it actually works.</div>
   <div class="section-label">Experiments</div>
+  <div style="display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap">
+    <button class="filter-btn active" data-expfilter="all"       onclick="filterExps(this)">All</button>
+    <button class="filter-btn"        data-expfilter="Active"     onclick="filterExps(this)">Active</button>
+    <button class="filter-btn"        data-expfilter="Completed"  onclick="filterExps(this)">Completed</button>
+    <button class="filter-btn"        data-expfilter="Paused"     onclick="filterExps(this)">Paused</button>
+  </div>
   <div class="experiments-grid" id="experimentsGrid"></div>
   <div class="section-label">New Experiment</div>
   <div class="add-project-form">
@@ -699,6 +713,12 @@ input[type=number]::-webkit-outer-spin-button{opacity:0.5}
     <div class="card stat-pill"><div class="stat-pill-label">Total XP Earned</div><div class="stat-pill-num" id="stat-xp">0</div></div>
   </div>
   <div class="section-label">Library</div>
+  <div style="display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap">
+    <button class="filter-btn active" data-filter="all"      onclick="filterBooks(this)">All</button>
+    <button class="filter-btn"        data-filter="reading"   onclick="filterBooks(this)">Reading</button>
+    <button class="filter-btn"        data-filter="finished"  onclick="filterBooks(this)">Finished</button>
+    <button class="filter-btn"        data-filter="want"      onclick="filterBooks(this)">Want to Read</button>
+  </div>
   <div class="books-grid" id="booksGrid"></div>
   <div class="section-label">Add Book</div>
   <div class="add-project-form">
@@ -869,6 +889,27 @@ function applyQuoteStrip(quotes) {
   if (bRf) bRf.textContent = quotes.bible.ref;
   if (sEy) sEy.textContent = `WISDOM · ${quotes.stoic.author.toUpperCase()}`;
   if (sTx) sTx.textContent = quotes.stoic.quote;
+}
+
+// ── Filter state ─────────────────────────────────────────────────────────────
+let bookFilter = 'all';
+let expFilter  = 'all';
+let goalFilter = 'all';
+
+function filterBooks(btn) {
+  bookFilter = btn.dataset.filter;
+  document.querySelectorAll('.filter-btn[data-filter]').forEach(b => b.classList.toggle('active', b === btn));
+  renderBooks();
+}
+function filterExps(btn) {
+  expFilter = btn.dataset.expfilter;
+  document.querySelectorAll('.filter-btn[data-expfilter]').forEach(b => b.classList.toggle('active', b === btn));
+  renderExperiments();
+}
+function filterGoals(btn) {
+  goalFilter = btn.dataset.goalfilter;
+  document.querySelectorAll('.filter-btn[data-goalfilter]').forEach(b => b.classList.toggle('active', b === btn));
+  loadToday();
 }
 
 // ── Supabase storage layer ────────────────────────────────────────────────────
@@ -1280,7 +1321,8 @@ function loadToday() {
   const key = 'goals:' + getActiveDateString();
   const goals = storeGet(key)||[];
   renderTodayHeader(goals);
-  renderListInto(goals, document.getElementById('goalList'), document.getElementById('emptyState'), key, false, loadToday);
+  const filtered = goals.filter(g => goalFilter === 'all' || (goalFilter === 'done' ? g.done : !g.done));
+  renderListInto(filtered, document.getElementById('goalList'), document.getElementById('emptyState'), key, false, loadToday);
 }
 function loadTomorrow() {
   const key = 'goals:' + getTomorrowDateString();
@@ -1733,7 +1775,7 @@ function deleteProject(i) {
 
 // ── Experiments ───────────────────────────────────────────────────────────────
 function renderExperiments() {
-  const exps=storeGet('cassius_experiments')||[];
+  const exps=(storeGet('cassius_experiments')||[]).filter(e => expFilter === 'all' || e.status === expFilter);
   const grid=document.getElementById('experimentsGrid'); if(!grid)return;
   if (!exps.length){grid.innerHTML='<div class="empty-state">No experiments yet. Start one below.</div>';return;}
   grid.innerHTML='';
@@ -1961,7 +2003,7 @@ function awardBookXP(book) {
   showXPFlash(`+${amt} XP → ${book.skill}`);
 }
 function renderBooks() {
-  const books=getBooks();
+  const books=(getBooks()||[]).filter(b => bookFilter === 'all' || b.status === bookFilter);
   const year=new Date().getFullYear();
   document.getElementById('stat-finished-year').textContent=books.filter(b=>b.status==='finished'&&(b.finishedDate||'').startsWith(year)).length;
   document.getElementById('stat-reading').textContent=books.filter(b=>b.status==='reading').length;

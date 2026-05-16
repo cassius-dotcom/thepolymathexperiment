@@ -533,6 +533,7 @@ button:active{transform:scale(0.96);transition:transform 80ms ease-out}
     <button class="nav-tab active" data-page="dashboard"    onclick="showPage('dashboard',this)">Dashboard</button>
     <button class="nav-tab"        data-page="ritual"       onclick="showPage('ritual',this)">Ritual</button>
     <button class="nav-tab"        data-page="wins"         onclick="showPage('wins',this)">Wins</button>
+    <button class="nav-tab"        data-page="principles"   onclick="showPage('principles',this)">Principles</button>
     <button class="nav-tab"        data-page="character"   onclick="showPage('character',this)">Character</button>
     <button class="nav-tab"        data-page="domains"     onclick="showPage('domains',this)">Domains</button>
     <button class="nav-tab"        data-page="nomadica"    onclick="showPage('nomadica',this)">Nomadica</button>
@@ -570,7 +571,8 @@ button:active{transform:scale(0.96);transition:transform 80ms ease-out}
 
   <div id="ritualSummaryCard" style="margin-bottom:8px"></div>
   <div id="winsSummaryCard" style="margin-bottom:8px"></div>
-  <div id="booksSummaryCard" style="margin-bottom:16px"></div>
+  <div id="booksSummaryCard" style="margin-bottom:8px"></div>
+  <div id="principlesSummaryCard" style="margin-bottom:16px"></div>
 
   <div class="ticker-row">
     <div class="goal-ticker" id="goalTicker" aria-live="polite" aria-atomic="true">
@@ -692,6 +694,13 @@ button:active{transform:scale(0.96);transition:transform 80ms ease-out}
       <button class="btn-primary" onclick="addWin()">Log Win</button>
     </div>
   </div>
+</div>
+
+<!-- PAGE: PRINCIPLES -->
+<div id="page-principles" class="page">
+  <div class="page-title">Principles</div>
+  <div class="page-subtitle">The standard. Read this. Then act accordingly.</div>
+  <div id="principlesContent"></div>
 </div>
 
 <!-- PAGE: CHARACTER -->
@@ -1592,6 +1601,71 @@ const DEFAULT_RITUALS = [
   { id:'journal', label:'Journal',             icon:'✍️', desc:'Write. Reflect. Set the tone.' },
   { id:'review',  label:'Review Goals',        icon:'🎯', desc:"Read today's goals before starting." },
 ];
+
+const PRINCIPLES = [
+  { title:'Coherence Over Image',    color:'#A78BFA', body:'He does not perform. He does not curate a version of himself for approval. What he does in private matches what he projects in public. There is no gap between the man people see and the man he is alone.' },
+  { title:'Capacity Over Comfort',   color:'#F2C063', body:'He chooses the harder path when it builds him. Comfort is not the enemy — unconscious comfort-seeking is. Every day he asks: am I expanding or contracting? He chooses expansion.' },
+  { title:'Truth Over Ego',          color:'#6BE3A4', body:'He does not protect his self-image at the cost of reality. When he is wrong he says so. When the data contradicts him he updates. He is more committed to being accurate than to being right.' },
+  { title:'Responsibility Over Blame',color:'#7EB8F7', body:'He does not outsource his outcomes to circumstances, other people, or bad luck. He is the variable. He asks: what could I have done differently? Then he acts on the answer.' },
+  { title:'Discipline Is Freedom',   color:'#FB923C', body:'Structure is not a cage — it is the architecture of a life he has chosen. His routines, standards, and systems are not restrictions. They are the expression of who he has decided to be.' },
+  { title:'Love Requires Strength',  color:'#F472B6', body:'He does not mistake softness for love or hardness for strength. Real love — for his family, his people, his God — requires him to be capable, present, and honest. Weakness dressed as kindness serves no one.' },
+  { title:'God Over Self-Worship',   color:'#93C5FD', body:'His ambition is not his god. His achievements are not his identity. He builds, produces, and strives — but from a foundation of faith, not ego. When he succeeds he gives credit. When he fails he does not collapse.' },
+];
+
+function renderPrinciplesPage() {
+  const el = document.getElementById('principlesContent'); if (!el) return;
+  let html = `<div class="card" style="margin-bottom:24px">
+    <div class="section-label" style="margin-bottom:12px">7 Decision Filters</div>
+    <ol style="padding-left:18px;display:flex;flex-direction:column;gap:8px">
+      ${DECISION_FILTERS.map(f=>`<li style="font-family:var(--mono);font-size:11px;color:var(--text2);line-height:1.5">${esc(f)}</li>`).join('')}
+    </ol>
+  </div>
+  <div class="section-label">Core Principles</div>`;
+  PRINCIPLES.forEach((p,i)=>{
+    html+=`<div style="display:flex;gap:16px;padding:18px 0;border-bottom:0.5px solid var(--border);align-items:flex-start">
+      <div style="flex-shrink:0;width:32px;height:32px;border-radius:50%;background:${p.color}18;border:0.5px solid ${p.color}44;display:flex;align-items:center;justify-content:center">
+        <span style="font-family:var(--mono);font-size:11px;font-weight:700;color:${p.color}">${i+1}</span>
+      </div>
+      <div style="flex:1">
+        <div style="font-size:14px;font-weight:800;margin-bottom:6px;color:var(--text1)">${esc(p.title)}</div>
+        <div style="font-family:var(--mono);font-size:11px;color:var(--text2);line-height:1.7">${esc(p.body)}</div>
+      </div>
+    </div>`;
+  });
+  const shadowRisks=[
+    ['Arrogance from success','Winning can make him dismissive. Stay teachable.'],
+    ['Emotional coldness','Discipline can become distance. Stay present.'],
+    ['Work addiction','Productivity can mask avoidance. Rest is not weakness.'],
+    ['Isolation disguised as focus','Solitude has value. Hiding does not.'],
+    ['Impulse dressed as instinct','Not every urge is wisdom. Pause before acting.'],
+  ];
+  html+=`<div class="section-label" style="margin-top:28px">Shadow Risks</div>
+  <div class="card" style="margin-bottom:24px">
+    <div style="display:flex;flex-direction:column;gap:10px">
+      ${shadowRisks.map(([risk,note])=>`<div style="display:flex;gap:12px;align-items:flex-start">
+        <div style="width:6px;height:6px;border-radius:50%;background:var(--red);flex-shrink:0;margin-top:5px"></div>
+        <div>
+          <div style="font-size:12px;font-weight:700;color:var(--text1)">${esc(risk)}</div>
+          <div style="font-family:var(--mono);font-size:10px;color:var(--text3);margin-top:2px">${esc(note)}</div>
+        </div>
+      </div>`).join('')}
+    </div>
+  </div>`;
+  el.innerHTML = html;
+}
+
+function renderPrinciplesSummary() {
+  const el = document.getElementById('principlesSummaryCard'); if (!el) return;
+  const p = PRINCIPLES[new Date().getDay() % PRINCIPLES.length];
+  el.innerHTML = `<div style="padding:14px 16px;border-radius:12px;background:var(--bg2);border:0.5px solid ${p.color}33;cursor:pointer;-webkit-tap-highlight-color:transparent" onclick="showPage('principles',null)">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
+      <div style="font-size:11px;font-weight:700;font-family:var(--mono);color:var(--text3)">TODAY'S PRINCIPLE</div>
+      <div style="font-family:var(--mono);font-size:9px;color:var(--text3)">→ all ${PRINCIPLES.length}</div>
+    </div>
+    <div style="font-size:13px;font-weight:800;color:${p.color};margin-bottom:4px">${esc(p.title)}</div>
+    <div style="font-family:var(--mono);font-size:10px;color:var(--text2);line-height:1.6">${esc(p.body.slice(0,120))}…</div>
+  </div>`;
+}
 
 function toggleFilters() {
   const list = document.getElementById('filterList');
@@ -3123,7 +3197,7 @@ function showPage(id, el) {
   // Sync bottom nav
   document.querySelectorAll('.bn-tab').forEach(b => b.classList.toggle('active', b.dataset.page === id));
   document.querySelectorAll('.bn-more-item').forEach(b => b.classList.toggle('active', b.dataset.page === id));
-  const morePages = ['nomadica','books','lab','calendar','weeklyreview','wins'];
+  const morePages = ['nomadica','books','lab','calendar','weeklyreview','wins','principles'];
   const moreBtn = document.querySelector('.bn-tab[data-page="__more"]');
   if (moreBtn) moreBtn.classList.toggle('active', morePages.includes(id) && window.innerWidth <= 768);
 
@@ -3137,6 +3211,7 @@ function showPage(id, el) {
   if(id==='calendar')     renderCalendarPage();
   if(id==='ritual')       renderRitualPage();
   if(id==='wins')         renderWinsJournal();
+  if(id==='principles')   renderPrinciplesPage();
 
   function enterNext() {
     next.classList.add('active', 'page-enter');
@@ -3261,6 +3336,7 @@ function esc(s) {
   renderRitualSummary();
   renderWinsSummary();
   renderBooksSummary();
+  renderPrinciplesSummary();
 
   const fl = document.getElementById('filterList');
   if (fl) {
@@ -3321,6 +3397,10 @@ function esc(s) {
   <div class="bn-more-item" data-page="wins" onclick="bnNav('wins')">
     <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
     Wins
+  </div>
+  <div class="bn-more-item" data-page="principles" onclick="bnNav('principles')">
+    <svg viewBox="0 0 24 24"><path d="M12 2l1.5 4.5H18l-3.75 2.75 1.5 4.5L12 11l-3.75 2.75 1.5-4.5L6 6.5h4.5z"/></svg>
+    Principles
   </div>
 </div>
 </body>

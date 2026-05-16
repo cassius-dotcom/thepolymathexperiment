@@ -567,6 +567,8 @@ input[type=number]::-webkit-outer-spin-button{opacity:0.5}
       <button class="btn-primary" onclick="addProject()">Add Project</button>
     </div>
   </div>
+  <div class="section-label" style="margin-top:28px">Quick Skill XP</div>
+  <div id="domainSkillAccordion"></div>
 </div>
 
 <!-- PAGE: LAB -->
@@ -1631,6 +1633,40 @@ function saveHevyKey() {
   if(st){st.textContent='Key saved';st.style.color='var(--green)';setTimeout(()=>{if(st)st.textContent=''},3000);}
 }
 
+// ── Domain Skill Accordion ────────────────────────────────────────────────────
+function renderDomainSkillAccordion() {
+  const el = document.getElementById('domainSkillAccordion'); if (!el) return;
+  const state = loadCharState();
+  el.innerHTML = '';
+  DOMAINS_DATA.forEach(d => {
+    const xp = domainXP(state, d.id);
+    const pct = Math.min(Math.round((xp / (d.skills.length * 100)) * 100), 100);
+    const wrap = document.createElement('div');
+    wrap.className = 'card'; wrap.style.cssText = 'margin-bottom:8px;padding:14px 18px';
+    wrap.innerHTML = `
+      <div style="display:flex;align-items:center;gap:12px;cursor:pointer" onclick="this.parentElement.querySelector('.dsa-body').style.display=this.parentElement.querySelector('.dsa-body').style.display==='none'?'grid':'none'">
+        <div style="width:10px;height:10px;border-radius:50%;background:${d.color};flex-shrink:0"></div>
+        <div style="flex:1;font-size:12px;font-weight:700">${d.name}</div>
+        <div style="font-family:var(--mono);font-size:10px;color:var(--text3)">${xp} XP · ${pct}%</div>
+        <div class="bar-wrap" style="width:80px;margin:0"><div class="bar-fill" style="width:${pct}%;background:${d.color}88"></div></div>
+      </div>
+      <div class="dsa-body" style="display:none;grid-template-columns:1fr 1fr;gap:6px;margin-top:12px">
+        ${d.skills.map(sk => {
+          const skey = `${d.id}_${sk}`;
+          const sxp = state.skills[skey] || 0;
+          return `<div style="display:flex;align-items:center;gap:8px;padding:6px 8px;background:var(--bg3);border-radius:8px;border:0.5px solid var(--border)">
+            <div style="flex:1;font-size:11px;color:var(--text2)">${sk}</div>
+            <input class="skill-xp-input" type="number" min="0" max="100" value="${sxp}"
+              data-key="${skey}" style="width:52px"
+              onclick="event.stopPropagation()"
+              onchange="saveSkillXP(this);renderDomainSkillAccordion()">
+          </div>`;
+        }).join('')}
+      </div>`;
+    el.appendChild(wrap);
+  });
+}
+
 // ── Projects ──────────────────────────────────────────────────────────────────
 function renderProjects() {
   const projects = storeGet('cassius_projects')||[];
@@ -2469,7 +2505,7 @@ function showPage(id, el) {
   const pg=document.getElementById('page-'+id); if(pg) pg.classList.add('active');
   if(el) el.classList.add('active');
   if(id==='character')   renderCharacterPage();
-  if(id==='domains')     renderProjects();
+  if(id==='domains')     { renderProjects(); renderDomainSkillAccordion(); }
   if(id==='lab')         renderExperiments();
   if(id==='nomadica')    renderNomadica();
   if(id==='books')       renderBooks();

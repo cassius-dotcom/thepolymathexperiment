@@ -443,6 +443,14 @@ input[type=number]::-webkit-outer-spin-button{opacity:0.5}
     </div>
   </div>
 
+  <div class="card" id="filterCard" style="margin-bottom:16px">
+    <div style="display:flex;align-items:center;justify-content:space-between;cursor:pointer" onclick="toggleFilters()">
+      <div class="section-label" style="margin-bottom:0">Decision Filters</div>
+      <button class="btn-ghost" id="filterToggleBtn" style="font-size:10px">▾ Show</button>
+    </div>
+    <ol id="filterList" style="display:none;margin-top:14px;padding-left:18px"></ol>
+  </div>
+
   <div class="ticker-row">
     <div class="goal-ticker" id="goalTicker" aria-live="polite" aria-atomic="true">
       <div class="goal-ticker-led"><span class="goal-ticker-led-dot"></span></div>
@@ -1294,6 +1302,25 @@ async function polishText(text) {
   return JSON.parse(data.content[0].text.trim())[0];
 }
 
+const DECISION_FILTERS = [
+  'Does this strengthen or weaken my foundation?',
+  'Would my future self thank me for this?',
+  'Does this align with my principles or feed my ego?',
+  'Is this comfort-seeking or capacity-building?',
+  'Does this increase or decrease self-respect?',
+  'Is this a clean "yes," or am I negotiating?',
+  'What is the hidden cost?',
+];
+
+function toggleFilters() {
+  const list = document.getElementById('filterList');
+  const btn  = document.getElementById('filterToggleBtn');
+  if (!list || !btn) return;
+  const open = list.style.display === 'none' || list.style.display === '';
+  list.style.display = open ? 'block' : 'none';
+  btn.textContent = open ? '▴ Hide' : '▾ Show';
+}
+
 function makeAddHandlers(inputEl, addBtn, polishBtn, key, statusEl, reloadFn) {
   function doAdd() {
     const text = inputEl.value.trim(); if (!text) return;
@@ -1302,6 +1329,15 @@ function makeAddHandlers(inputEl, addBtn, polishBtn, key, statusEl, reloadFn) {
   }
   addBtn.addEventListener('click', doAdd);
   inputEl.addEventListener('keydown', e => { if (e.key==='Enter') doAdd(); });
+  inputEl.addEventListener('focus', () => {
+    if (sessionStorage.getItem('filter_nudge_shown')) return;
+    sessionStorage.setItem('filter_nudge_shown', '1');
+    const card = document.getElementById('filterCard');
+    if (card) {
+      card.style.boxShadow = '0 0 0 1px rgba(242,192,99,0.35)';
+      setTimeout(() => { card.style.boxShadow = ''; }, 2000);
+    }
+  }, { once: true });
   polishBtn.addEventListener('click', async () => {
     const text = inputEl.value.trim(); if (!text) return;
     if (!ANTHROPIC_API_KEY) {
@@ -2514,6 +2550,16 @@ function esc(s) {
   if(capInp) capInp.addEventListener('keydown',e=>{if(e.key==='Enter')addCapture();});
 
   // Google auth UI is restored in initSupabase via getSession()
+
+  const fl = document.getElementById('filterList');
+  if (fl) {
+    DECISION_FILTERS.forEach(f => {
+      const li = document.createElement('li');
+      li.style.cssText = 'font-size:12px;color:var(--text2);margin-bottom:8px;line-height:1.5;font-family:var(--mono)';
+      li.textContent = f;
+      fl.appendChild(li);
+    });
+  }
 })();
 </script>
 </body>

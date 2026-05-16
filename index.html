@@ -787,6 +787,79 @@ const STOIC_QUOTES = [ // indexed by getDay(): 0=Sun … 6=Sat
   { author:'Seneca',          text:'"Waste no more time arguing what a good man should be. Be one."' },
 ];
 
+// ── Daily Quote Generation ────────────────────────────────────────────────────
+async function generateDailyQuotes() {
+  if (!ANTHROPIC_API_KEY) return null;
+
+  const todayKey = 'daily_quotes:' + getActiveDateString();
+  try {
+    const cached = JSON.parse(localStorage.getItem(todayKey));
+    if (cached?.bible && cached?.stoic) return cached;
+  } catch(e) {}
+
+  const now = new Date();
+  const FULL_DAYS = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+  const dayName  = FULL_DAYS[now.getDay()];
+  const fullDate = now.toLocaleDateString('en-US', { month:'long', day:'numeric', year:'numeric' });
+
+  const state   = loadCharState();
+  const goals   = storeGet('goals:' + getActiveDateString()) || [];
+  const dev     = state.developing || [];
+  const skills  = [dev[0]?.skill||'General Learning', dev[1]?.skill||'Focus', dev[2]?.skill||'Writing'];
+
+  const prompt = `You are generating a daily quote pair for Cassius, a man on a deliberate polymath journey.
+Today is ${dayName}, ${fullDate}.
+He is currently developing these skills: ${skills.join(', ')}.
+His core principles are: Coherence Over Image, Capacity Over Comfort, Truth Over Ego, Responsibility Over Blame, Discipline is Freedom, Love Requires Strength, God Over Self-Worship.
+His current daily goals are: ${goals.map(g=>g.text).join(', ') || 'none set yet'}.
+
+Return ONLY a JSON object, no preamble, no markdown fences:
+{
+  "bible": { "verse": "full verse text", "ref": "Book Chapter:Verse" },
+  "stoic": { "quote": "full quote text", "author": "Author Name" }
+}
+
+Choose a Bible verse and a Stoic or historical quote (Marcus Aurelius, Seneca, Epictetus, Napoleon, Churchill, Caesar, Aristotle) that are genuinely relevant to his current skills and goals today. Not generic — specifically matched.`;
+
+  try {
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': ANTHROPIC_API_KEY,
+        'anthropic-version': '2023-06-01',
+        'anthropic-dangerous-direct-browser-access': 'true'
+      },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-5',
+        max_tokens: 400,
+        messages: [{ role: 'user', content: prompt }]
+      })
+    });
+    if (!res.ok) throw new Error(res.status);
+    const data   = await res.json();
+    const quotes = JSON.parse(data.content[0].text.trim());
+    localStorage.setItem(todayKey, JSON.stringify(quotes));
+    return quotes;
+  } catch(e) {
+    console.warn('Quote generation failed:', e.message);
+    return null;
+  }
+}
+
+function applyQuoteStrip(quotes) {
+  const bEy = document.getElementById('bibleEyebrow');
+  const bTx = document.getElementById('bibleText');
+  const bRf = document.getElementById('bibleRef');
+  const sEy = document.getElementById('stoicEyebrow');
+  const sTx = document.getElementById('stoicText');
+  if (bEy) bEy.textContent = 'SCRIPTURE · TODAY';
+  if (bTx) bTx.textContent = quotes.bible.verse;
+  if (bRf) bRf.textContent = quotes.bible.ref;
+  if (sEy) sEy.textContent = `WISDOM · ${quotes.stoic.author.toUpperCase()}`;
+  if (sTx) sTx.textContent = quotes.stoic.quote;
+}
+
 // ── Supabase storage layer ────────────────────────────────────────────────────
 let _sb = null;
 const _cache = {};
@@ -2271,7 +2344,7 @@ function esc(s) {
 
   loadToday(); loadTomorrow(); renderStreak();
 
-  // Quote strip
+  // Quote strip — static fallbacks first, then upgrade with AI-generated quotes
   const day=new Date().getDay();
   const bv=BIBLE_VERSES[day], sq=STOIC_QUOTES[day];
   const bEy=document.getElementById('bibleEyebrow'); if(bEy) bEy.textContent=`SCRIPTURE · ${DAY_NAMES[day].toUpperCase()}`;
@@ -2279,6 +2352,8 @@ function esc(s) {
   const bRf=document.getElementById('bibleRef'); if(bRf) bRf.textContent=bv.ref;
   const sEy=document.getElementById('stoicEyebrow'); if(sEy) sEy.textContent=`WISDOM · ${sq.author.toUpperCase()}`;
   const sTx=document.getElementById('stoicText'); if(sTx) sTx.textContent=sq.text;
+  // Async upgrade — won't block page load
+  generateDailyQuotes().then(q => { if (q) applyQuoteStrip(q); });
 
   // Populate project domain select
   const sel=document.getElementById('projDomain');

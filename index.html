@@ -569,7 +569,8 @@ button:active{transform:scale(0.96);transition:transform 80ms ease-out}
   </div>
 
   <div id="ritualSummaryCard" style="margin-bottom:8px"></div>
-  <div id="winsSummaryCard" style="margin-bottom:16px"></div>
+  <div id="winsSummaryCard" style="margin-bottom:8px"></div>
+  <div id="booksSummaryCard" style="margin-bottom:16px"></div>
 
   <div class="ticker-row">
     <div class="goal-ticker" id="goalTicker" aria-live="polite" aria-atomic="true">
@@ -880,6 +881,7 @@ button:active{transform:scale(0.96);transition:transform 80ms ease-out}
     <div class="card stat-pill"><div class="stat-pill-label">Total XP Earned</div><div class="stat-pill-num" id="stat-xp">0</div></div>
   </div>
   <div class="section-label">Library</div>
+  <input class="glass-input" id="booksSearch" type="text" placeholder="Search books and notes…" style="width:100%;margin-bottom:12px" oninput="renderBooks()">
   <div style="display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap">
     <button class="filter-btn active" data-filter="all"      onclick="filterBooks(this)">All</button>
     <button class="filter-btn"        data-filter="reading"   onclick="filterBooks(this)">Reading</button>
@@ -2279,7 +2281,12 @@ function awardBookXP(book, srcEl) {
   showXPFloat(`+${amt} XP`, srcEl);
 }
 function renderBooks() {
-  const books=(getBooks()||[]).filter(b => bookFilter === 'all' || b.status === bookFilter);
+  const query=(document.getElementById('booksSearch')?.value||'').toLowerCase().trim();
+  const books=(getBooks()||[]).filter(b=>{
+    const matchesFilter=bookFilter==='all'||b.status===bookFilter;
+    const matchesSearch=!query||(b.title||'').toLowerCase().includes(query)||(b.author||'').toLowerCase().includes(query)||(b.notes||'').toLowerCase().includes(query);
+    return matchesFilter&&matchesSearch;
+  });
   const year=new Date().getFullYear();
   document.getElementById('stat-finished-year').textContent=books.filter(b=>b.status==='finished'&&(b.finishedDate||'').startsWith(year)).length;
   document.getElementById('stat-reading').textContent=books.filter(b=>b.status==='reading').length;
@@ -2306,8 +2313,10 @@ function renderBooks() {
         <span class="domain-badge" style="background:rgba(255,255,255,0.04);border:0.5px solid var(--border);color:var(--text3)">${esc(book.skill)}</span>
       </div>
       ${book.status==='finished'?`<div class="book-xp">+${book.xpAwarded||25} XP → ${esc(dom?dom.name:book.domain)}</div>`:''}
-      ${book.notes?`<div class="book-notes">${esc(book.notes)}</div>`:''}
       ${book.status==='reading'?`<button class="btn-ghost" style="margin-top:10px;font-size:10px" onclick="markBookFinished(${i})">Mark as Finished ✓</button>`:''}
+      <div class="book-notes-wrap" style="margin-top:10px;border-top:0.5px solid var(--border);padding-top:10px">
+        <textarea class="glass-input book-notes-input" placeholder="Notes, quotes, takeaways…" data-idx="${i}" style="width:100%;min-height:60px;resize:vertical;font-family:var(--mono);font-size:11px;line-height:1.6;background:transparent;border:none;padding:0;outline:none;color:var(--text2)" onchange="saveBookNotes(${i},this.value)">${esc(book.notes||'')}</textarea>
+      </div>
     `;
     grid.appendChild(card);
   });
@@ -2327,6 +2336,27 @@ function addBook() {
   ['book-title','book-author','book-notes'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
   renderBooks();
 }
+function saveBookNotes(idx, notes) {
+  const books = getBooks(); if (!books[idx]) return;
+  books[idx].notes = notes; saveBooks(books);
+}
+
+function renderBooksSummary() {
+  const el = document.getElementById('booksSummaryCard'); if (!el) return;
+  const books = getBooks();
+  const reading  = books.filter(b => b.status === 'reading').length;
+  const finished = books.filter(b => b.status === 'finished').length;
+  const notesCount = books.filter(b => b.notes && b.notes.trim()).length;
+  el.innerHTML = `<div style="display:flex;align-items:center;gap:12px;padding:10px 16px;border-radius:12px;background:var(--bg2);border:0.5px solid var(--border);cursor:pointer;-webkit-tap-highlight-color:transparent" onclick="showPage('books',document.querySelector('.nav-tab[data-page=books]'))">
+    <div style="font-size:16px">📚</div>
+    <div style="flex:1">
+      <div style="font-size:11px;font-weight:700;font-family:var(--mono);color:var(--text2)">BOOKS</div>
+      <div style="font-size:10px;font-family:var(--mono);color:var(--text3);margin-top:1px">${reading} reading · ${finished} finished · ${notesCount} with notes</div>
+    </div>
+    <div style="font-family:var(--mono);font-size:10px;color:var(--text3)">→</div>
+  </div>`;
+}
+
 function deleteBook(i) {
   if(!confirm('Delete this book?'))return;
   const books=getBooks(); books.splice(i,1); saveBooks(books); renderBooks();
@@ -3230,6 +3260,7 @@ function esc(s) {
   if (window.innerWidth <= 768) bnNav('dashboard');
   renderRitualSummary();
   renderWinsSummary();
+  renderBooksSummary();
 
   const fl = document.getElementById('filterList');
   if (fl) {

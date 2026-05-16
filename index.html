@@ -731,7 +731,7 @@ input[type=number]::-webkit-outer-spin-button{opacity:0.5}
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <script>
 // ── Keys ─────────────────────────────────────────────────────────────────────
-const ANTHROPIC_API_KEY = '';
+let ANTHROPIC_API_KEY = localStorage.getItem('cassius_anthropic_key') || '';
 const SUPABASE_URL = 'https://tilulkkukndyqpouizba.supabase.co';
 const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRpbHVsa2t1a25keXFwb3VpemJhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg4OTkxOTEsImV4cCI6MjA5NDQ3NTE5MX0.ffe0dbJKXHjA29JU2inOqCB1baJaJ-X0eDpen1_extc';
 
@@ -1477,6 +1477,14 @@ function renderCharacterPage() {
     <div class="bible-quote">${verse.text}</div>
     <div class="bible-ref">${verse.ref}</div>
   </div>
+  <div class="section-label">API Key Settings</div>
+  <div class="card" style="margin-bottom:14px">
+    <div class="hevy-row">
+      <input class="hevy-input" id="anthropicKeyInput" type="password" placeholder="Anthropic API Key…">
+      <button class="btn-primary" onclick="saveAnthropicKey()">Save</button>
+      <span class="hevy-status" id="anthropicKeyStatus"></span>
+    </div>
+  </div>
   <div class="section-label">Hevy Integration</div>
   <div class="card" style="margin-bottom:24px">
     <div class="hevy-row">
@@ -1486,6 +1494,12 @@ function renderCharacterPage() {
     </div>
   </div>`;
   document.getElementById('characterPageContent').innerHTML = h;
+  const ak = localStorage.getItem('cassius_anthropic_key');
+  if (ak) {
+    const inp=document.getElementById('anthropicKeyInput'); if(inp) inp.value=ak;
+    const st=document.getElementById('anthropicKeyStatus');
+    if(st){st.textContent='Key active';st.style.color='var(--green)';}
+  }
   const hk = localStorage.getItem('hevy_api_key');
   if (hk) {
     const inp=document.getElementById('hevyKeyInput'); if(inp) inp.value=hk;
@@ -1565,6 +1579,14 @@ function saveSkillXP(inp) {
 
   // 4. Radar + attribute cards (no full re-render)
   _updateCharRadar(state);
+}
+function saveAnthropicKey() {
+  const inp=document.getElementById('anthropicKeyInput'), st=document.getElementById('anthropicKeyStatus');
+  if(!inp)return;
+  const val=inp.value.trim();
+  localStorage.setItem('cassius_anthropic_key', val);
+  ANTHROPIC_API_KEY = val;
+  if(st){st.textContent='Saved';st.style.color='var(--green)';setTimeout(()=>{if(st)st.textContent=val?'Key active':'';},2000);}
 }
 function saveHevyKey() {
   const inp=document.getElementById('hevyKeyInput'), st=document.getElementById('hevyStatusLabel');

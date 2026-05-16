@@ -2070,9 +2070,9 @@ let calViewYear  = new Date().getFullYear();
 let calViewMonth = new Date().getMonth();
 let calEvents    = [];
 let calSelDay    = null;
-let calDoneIds   = new Set(JSON.parse(localStorage.getItem('cal_done_ids')||'[]'));
+let calDoneIds   = new Set(storeGet('cal_done_ids') || []);
 
-function saveCalDone() { localStorage.setItem('cal_done_ids', JSON.stringify([...calDoneIds])); }
+function saveCalDone() { storeSet('cal_done_ids', [...calDoneIds]); }
 
 function _fmtTime(dtStr) {
   const t = new Date(dtStr);

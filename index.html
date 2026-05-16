@@ -46,8 +46,12 @@ body::after{content:'';position:fixed;inset:0;background-image:url("data:image/s
 .nav-tab.active{color:var(--text1);background:var(--bg3)}
 
 /* PAGES */
-.page{display:none;padding:80px 24px 64px;max-width:1100px;margin:0 auto;position:relative;z-index:1}
-.page.active{display:block}
+@keyframes page-exit-anim{from{opacity:1;transform:translateY(0)}to{opacity:0;transform:translateY(-8px)}}
+@keyframes page-enter-anim{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+.page{display:none;padding:80px 24px 64px;max-width:1100px;margin:0 auto;position:relative;z-index:1;opacity:0}
+.page.active{display:block;opacity:1}
+.page.page-exit{display:block;animation:page-exit-anim 150ms ease-out forwards}
+.page.page-enter{animation:page-enter-anim 200ms ease-out forwards}
 
 /* DASHBOARD */
 .dash-title{font-size:30px;font-weight:800;letter-spacing:-0.04em;background:linear-gradient(180deg,#FFF 0%,#C7C4BC 120%);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:16px}
@@ -2977,10 +2981,22 @@ function renderRitualSummary() {
 
 // ── Navigation ────────────────────────────────────────────────────────────────
 function showPage(id, el) {
-  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
-  document.querySelectorAll('.nav-tab').forEach(t=>t.classList.remove('active'));
-  const pg=document.getElementById('page-'+id); if(pg) pg.classList.add('active');
-  if(el) el.classList.add('active');
+  const current = document.querySelector('.page.active');
+  const next    = document.getElementById('page-' + id);
+  if (!next) return;
+
+  // Update nav tabs immediately
+  document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+  if (el) el.classList.add('active');
+
+  // Sync bottom nav
+  document.querySelectorAll('.bn-tab').forEach(b => b.classList.toggle('active', b.dataset.page === id));
+  document.querySelectorAll('.bn-more-item').forEach(b => b.classList.toggle('active', b.dataset.page === id));
+  const morePages = ['nomadica','books','lab','calendar','weeklyreview'];
+  const moreBtn = document.querySelector('.bn-tab[data-page="__more"]');
+  if (moreBtn) moreBtn.classList.toggle('active', morePages.includes(id) && window.innerWidth <= 768);
+
+  // Pre-render content before the page becomes visible
   if(id==='character')    renderCharacterPage();
   if(id==='domains')      { renderProjects(); renderDomainSkillAccordion(); }
   if(id==='lab')          renderExperiments();
@@ -2989,12 +3005,21 @@ function showPage(id, el) {
   if(id==='weeklyreview') renderWeeklyReview();
   if(id==='calendar')     renderCalendarPage();
   if(id==='ritual')       renderRitualPage();
-  // Sync bottom nav
-  document.querySelectorAll('.bn-tab').forEach(b=>b.classList.toggle('active', b.dataset.page===id));
-  document.querySelectorAll('.bn-more-item').forEach(b=>b.classList.toggle('active', b.dataset.page===id));
-  const morePages=['nomadica','books','lab'];
-  const moreBtn=document.querySelector('.bn-tab[data-page="__more"]');
-  if(moreBtn) moreBtn.classList.toggle('active', morePages.includes(id)&&window.innerWidth<=768);
+
+  function enterNext() {
+    next.classList.add('active', 'page-enter');
+    setTimeout(() => next.classList.remove('page-enter'), 220);
+  }
+
+  if (current && current !== next) {
+    current.classList.add('page-exit');
+    setTimeout(() => {
+      current.classList.remove('active', 'page-exit');
+      enterNext();
+    }, 155);
+  } else if (!current) {
+    enterNext();
+  }
 }
 
 function bnNav(pageId) {
@@ -3028,6 +3053,9 @@ function esc(s) {
 (async function init() {
   await initSupabase();
   document.getElementById('sb-loader').style.display = 'none';
+  // Animate the initial dashboard in
+  const dashPage = document.getElementById('page-dashboard');
+  if (dashPage) { dashPage.classList.add('page-enter'); setTimeout(() => dashPage.classList.remove('page-enter'), 220); }
   doRollover();
 
   const aDate = getActiveDateString(), tDate = getTomorrowDateString();

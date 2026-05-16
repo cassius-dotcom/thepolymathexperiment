@@ -1829,7 +1829,7 @@ async function connectGoogle() {
   const { error } = await _sb.auth.signInWithOAuth({
     provider: 'google',
     options: {
-      scopes: 'https://www.googleapis.com/auth/calendar.readonly https://www.googleapis.com/auth/gmail.readonly',
+      scopes: 'https://www.googleapis.com/auth/calendar https://www.googleapis.com/auth/gmail.readonly',
       redirectTo: 'https://thepolymathexperiment.netlify.app',
       queryParams: { access_type: 'offline', prompt: 'consent' }
     }

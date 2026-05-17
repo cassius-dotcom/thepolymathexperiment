@@ -9,49 +9,65 @@
 <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=JetBrains+Mono:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <style>
 :root {
-  --bg: #060608;
+  /* Orbit stellar palette */
+  --bg: #09090e;
   --bg2: rgba(255,255,255,0.03);
   --bg3: rgba(255,255,255,0.055);
-  --border: rgba(255,255,255,0.07);
-  --border2: rgba(255,255,255,0.12);
+  --border: rgba(255,255,255,0.06);
+  --border2: rgba(255,255,255,0.11);
   --text1: #FAFAFA;
   --text2: #B8B6B0;
   --text3: #76746E;
-  --green: #6BE3A4;
-  --yellow: #F2C063;
+  /* Glow accents */
+  --glow-blue: #4F8EF7;
+  --glow-purple: #8B5CF6;
+  --glow-green: #00F5A0;
+  --glow-amber: #F59E0B;
+  /* Legacy compat */
+  --green: #00F5A0;
+  --yellow: #F59E0B;
   --red: #FF6B6B;
-  --blue: #7EB8F7;
+  --blue: #4F8EF7;
+  /* Typography */
   --display: 'Syne', sans-serif;
   --mono: 'JetBrains Mono', ui-monospace, monospace;
+  /* Fluid motion engine */
+  --spring-easing: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --slide-easing: cubic-bezier(0.25, 1, 0.5, 1);
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
 }
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 body{background:var(--bg);color:var(--text1);font-family:var(--display);min-height:100vh;overflow-x:hidden}
-body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellipse at 82% 14%,rgba(224,118,88,0.13) 0%,transparent 60%),radial-gradient(ellipse at 18% 90%,rgba(100,120,200,0.07) 0%,transparent 60%);pointer-events:none;z-index:0}
-body::after{content:'';position:fixed;inset:0;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");pointer-events:none;z-index:0;opacity:0.4}
+/* Nebula ambient canvas — fixed stellar glow */
+body::before{content:'';position:fixed;inset:0;background:
+  radial-gradient(ellipse 80% 60% at 15% -5%, rgba(79,142,247,0.13) 0%,transparent 65%),
+  radial-gradient(ellipse 60% 50% at 85% 100%, rgba(139,92,246,0.11) 0%,transparent 60%),
+  radial-gradient(ellipse 40% 35% at 50% 55%, rgba(0,245,160,0.04) 0%,transparent 70%);
+pointer-events:none;z-index:0}
+body::after{content:'';position:fixed;inset:0;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");pointer-events:none;z-index:0;opacity:0.35}
 
-.card{background:var(--bg2);border:0.5px solid var(--border);border-radius:14px;padding:16px;backdrop-filter:blur(20px)}
+.card{background:rgba(255,255,255,0.035);border:0.5px solid var(--border);border-radius:16px;padding:16px 18px;backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px)}
 
 .section-label{font-family:var(--mono);font-size:9px;font-weight:700;letter-spacing:0.22em;text-transform:uppercase;color:var(--text3);display:flex;align-items:center;gap:8px;margin-bottom:14px}
 .section-label::before{content:'';display:block;width:16px;height:0.5px;background:var(--text3);opacity:0.5;flex-shrink:0}
 .section-label::after{content:'';flex:1;height:0.5px;background:linear-gradient(90deg,rgba(255,255,255,0.07),transparent)}
 
 /* NAV */
-.nav{position:fixed;top:0;left:0;right:0;height:52px;background:rgba(6,6,8,0.85);backdrop-filter:blur(20px);border-bottom:0.5px solid var(--border);display:flex;align-items:center;padding:0 24px;z-index:100}
+.nav{position:fixed;top:0;left:0;right:0;height:52px;background:rgba(9,9,14,0.88);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-bottom:0.5px solid var(--border);display:flex;align-items:center;padding:0 24px;z-index:100}
 .nav-brand{font-size:13px;font-weight:800;letter-spacing:-0.02em;margin-right:32px;white-space:nowrap;flex-shrink:0}
 .nav-brand .sep{color:var(--text3);font-weight:400}
 .nav-tabs{display:flex;gap:4px;overflow-x:auto;scrollbar-width:none;flex:1}
 .nav-tabs::-webkit-scrollbar{display:none}
-.nav-tab{font-family:var(--mono);font-size:10px;font-weight:500;letter-spacing:0.06em;color:var(--text3);padding:8px 12px;border-radius:6px;cursor:pointer;border:none;background:transparent;white-space:nowrap;transition:color .15s,background .15s}
-.nav-tab:hover{color:var(--text2);background:var(--bg2)}
-.nav-tab.active{color:var(--text1);background:var(--bg3)}
+.nav-tab{font-family:var(--mono);font-size:10px;font-weight:500;letter-spacing:0.06em;color:var(--text3);padding:7px 12px;border-radius:8px;cursor:pointer;border:none;background:transparent;white-space:nowrap;transition:color 200ms var(--slide-easing),background 200ms var(--slide-easing);position:relative;overflow:visible}
+.nav-tab:hover{color:var(--text2);background:rgba(255,255,255,0.04)}
+.nav-tab.active{color:var(--text1);background:rgba(255,255,255,0.06)}
 
 /* PAGES */
-@keyframes page-exit-anim{from{opacity:1;transform:translateY(0)}to{opacity:0;transform:translateY(-8px)}}
-@keyframes page-enter-anim{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
-.page{display:none;padding:80px 24px 64px;max-width:1100px;margin:0 auto;position:relative;z-index:1;opacity:0}
-.page.active{display:block;opacity:1}
-.page.page-exit{display:block;animation:page-exit-anim 150ms ease-out forwards}
-.page.page-enter{animation:page-enter-anim 200ms ease-out forwards}
+.page{display:none;padding:80px 24px 100px;max-width:1100px;margin:0 auto;position:relative;z-index:1}
+.page.active{display:block}
+/* Cinematic child cascade — applied to immediate children by JS */
+@keyframes child-cascade-in{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+.cascade-child{animation:child-cascade-in 380ms var(--slide-easing) both}
 
 /* DASHBOARD */
 .dash-greeting-time{font-family:var(--mono);font-size:10px;font-weight:700;letter-spacing:0.18em;text-transform:uppercase;color:var(--yellow);margin-bottom:6px}
@@ -75,7 +91,7 @@ body::after{content:'';position:fixed;inset:0;background-image:url("data:image/s
 .ticker-row{margin-bottom:16px}
 .goal-ticker{display:flex;align-items:center;gap:8px;padding:7px 14px;border-radius:10px;background:linear-gradient(180deg,rgba(0,0,0,0.42) 0%,rgba(0,0,0,0.30) 100%);border:0.5px solid var(--border);position:relative;overflow:hidden}
 .goal-ticker-led{display:flex;align-items:center}
-.goal-ticker-led-dot{width:7px;height:7px;border-radius:50%;background:var(--green);box-shadow:0 0 8px rgba(107,227,164,0.7);animation:ledpulse 1.6s ease-in-out infinite}
+.goal-ticker-led-dot{width:7px;height:7px;border-radius:50%;background:var(--glow-green);box-shadow:0 0 8px rgba(0,245,160,0.7);animation:ledpulse 1.6s ease-in-out infinite}
 @keyframes ledpulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:0.45;transform:scale(0.85)}}
 .goal-ticker-label{font-family:var(--mono);font-size:9.5px;font-weight:800;letter-spacing:0.18em;color:var(--text3);text-transform:uppercase}
 .goal-ticker-stage{flex:1;height:22px;position:relative;overflow:hidden}
@@ -116,36 +132,59 @@ body::after{content:'';position:fixed;inset:0;background-image:url("data:image/s
 .gm-progress-total{font-family:var(--mono);font-size:18px;color:var(--text3)}
 .gm-progress-label{font-size:10px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--text3)}
 .gm-streak{display:inline-flex;align-items:center;gap:5px;padding:7px 11px;border-radius:30px;background:rgba(255,255,255,0.04);font-family:var(--mono);font-size:12px;font-weight:700;color:var(--text3);border:1px solid transparent;white-space:nowrap}
-.gm-streak.active{background:rgba(242,192,99,0.1);color:var(--yellow);border-color:rgba(242,192,99,0.32)}
+.gm-streak.active{background:rgba(245,158,11,0.1);color:var(--yellow);border-color:rgba(245,158,11,0.3)}
 .gm-bar{display:flex;gap:4px;height:6px;margin-bottom:14px}
 .gm-bar:empty{display:none}
 .gm-bar-seg{flex:1;border-radius:3px;background:var(--bg3);transition:background .3s}
-.gm-bar-seg-done{background:var(--green);box-shadow:0 0 6px rgba(107,227,164,0.4)}
-.gm-all-done{background:radial-gradient(ellipse at 50% -20%,rgba(107,227,164,0.08) 0%,transparent 60%),var(--bg2)}
-.gm-all-done .gm-progress-num{color:var(--green)!important;-webkit-text-fill-color:var(--green)!important}
-.gm-all-done .gm-progress-label{color:var(--green)!important}
+.gm-bar-seg-done{background:var(--glow-green);box-shadow:0 0 6px rgba(0,245,160,0.4)}
+.gm-all-done{background:radial-gradient(ellipse at 50% -20%,rgba(0,245,160,0.08) 0%,transparent 60%),rgba(255,255,255,0.035)}
+.gm-all-done .gm-progress-num{color:var(--glow-green)!important;-webkit-text-fill-color:var(--glow-green)!important}
+.gm-all-done .gm-progress-label{color:var(--glow-green)!important}
 .gm-card-tomorrow .gm-progress-row{display:none}
 
-/* GOAL LIST */
+/* GOAL LIST — Opal Tactile Cards */
 .goal-list{list-style:none}
-.goal-item{display:flex;align-items:center;gap:8px;padding:8px 12px;margin-bottom:5px;background:rgba(255,255,255,0.03);border:0.5px solid var(--border);border-radius:10px;transition:background .15s;cursor:default}
-.goal-item:hover{background:rgba(255,255,255,0.05)}
-.goal-item.done{opacity:0.45;background:rgba(107,227,164,0.04)}
-.goal-item.done .goal-text{text-decoration:line-through;text-decoration-color:rgba(255,255,255,0.4)}
-.goal-item.queued{background:rgba(242,192,99,0.10);box-shadow:inset 3px 0 0 0 var(--yellow)}
-.goal-item.queued .goal-text{color:#FFE2A8}
-@keyframes queue-flash{0%{background:rgba(242,192,99,0.32);transform:scale(1.015)}100%{background:rgba(242,192,99,0.10);transform:scale(1)}}
+
+.opal-task-card{
+  display:flex;align-items:center;gap:12px;
+  padding:11px 14px;margin-bottom:6px;
+  background:rgba(255,255,255,0.035);
+  border:0.5px solid rgba(255,255,255,0.07);
+  border-radius:14px;
+  cursor:default;
+  transition:background 200ms var(--slide-easing),border-color 200ms var(--slide-easing),transform 150ms var(--spring-easing),box-shadow 250ms ease;
+  -webkit-tap-highlight-color:transparent;
+  position:relative;overflow:hidden;
+}
+.opal-task-card:hover{background:rgba(255,255,255,0.055);border-color:rgba(255,255,255,0.11)}
+.opal-task-card:active{transform:scale(0.97);background:rgba(255,255,255,0.07);transition:transform 60ms ease-out}
+.opal-task-card.done{opacity:0.48;border-color:rgba(0,245,160,0.14);box-shadow:inset 0 0 16px rgba(0,245,160,0.04)}
+.opal-task-card.done .goal-text{text-decoration:line-through;text-decoration-color:rgba(0,245,160,0.4)}
+.opal-task-card.queued{background:rgba(245,158,11,0.07);border-color:rgba(245,158,11,0.2);box-shadow:inset 3px 0 0 0 var(--yellow)}
+.opal-task-card.queued .goal-text{color:#FFE2A8}
+.opal-task-card.glow-done{border-color:rgba(0,245,160,0.32)!important;box-shadow:0 0 24px rgba(0,245,160,0.12),inset 0 0 16px rgba(0,245,160,0.05)!important;animation:card-done-pop 550ms var(--spring-easing) forwards}
+@keyframes card-done-pop{0%{transform:scale(1)}30%{transform:scale(1.018)}100%{transform:scale(1)}}
+@keyframes goal-done-flash{0%{opacity:0.8}100%{opacity:0}}
+@keyframes queue-flash{0%{background:rgba(245,158,11,0.28);transform:scale(1.015)}100%{background:rgba(245,158,11,0.07);transform:scale(1)}}
 .queue-flashing{animation:queue-flash 0.48s ease-out}
 
 .drag-handle{font-size:14px;opacity:0;cursor:grab;letter-spacing:-2px;color:var(--text3);transition:opacity .15s;user-select:none;flex-shrink:0}
-.goal-item:hover .drag-handle{opacity:1}
+.opal-task-card:hover .drag-handle{opacity:1}
 
-.goal-check-wrap{position:relative;width:20px;height:20px;flex-shrink:0;cursor:pointer}
+/* Circular checkboxes */
+.goal-check-wrap{position:relative;width:22px;height:22px;flex-shrink:0;cursor:pointer}
 .goal-check-wrap input[type=checkbox]{position:absolute;inset:0;opacity:0;cursor:pointer;z-index:2;width:100%;height:100%;margin:0}
-.goal-check-box{position:absolute;inset:0;border-radius:6px;border:1.5px solid var(--border2);background:rgba(255,255,255,0.03);transition:all .2s;display:flex;align-items:center;justify-content:center}
-.goal-check-box::after{content:'';display:none;width:5px;height:9px;border:2px solid #0A0A0B;border-top:none;border-left:none;transform:rotate(45deg) translateY(-1px)}
-.goal-check-wrap input:checked~.goal-check-box{background:var(--green);border-color:var(--green);box-shadow:0 0 12px rgba(107,227,164,0.4)}
-.goal-check-wrap input:checked~.goal-check-box::after{display:block;animation:checkmark .2s cubic-bezier(0.34,1.56,0.64,1) forwards}
+.goal-check-box{
+  position:absolute;inset:0;
+  border-radius:50%;
+  border:1.5px solid rgba(255,255,255,0.18);
+  background:rgba(255,255,255,0.03);
+  transition:background 300ms var(--spring-easing),border-color 300ms var(--spring-easing),box-shadow 300ms ease,transform 300ms var(--spring-easing);
+  display:flex;align-items:center;justify-content:center;
+}
+.goal-check-box::after{content:'';display:none;width:5px;height:9px;border:2px solid #09090e;border-top:none;border-left:none;transform:rotate(45deg) translateY(-1px)}
+.goal-check-wrap input:checked~.goal-check-box{background:var(--glow-green);border-color:var(--glow-green);box-shadow:0 0 16px rgba(0,245,160,0.55),0 0 4px rgba(0,245,160,0.9);transform:scale(1.12)}
+.goal-check-wrap input:checked~.goal-check-box::after{display:block;animation:checkmark 300ms var(--spring-easing) forwards}
 @keyframes checkmark{from{transform:rotate(45deg) scale(0) translateY(-1px)}to{transform:rotate(45deg) scale(1) translateY(-1px)}}
 
 .goal-text{flex:1;font-size:12.5px;font-weight:500;outline:none;word-break:break-word;min-width:0}
@@ -153,14 +192,14 @@ body::after{content:'';position:fixed;inset:0;background-image:url("data:image/s
 
 .goal-queue-btn,.goal-delete-btn{background:none;border:none;cursor:pointer;padding:2px 4px;border-radius:4px;transition:all .15s;font-size:13px;flex-shrink:0}
 .goal-queue-btn{color:var(--text3);opacity:0.55}
-.goal-queue-btn.active{color:var(--yellow);filter:drop-shadow(0 0 4px rgba(242,192,99,0.65));opacity:1}
+.goal-queue-btn.active{color:var(--yellow);filter:drop-shadow(0 0 4px rgba(245,158,11,0.65));opacity:1}
 .goal-delete-btn{color:var(--text3);opacity:0;transition:opacity .15s,color .15s}
-.goal-item:hover .goal-delete-btn{opacity:1}
+.opal-task-card:hover .goal-delete-btn{opacity:1}
 .goal-delete-btn:hover{color:var(--red)}
 
 .goal-empty{font-size:12px;color:var(--text3);font-style:italic;padding:12px 0;text-align:center}
-.show-more-btn{width:100%;background:none;border:0.5px dashed var(--border2);border-radius:8px;padding:8px;color:var(--text3);font-family:var(--mono);font-size:10px;cursor:pointer;margin-top:6px;transition:color .15s}
-.show-more-btn:hover{color:var(--text2)}
+.show-more-btn{width:100%;background:none;border:0.5px dashed rgba(255,255,255,0.1);border-radius:10px;padding:8px;color:var(--text3);font-family:var(--mono);font-size:10px;cursor:pointer;margin-top:6px;transition:color .15s,border-color .15s}
+.show-more-btn:hover{color:var(--text2);border-color:rgba(255,255,255,0.2)}
 .gm-push-btn{width:100%;background:none;border:0.5px dashed var(--border);border-radius:8px;padding:8px;color:var(--text3);font-family:var(--mono);font-size:10px;cursor:pointer;margin-top:8px;transition:color .15s}
 .gm-push-btn:hover{color:var(--text1)}
 
@@ -261,9 +300,9 @@ body::after{content:'';position:fixed;inset:0;background-image:url("data:image/s
 .exp-card-header{display:flex;align-items:center;gap:8px;margin-bottom:8px;flex-wrap:wrap}
 .exp-name{font-size:13px;font-weight:700;flex:1}
 .status-badge{font-family:var(--mono);font-size:8.5px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;padding:3px 8px;border-radius:20px}
-.status-active{background:rgba(107,227,164,0.1);color:var(--green);border:0.5px solid rgba(107,227,164,0.2)}
+.status-active{background:rgba(0,245,160,0.1);color:var(--glow-green);border:0.5px solid rgba(0,245,160,0.2)}
 .status-completed{background:rgba(126,184,247,0.1);color:var(--blue);border:0.5px solid rgba(126,184,247,0.2)}
-.status-paused{background:rgba(242,192,99,0.1);color:var(--yellow);border:0.5px solid rgba(242,192,99,0.2)}
+.status-paused{background:rgba(245,158,11,0.1);color:var(--yellow);border:0.5px solid rgba(245,158,11,0.2)}
 .exp-hypothesis{font-size:11px;color:var(--text2);font-style:italic;line-height:1.5;margin-bottom:8px}
 .exp-meta{font-family:var(--mono);font-size:10px;color:var(--text3);margin-bottom:10px;display:flex;gap:12px;flex-wrap:wrap}
 .exp-toggle{width:100%;background:none;border:0.5px dashed var(--border2);border-radius:8px;padding:7px;color:var(--text3);font-family:var(--mono);font-size:10px;cursor:pointer;transition:color .15s}
@@ -308,7 +347,7 @@ input[type=number]::-webkit-outer-spin-button{opacity:0.5}
 .principle-key{font-family:var(--mono);font-size:10px;color:var(--text3);flex-shrink:0;width:18px}
 .dev-add-btn{background:none;border:0.5px solid var(--border);border-radius:4px;color:var(--text3);font-family:var(--mono);font-size:10px;padding:1px 5px;cursor:pointer;transition:all .15s;flex-shrink:0}
 .dev-add-btn:hover{color:var(--text1);border-color:var(--border2)}
-.dev-add-btn.active-dev{color:var(--green);border-color:rgba(107,227,164,0.4)}
+.dev-add-btn.active-dev{color:var(--glow-green);border-color:rgba(0,245,160,0.4)}
 
 /* KPI */
 .kpi-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:24px}
@@ -351,7 +390,7 @@ input[type=number]::-webkit-outer-spin-button{opacity:0.5}
 .filter-btn:hover{color:var(--text1)}
 .filter-btn.active{background:rgba(255,255,255,0.08);color:var(--text1);border-color:rgba(255,255,255,0.2)}
 @keyframes xp-flash-anim{0%{opacity:0;transform:translateY(8px)}15%{opacity:1;transform:translateY(0)}80%{opacity:1}100%{opacity:0}}
-.xp-flash-el{position:fixed;bottom:24px;right:24px;background:rgba(107,227,164,0.1);border:0.5px solid rgba(107,227,164,0.3);border-radius:8px;padding:8px 14px;font-family:var(--mono);font-size:11px;font-weight:700;color:var(--green);z-index:9999;animation:xp-flash-anim 2.5s ease forwards;pointer-events:none}
+.xp-flash-el{position:fixed;bottom:24px;right:24px;background:rgba(0,245,160,0.1);border:0.5px solid rgba(0,245,160,0.3);border-radius:10px;padding:8px 14px;font-family:var(--mono);font-size:11px;font-weight:700;color:var(--glow-green);z-index:9999;animation:xp-flash-anim 2.5s ease forwards;pointer-events:none}
 
 /* WEEKLY REVIEW */
 .week-selector{display:flex;gap:8px;margin-bottom:24px;align-items:center;flex-wrap:wrap}
@@ -373,7 +412,7 @@ input[type=number]::-webkit-outer-spin-button{opacity:0.5}
 .r-badge{font-family:var(--mono);font-size:9px;font-weight:700;padding:2px 7px;border-radius:10px;flex-shrink:0}
 
 /* LOADER */
-#sb-loader{position:fixed;inset:0;background:var(--bg);z-index:99999;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px}
+#sb-loader{position:fixed;inset:0;background:var(--bg);z-index:99999;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;pointer-events:none}
 .sb-dots{display:flex;gap:7px}
 .sb-dot{width:8px;height:8px;border-radius:50%;background:var(--green);animation:sbd 1.2s ease-in-out infinite}
 .sb-dot:nth-child(2){animation-delay:.2s}.sb-dot:nth-child(3){animation-delay:.4s}
@@ -430,61 +469,104 @@ input[type=number]::-webkit-outer-spin-button{opacity:0.5}
 /* VERDICT */
 .verdict-row{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap;align-items:center}
 .verdict-btn{font-family:var(--mono);font-size:9px;font-weight:700;padding:4px 10px;border-radius:20px;border:0.5px solid var(--border2);background:none;color:var(--text3);cursor:pointer;transition:all .15s}
-.verdict-btn.v-worked.sel{background:rgba(107,227,164,0.1);color:var(--green);border-color:rgba(107,227,164,0.3)}
+.verdict-btn.v-worked.sel{background:rgba(0,245,160,0.1);color:var(--glow-green);border-color:rgba(0,245,160,0.3)}
 .verdict-btn.v-didnt.sel{background:rgba(255,107,107,0.1);color:var(--red);border-color:rgba(255,107,107,0.3)}
 .verdict-btn.v-inc.sel{background:rgba(242,192,99,0.1);color:var(--yellow);border-color:rgba(242,192,99,0.3)}
 
-/* ── Micro-interactions ──────────────────────────────────────────────────── */
-/* Button press spring — skip checkboxes and their wrappers */
-button{transition:transform 200ms cubic-bezier(0.34,1.56,0.64,1)}
-button:active{transform:scale(0.96);transition:transform 80ms ease-out}
-/* Exempt goal checkboxes */
+/* ── Global micro-interactions ──────────────────────────────────────────── */
+button{transition:transform 200ms var(--spring-easing)}
+button:active{transform:scale(0.96);transition:transform 60ms ease-out}
 .goal-check-wrap input[type=checkbox]:active{transform:none}
-/* bn-more-item (div, not button) */
-.bn-more-item{transition:transform 200ms cubic-bezier(0.34,1.56,0.64,1) !important}
-.bn-more-item:active{transform:scale(0.96) !important;transition:transform 80ms ease-out !important}
 
-/* Card hover lift — only on true hover devices */
+/* Card hover lift */
 @media(hover:hover){
-  .card{transition:transform 150ms ease,border-color 150ms ease}
-  .card:hover{transform:translateY(-2px);border-color:var(--border2)}
+  .card{transition:transform 150ms ease,border-color 200ms ease}
+  .card:hover{transform:translateY(-1px);border-color:rgba(255,255,255,0.10)}
 }
 
-/* Nav tab active underline indicator */
-.nav-tab{position:relative;overflow:visible}
-.nav-tab.active::after{content:'';position:absolute;bottom:0;left:10%;height:1.5px;background:var(--yellow);border-radius:1px;animation:tab-line-in 220ms cubic-bezier(0.22,1,0.36,1) forwards}
+/* Nav tab active underline indicator — glow-blue */
+.nav-tab.active::after{content:'';position:absolute;bottom:0;left:10%;height:1.5px;background:var(--glow-blue);border-radius:1px;animation:tab-line-in 240ms var(--ease-out) forwards}
 @keyframes tab-line-in{from{width:0;left:50%}to{width:80%;left:10%}}
-
-/* Goal done flash overlay */
-@keyframes goal-done-flash{0%{opacity:0.7}100%{opacity:0}}
 
 /* XP floating label */
 @keyframes xp-float-up{0%{opacity:1;transform:translateY(0)}100%{opacity:0;transform:translateY(-40px)}}
-.xp-float-el2{position:fixed;pointer-events:none;font-family:var(--mono);font-size:12px;font-weight:700;color:var(--green);z-index:9999;white-space:nowrap;animation:xp-float-up 800ms ease-out forwards}
+.xp-float-el2{position:fixed;pointer-events:none;font-family:var(--mono);font-size:12px;font-weight:700;color:var(--glow-green);z-index:9999;white-space:nowrap;animation:xp-float-up 800ms ease-out forwards}
 
 /* Ring burst particle */
-.ring-burst-dot{position:fixed;width:5px;height:5px;border-radius:50%;background:var(--green);pointer-events:none;z-index:100;transition:transform 600ms cubic-bezier(0.22,1,0.36,1),opacity 600ms ease-out}
+.ring-burst-dot{position:fixed;width:5px;height:5px;border-radius:50%;background:var(--glow-green);pointer-events:none;z-index:100;transition:transform 600ms var(--ease-out),opacity 600ms ease-out}
 
-.bottom-nav{display:none;position:fixed;bottom:0;left:0;right:0;height:64px;background:rgba(6,6,8,0.97);backdrop-filter:blur(24px);border-top:0.5px solid rgba(255,255,255,0.12);z-index:300;align-items:stretch;padding-bottom:env(safe-area-inset-bottom,0px)}
-.bn-tab{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;cursor:pointer;border:none;background:transparent;color:rgba(118,116,110,1);font-family:'JetBrains Mono',monospace;font-size:8.5px;font-weight:600;padding:8px 4px;-webkit-tap-highlight-color:transparent}
-.bn-tab.active{color:#FAFAFA}
-.bn-tab.active svg{stroke:#F2C063}
-.bn-tab svg{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round}
-.bn-more-panel{display:none;position:fixed;bottom:64px;left:0;right:0;background:rgba(8,8,10,0.99);border-top:0.5px solid rgba(255,255,255,0.12);backdrop-filter:blur(24px);z-index:299;padding:16px;flex-wrap:wrap;gap:8px}
-.bn-more-panel.open{display:flex}
-.bn-more-item{flex:1 1 calc(25% - 10px);display:flex;flex-direction:column;align-items:center;gap:8px;padding:16px 8px;border-radius:14px;background:rgba(255,255,255,0.055);border:0.5px solid rgba(255,255,255,0.07);cursor:pointer;font-family:'JetBrains Mono',monospace;font-size:9px;font-weight:600;color:#B8B6B0;-webkit-tap-highlight-color:transparent}
-.bn-more-item.active{color:#FAFAFA;border-color:rgba(255,255,255,0.2)}
-.bn-more-item svg{width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round}
+/* ══ OPAL FLOATING DOCK ══════════════════════════════════════════════════════ */
+.opal-dock-container{
+  display:none;
+  position:fixed;bottom:20px;left:50%;
+  transform:translateX(-50%);
+  z-index:400;
+  padding-bottom:env(safe-area-inset-bottom,0px);
+}
+.opal-dock{
+  display:flex;align-items:center;gap:2px;
+  padding:6px 8px;
+  background:rgba(11,11,18,0.90);
+  backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);
+  border:0.5px solid rgba(255,255,255,0.10);
+  border-radius:100px;
+  box-shadow:0 8px 40px rgba(0,0,0,0.55),0 2px 8px rgba(0,0,0,0.3),inset 0 0.5px 0 rgba(255,255,255,0.08);
+}
+.dock-tab{
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;
+  padding:9px 15px;border-radius:80px;border:none;background:transparent;cursor:pointer;
+  color:var(--text3);font-family:var(--mono);font-size:8px;font-weight:600;letter-spacing:0.04em;
+  position:relative;transition:color 200ms var(--slide-easing);
+  -webkit-tap-highlight-color:transparent;white-space:nowrap;
+}
+.dock-tab svg{width:22px;height:22px;stroke:currentColor;fill:none;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round;transition:transform 350ms var(--spring-easing),filter 300ms ease;flex-shrink:0}
+.dock-tab.active{color:var(--text1)}
+.dock-tab.active svg{transform:scale(1.18) translateY(-1px);filter:drop-shadow(0 0 7px rgba(79,142,247,0.7))}
+.dock-tab.active::after{
+  content:'';position:absolute;bottom:5px;left:50%;
+  transform:translateX(-50%);
+  width:4px;height:4px;border-radius:50%;
+  background:var(--glow-blue);box-shadow:0 0 8px var(--glow-blue);
+  animation:dock-dot-in 300ms var(--spring-easing) forwards;
+}
+@keyframes dock-dot-in{from{opacity:0;transform:translateX(-50%) scale(0)}to{opacity:1;transform:translateX(-50%) scale(1)}}
+
+/* More panel — centered floating card */
+.bn-more-panel{
+  display:none;position:fixed;
+  bottom:96px;left:50%;transform:translateX(-50%);
+  width:min(380px,calc(100vw - 32px));
+  background:rgba(10,10,16,0.97);
+  border:0.5px solid rgba(255,255,255,0.10);
+  border-radius:24px;
+  backdrop-filter:blur(28px);-webkit-backdrop-filter:blur(28px);
+  z-index:399;padding:16px;flex-wrap:wrap;gap:8px;
+  box-shadow:0 20px 56px rgba(0,0,0,0.55);
+}
+.bn-more-panel.open{display:flex;animation:panel-pop-in 280ms var(--spring-easing) forwards}
+@keyframes panel-pop-in{from{opacity:0;transform:translateX(-50%) scale(0.92) translateY(10px)}to{opacity:1;transform:translateX(-50%) scale(1) translateY(0)}}
+.bn-more-item{
+  flex:1 1 calc(25% - 10px);display:flex;flex-direction:column;align-items:center;gap:8px;
+  padding:14px 8px;border-radius:16px;
+  background:rgba(255,255,255,0.05);border:0.5px solid rgba(255,255,255,0.07);
+  cursor:pointer;font-family:var(--mono);font-size:9px;font-weight:600;color:var(--text2);
+  -webkit-tap-highlight-color:transparent;
+  transition:background 200ms var(--slide-easing),border-color 200ms ease,transform 200ms var(--spring-easing);
+}
+.bn-more-item svg{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round}
+.bn-more-item:hover{background:rgba(255,255,255,0.09);border-color:rgba(255,255,255,0.14)}
+.bn-more-item:active{transform:scale(0.95);transition:transform 60ms ease-out}
+.bn-more-item.active{color:var(--text1);border-color:rgba(79,142,247,0.3);background:rgba(79,142,247,0.08)}
 @media(max-width:768px){
-  /* Nav */
-  .bottom-nav{display:flex !important}
+  /* Dock */
+  .opal-dock-container{display:block !important}
   .nav-tabs{display:none !important}
   #liveClock{display:none !important}
   #globalSearch{display:none !important}
   #globalSearchResults{display:none !important}
 
-  /* Page */
-  .page{padding:64px 14px 88px !important}
+  /* Page — extra bottom padding for dock */
+  .page{padding:64px 14px 100px !important}
 
   /* Quote strip */
   .quote-strip{flex-direction:column !important;gap:8px !important}
@@ -545,7 +627,6 @@ button:active{transform:scale(0.96);transition:transform 80ms ease-out}
 .hero-card:active{background:rgba(255,255,255,0.07) !important;border-color:rgba(255,255,255,0.15) !important}
 
 /* ── UI Polish ─────────────────────────────────────────────────────────────── */
-/* Typography */
 p,li,.card div,.card span{line-height:1.65}
 .section-label{letter-spacing:0.18em}
 .page-title{letter-spacing:-0.03em;line-height:1.1}
@@ -559,28 +640,20 @@ p,li,.card div,.card span{line-height:1.65}
 .ritual-item-row:active::after{opacity:1}
 [onclick]{cursor:pointer}
 
-/* Icon sizing */
-.bn-tab svg{width:22px;height:22px}
-.bn-more-item svg{width:20px;height:20px}
-
 /* Elevation layers */
-.card{background:rgba(255,255,255,0.035)}
-.glass-input,.glass-select{background:rgba(255,255,255,0.06)}
+.glass-input,.glass-select{background:rgba(255,255,255,0.055)}
 .hero-card{background:rgba(255,255,255,0.055)}
-.bn-more-item:hover{background:rgba(255,255,255,0.09)}
-
-/* Feedback states */
-.bn-tab{transition:color .15s}
-.bn-tab:active{opacity:0.7;transform:scale(0.94)}
-.bn-more-item{transition:background .15s,border-color .15s,transform .15s}
-.bn-more-item:active{transform:scale(0.95)}
-.goal-row:active{background:rgba(255,255,255,0.07) !important}
 
 /* Micro-interactions */
-@keyframes fade-up{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
-.principle-dash-card{animation:fade-up 300ms cubic-bezier(0.22,1,0.36,1) both}
-.hero-card{animation:fade-up 200ms cubic-bezier(0.22,1,0.36,1) both}
-.hero-card:nth-child(2){animation-delay:60ms}
+@keyframes fade-up{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+.principle-dash-card{animation:fade-up 320ms var(--ease-out) both}
+.hero-card{animation:fade-up 220ms var(--ease-out) both}
+.hero-card:nth-child(2){animation-delay:55ms}
+
+/* Hero cards with spring hover */
+.hero-card{transition:background 200ms var(--slide-easing),border-color 200ms var(--slide-easing),transform 300ms var(--spring-easing)}
+@media(hover:hover){.hero-card:hover{background:rgba(255,255,255,0.08)!important;border-color:rgba(255,255,255,0.14)!important;transform:translateY(-1px)}}
+.hero-card:active{background:rgba(255,255,255,0.09)!important;transform:scale(0.97)!important;transition:transform 60ms ease-out!important}
 </style>
 </head>
 <body>
@@ -624,13 +697,13 @@ p,li,.card div,.card span{line-height:1.65}
     <div class="hero-card" onclick="bnNav('ritual')">
       <div class="hero-card-label">Ritual</div>
       <div class="hero-card-value" id="heroRitualVal">0/6</div>
-      <div class="hero-progress"><div class="hero-progress-fill" id="heroRitualBar" style="width:0%;background:#6BE3A4"></div></div>
+      <div class="hero-progress"><div class="hero-progress-fill" id="heroRitualBar" style="width:0%;background:var(--glow-green)"></div></div>
       <div class="hero-card-sub" id="heroRitualSub">Not started</div>
     </div>
     <div class="hero-card" onclick="document.getElementById('goalInput')?.focus()">
       <div class="hero-card-label">Goals</div>
       <div class="hero-card-value" id="heroGoalsVal">0/0</div>
-      <div class="hero-progress"><div class="hero-progress-fill" id="heroGoalsBar" style="width:0%;background:#F2C063"></div></div>
+      <div class="hero-progress"><div class="hero-progress-fill" id="heroGoalsBar" style="width:0%;background:var(--glow-amber)"></div></div>
       <div class="hero-card-sub" id="heroGoalsSub">No goals yet</div>
     </div>
   </div>
@@ -639,7 +712,7 @@ p,li,.card div,.card span{line-height:1.65}
     <div class="ring-svg-wrap" style="width:72px;height:72px;flex-shrink:0">
       <svg viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg">
         <circle cx="60" cy="60" r="52" fill="none" stroke="rgba(255,255,255,0.06)" stroke-width="8"/>
-        <circle id="ringFill" cx="60" cy="60" r="52" fill="none" stroke="#6BE3A4" stroke-width="8"
+        <circle id="ringFill" cx="60" cy="60" r="52" fill="none" stroke="var(--glow-green)" stroke-width="8"
           stroke-linecap="round" transform="rotate(-90 60 60)"
           style="transition:stroke-dasharray 0.7s cubic-bezier(0.22,1,0.36,1),stroke 0.7s"/>
       </svg>
@@ -1142,7 +1215,7 @@ function runGlobalSearch(query) {
 
   (storeGet('goals:' + getActiveDateString()) || []).forEach(g => {
     if (g.text.toLowerCase().includes(q))
-      results.push({ section:'Goals', text: g.text, action: ()=>showPage('dashboard', document.querySelector('.nav-tab')) });
+      results.push({ section:'Goals', text: g.text, action: ()=>showPage('dashboard', document.querySelector('.nav-tab[data-page="dashboard"]')) });
   });
 
   (getBooks() || []).forEach(b => {
@@ -1475,7 +1548,7 @@ window.addEventListener('goals-changed', () => { cycleIdx = 0; tick(); });
 // ── Goal Row ─────────────────────────────────────────────────────────────────
 function buildGoalRow(goal, idx, key, readOnly, reloadFn) {
   const li = document.createElement('li');
-  li.className = 'goal-item' + (goal.done ? ' done':'') + (goal.queued ? ' queued':'');
+  li.className = 'opal-task-card' + (goal.done ? ' done':'') + (goal.queued ? ' queued':'');
   li.dataset.idx = idx;
   li.draggable = !readOnly;
 
@@ -1489,7 +1562,11 @@ function buildGoalRow(goal, idx, key, readOnly, reloadFn) {
   const cb = document.createElement('input'); cb.type = 'checkbox'; cb.checked = goal.done;
   if (readOnly) { cb.disabled = true; cb.title = 'Activates at 6 AM tomorrow'; }
   cb.addEventListener('change', () => {
-    if (cb.checked) flashGoalRow(li);
+    if (cb.checked) {
+      flashGoalRow(li);
+      li.classList.add('glow-done');
+      setTimeout(() => li.classList.remove('glow-done'), 650);
+    }
     const gs = storeGet(key) || []; gs[idx].done = cb.checked; storeSet(key, gs); reloadFn();
   });
   const box = document.createElement('span'); box.className = 'goal-check-box';
@@ -1536,21 +1613,21 @@ function buildGoalRow(goal, idx, key, readOnly, reloadFn) {
 function wireDragReorder(listEl, key, reloadFn) {
   let src = null;
   listEl.addEventListener('dragstart', e => {
-    const li = e.target.closest('.goal-item'); if (!li) return;
+    const li = e.target.closest('.opal-task-card'); if (!li) return;
     src = parseInt(li.dataset.idx, 10); e.dataTransfer.effectAllowed='move';
   });
   listEl.addEventListener('dragover', e => {
     e.preventDefault();
-    const li = e.target.closest('.goal-item'); if (!li) return;
-    listEl.querySelectorAll('.goal-item').forEach(el => el.style.borderTopColor='');
-    li.style.borderTopColor = 'rgba(255,255,255,0.3)';
+    const li = e.target.closest('.opal-task-card'); if (!li) return;
+    listEl.querySelectorAll('.opal-task-card').forEach(el => el.style.borderTopColor='');
+    li.style.borderTopColor = 'rgba(79,142,247,0.4)';
   });
   listEl.addEventListener('dragleave', e => {
-    const li = e.target.closest('.goal-item'); if (li) li.style.borderTopColor='';
+    const li = e.target.closest('.opal-task-card'); if (li) li.style.borderTopColor='';
   });
   listEl.addEventListener('drop', e => {
     e.preventDefault();
-    const li = e.target.closest('.goal-item'); if (!li) return;
+    const li = e.target.closest('.opal-task-card'); if (!li) return;
     li.style.borderTopColor='';
     const dest = parseInt(li.dataset.idx, 10);
     if (src===null || src===dest) return;
@@ -3045,7 +3122,7 @@ async function fetchGmailData(token) {
 function flashGoalRow(li) {
   const rect = li.getBoundingClientRect();
   const el = document.createElement('div');
-  el.style.cssText = `position:fixed;top:${rect.top}px;left:${rect.left}px;width:${rect.width}px;height:${rect.height}px;border-radius:10px;background:rgba(107,227,164,0.22);pointer-events:none;z-index:100;animation:goal-done-flash 400ms ease-out forwards`;
+  el.style.cssText = `position:fixed;top:${rect.top}px;left:${rect.left}px;width:${rect.width}px;height:${rect.height}px;border-radius:14px;background:rgba(0,245,160,0.18);pointer-events:none;z-index:100;animation:goal-done-flash 400ms ease-out forwards`;
   document.body.appendChild(el);
   setTimeout(() => el.remove(), 420);
 }
@@ -3248,7 +3325,7 @@ function renderRitualPage() {
   rituals.forEach(r => {
     const checked = !!state[r.id];
     html += `<div onclick="setRitualDone('${r.id}',${!checked})"
-      style="display:flex;align-items:center;gap:16px;padding:16px 18px;border-radius:14px;border:0.5px solid ${checked?'rgba(107,227,164,0.25)':'var(--border)'};background:${checked?'rgba(107,227,164,0.05)':'var(--bg2)'};cursor:pointer;transition:all .15s;-webkit-tap-highlight-color:transparent">
+      style="display:flex;align-items:center;gap:16px;padding:16px 18px;border-radius:14px;border:0.5px solid ${checked?'rgba(0,245,160,0.25)':'var(--border)'};background:${checked?'rgba(0,245,160,0.05)':'var(--bg2)'};cursor:pointer;transition:all .15s;-webkit-tap-highlight-color:transparent">
       <div style="font-size:22px;flex-shrink:0">${r.icon}</div>
       <div style="flex:1">
         <div style="font-size:13px;font-weight:700;color:${checked?'var(--text3)':'var(--text1)'};${checked?'text-decoration:line-through':''}">${esc(r.label)}</div>
@@ -3273,7 +3350,7 @@ function renderRitualSummary() {
   const rituals = getUserRituals(), state = getRitualState();
   const done = rituals.filter(r => state[r.id]).length, total = rituals.length;
   const allDone = done === total;
-  el.innerHTML = `<div style="display:flex;align-items:center;gap:12px;padding:10px 16px;border-radius:12px;background:var(--bg2);border:0.5px solid ${allDone?'rgba(107,227,164,0.2)':'var(--border)'};cursor:pointer;-webkit-tap-highlight-color:transparent" onclick="showPage('ritual',null)">
+  el.innerHTML = `<div style="display:flex;align-items:center;gap:12px;padding:10px 16px;border-radius:12px;background:var(--bg2);border:0.5px solid ${allDone?'rgba(0,245,160,0.2)':'var(--border)'};cursor:pointer;-webkit-tap-highlight-color:transparent" onclick="showPage('ritual',null)">
     <div style="font-size:16px">${allDone?'✅':'⭕'}</div>
     <div style="flex:1">
       <div style="font-size:11px;font-weight:700;font-family:var(--mono);color:${allDone?'var(--green)':'var(--text2)'}">MORNING RITUAL</div>
@@ -3291,17 +3368,17 @@ function renderRitualSummary() {
 function showPage(id, el) {
   const current = document.querySelector('.page.active');
   const next    = document.getElementById('page-' + id);
-  if (!next) return;
+  if (!next || current === next) return;
 
-  // Update nav tabs immediately
+  // Update nav tabs
   document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
   if (el) el.classList.add('active');
 
-  // Sync bottom nav
-  document.querySelectorAll('.bn-tab').forEach(b => b.classList.toggle('active', b.dataset.page === id));
+  // Sync floating dock
+  document.querySelectorAll('.dock-tab').forEach(b => b.classList.toggle('active', b.dataset.page === id));
   document.querySelectorAll('.bn-more-item').forEach(b => b.classList.toggle('active', b.dataset.page === id));
   const morePages = ['weeklyreview','wins','books','lab','nomadica','principles','calendar'];
-  const moreBtn = document.querySelector('.bn-tab[data-page="__more"]');
+  const moreBtn = document.querySelector('.dock-tab[data-page="__more"]');
   if (moreBtn) moreBtn.classList.toggle('active', morePages.includes(id) && window.innerWidth <= 768);
 
   // Pre-render content before the page becomes visible
@@ -3316,19 +3393,45 @@ function showPage(id, el) {
   if(id==='wins')         renderWinsJournal();
   if(id==='principles')   renderPrinciplesPage();
 
-  function enterNext() {
-    next.classList.add('active', 'page-enter');
-    setTimeout(() => next.classList.remove('page-enter'), 220);
+  // Cinematic stagger cascade
+  function cascadeIn() {
+    next.classList.add('active');
+    next.style.opacity = '0';
+    requestAnimationFrame(() => {
+      next.style.transition = 'opacity 80ms ease-out';
+      next.style.opacity = '1';
+      setTimeout(() => { next.style.transition = ''; next.style.opacity = ''; }, 100);
+      // Stagger immediate children
+      const kids = Array.from(next.children);
+      kids.forEach((child, i) => {
+        child.style.opacity = '0';
+        child.style.transform = 'translateY(18px)';
+        child.style.transition = 'none';
+        setTimeout(() => {
+          child.style.transition = `opacity 360ms cubic-bezier(0.25,1,0.5,1), transform 420ms cubic-bezier(0.34,1.56,0.64,1)`;
+          child.style.opacity = '1';
+          child.style.transform = 'translateY(0)';
+        }, 30 + i * 45);
+      });
+      // Clean up inline styles after animation completes
+      setTimeout(() => {
+        kids.forEach(c => { c.style.opacity=''; c.style.transform=''; c.style.transition=''; });
+      }, 30 + kids.length * 45 + 480);
+    });
   }
 
-  if (current && current !== next) {
-    current.classList.add('page-exit');
+  if (current) {
+    // Fade + lift exit
+    current.style.transition = 'opacity 140ms ease-out, transform 140ms ease-out';
+    current.style.opacity = '0';
+    current.style.transform = 'translateY(-6px)';
     setTimeout(() => {
-      current.classList.remove('active', 'page-exit');
-      enterNext();
-    }, 155);
-  } else if (!current) {
-    enterNext();
+      current.classList.remove('active');
+      current.style.cssText = '';
+      cascadeIn();
+    }, 145);
+  } else {
+    cascadeIn();
   }
 }
 
@@ -3336,22 +3439,25 @@ function bnNav(pageId) {
   const panel = document.getElementById('bnMorePanel');
   if (panel) panel.classList.remove('open');
   showPage(pageId, null);
-  document.querySelectorAll('.bn-tab').forEach(b => b.classList.toggle('active', b.dataset.page === pageId));
+  document.querySelectorAll('.dock-tab').forEach(b => b.classList.toggle('active', b.dataset.page === pageId));
   document.querySelectorAll('.bn-more-item').forEach(b => b.classList.toggle('active', b.dataset.page === pageId));
   const morePages = ['weeklyreview','wins','books','lab','nomadica','principles','calendar'];
-  const moreBtn = document.querySelector('.bn-tab[data-page="__more"]');
+  const moreBtn = document.querySelector('.dock-tab[data-page="__more"]');
   if (moreBtn) moreBtn.classList.toggle('active', morePages.includes(pageId));
 }
 
 function toggleBnMore() {
   const panel = document.getElementById('bnMorePanel');
-  if (panel) panel.classList.toggle('open');
-  document.addEventListener('click', function handler(e) {
-    if (!panel.contains(e.target) && !e.target.closest('.bn-tab[data-page="__more"]')) {
-      panel.classList.remove('open');
-      document.removeEventListener('click', handler);
-    }
-  }, { capture: true });
+  if (!panel) return;
+  panel.classList.toggle('open');
+  if (panel.classList.contains('open')) {
+    document.addEventListener('click', function handler(e) {
+      if (!panel.contains(e.target) && !e.target.closest('.dock-tab[data-page="__more"]')) {
+        panel.classList.remove('open');
+        document.removeEventListener('click', handler);
+      }
+    }, { capture: true });
+  }
 }
 
 // ── Util ──────────────────────────────────────────────────────────────────────
@@ -3362,10 +3468,11 @@ function esc(s) {
 // ── Init ──────────────────────────────────────────────────────────────────────
 (async function init() {
   await initSupabase();
-  document.getElementById('sb-loader').style.display = 'none';
-  // Animate the initial dashboard in
-  const dashPage = document.getElementById('page-dashboard');
-  if (dashPage) { dashPage.classList.add('page-enter'); setTimeout(() => dashPage.classList.remove('page-enter'), 220); }
+  // Fade loader out smoothly, then reveal dashboard
+  const loader = document.getElementById('sb-loader');
+  loader.style.transition = 'opacity 300ms ease-out';
+  loader.style.opacity = '0';
+  setTimeout(() => { loader.style.display = 'none'; }, 310);
   doRollover();
 
   const aDate = getActiveDateString(), tDate = getTomorrowDateString();
@@ -3450,27 +3557,29 @@ function esc(s) {
 })();
 </script>
 
-<div class="bottom-nav" id="bottomNav">
-  <button class="bn-tab active" data-page="dashboard" onclick="bnNav('dashboard')">
-    <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
-    Home
-  </button>
-  <button class="bn-tab" data-page="ritual" onclick="bnNav('ritual')">
-    <svg viewBox="0 0 24 24"><path d="M12 2l1.4 4.3H18l-3.7 2.7 1.4 4.3L12 11.3l-3.7 2 1.4-4.3L6 6.3h4.6z"/></svg>
-    Ritual
-  </button>
-  <button class="bn-tab" data-page="character" onclick="bnNav('character')">
-    <svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
-    Character
-  </button>
-  <button class="bn-tab" data-page="domains" onclick="bnNav('domains')">
-    <svg viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
-    Domains
-  </button>
-  <button class="bn-tab" data-page="__more" onclick="toggleBnMore()">
-    <svg viewBox="0 0 24 24"><circle cx="5" cy="12" r="1.5" fill="currentColor"/><circle cx="12" cy="12" r="1.5" fill="currentColor"/><circle cx="19" cy="12" r="1.5" fill="currentColor"/></svg>
-    More
-  </button>
+<div class="opal-dock-container" id="opalDock">
+  <div class="opal-dock">
+    <button class="dock-tab active" data-page="dashboard" onclick="bnNav('dashboard')">
+      <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>
+      Home
+    </button>
+    <button class="dock-tab" data-page="ritual" onclick="bnNav('ritual')">
+      <svg viewBox="0 0 24 24"><path d="M12 3l1.5 4.5H18l-3.8 2.8 1.5 4.5L12 12l-3.7 2.8 1.5-4.5L6 7.5h4.5z"/></svg>
+      Ritual
+    </button>
+    <button class="dock-tab" data-page="character" onclick="bnNav('character')">
+      <svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+      Self
+    </button>
+    <button class="dock-tab" data-page="domains" onclick="bnNav('domains')">
+      <svg viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+      Domains
+    </button>
+    <button class="dock-tab" data-page="__more" onclick="toggleBnMore()">
+      <svg viewBox="0 0 24 24"><circle cx="5" cy="12" r="1.5" fill="currentColor"/><circle cx="12" cy="12" r="1.5" fill="currentColor"/><circle cx="19" cy="12" r="1.5" fill="currentColor"/></svg>
+      More
+    </button>
+  </div>
 </div>
 
 <div class="bn-more-panel" id="bnMorePanel">

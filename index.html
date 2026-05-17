@@ -52,18 +52,9 @@ body::after{content:'';position:fixed;inset:0;background-image:url("data:image/s
 .section-label::before{content:'';display:block;width:16px;height:0.5px;background:var(--text3);opacity:0.5;flex-shrink:0}
 .section-label::after{content:'';flex:1;height:0.5px;background:linear-gradient(90deg,rgba(255,255,255,0.07),transparent)}
 
-/* NAV */
-.nav{position:fixed;top:0;left:0;right:0;height:52px;background:rgba(9,9,14,0.88);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-bottom:0.5px solid var(--border);display:flex;align-items:center;padding:0 24px;z-index:100}
-.nav-brand{font-size:13px;font-weight:800;letter-spacing:-0.02em;margin-right:32px;white-space:nowrap;flex-shrink:0}
-.nav-brand .sep{color:var(--text3);font-weight:400}
-.nav-tabs{display:flex;gap:4px;overflow-x:auto;scrollbar-width:none;flex:1}
-.nav-tabs::-webkit-scrollbar{display:none}
-.nav-tab{font-family:var(--mono);font-size:10px;font-weight:500;letter-spacing:0.06em;color:var(--text3);padding:7px 12px;border-radius:8px;cursor:pointer;border:none;background:transparent;white-space:nowrap;transition:color 200ms var(--slide-easing),background 200ms var(--slide-easing);position:relative;overflow:visible}
-.nav-tab:hover{color:var(--text2);background:rgba(255,255,255,0.04)}
-.nav-tab.active{color:var(--text1);background:rgba(255,255,255,0.06)}
 
 /* PAGES */
-.page{display:none;padding:80px 24px 100px;max-width:1100px;margin:0 auto;position:relative;z-index:1}
+.page{display:none;padding:32px 24px 110px;max-width:780px;margin:0 auto;position:relative;z-index:1}
 .page.active{display:block}
 /* Cinematic child cascade — applied to immediate children by JS */
 @keyframes child-cascade-in{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
@@ -172,9 +163,9 @@ body::after{content:'';position:fixed;inset:0;background-image:url("data:image/s
 .opal-task-card:hover .drag-handle{opacity:1}
 
 /* Circular checkboxes */
-.goal-check-wrap{position:relative;width:22px;height:22px;flex-shrink:0;cursor:pointer}
-.goal-check-wrap input[type=checkbox]{position:absolute;inset:0;opacity:0;cursor:pointer;z-index:2;width:100%;height:100%;margin:0}
-.goal-check-box{
+.opal-checkbox-wrap{position:relative;width:22px;height:22px;flex-shrink:0;cursor:pointer}
+.opal-checkbox-wrap input[type=checkbox]{position:absolute;inset:0;opacity:0;cursor:pointer;z-index:2;width:100%;height:100%;margin:0}
+.opal-checkbox{
   position:absolute;inset:0;
   border-radius:50%;
   border:1.5px solid rgba(255,255,255,0.18);
@@ -182,9 +173,9 @@ body::after{content:'';position:fixed;inset:0;background-image:url("data:image/s
   transition:background 300ms var(--spring-easing),border-color 300ms var(--spring-easing),box-shadow 300ms ease,transform 300ms var(--spring-easing);
   display:flex;align-items:center;justify-content:center;
 }
-.goal-check-box::after{content:'';display:none;width:5px;height:9px;border:2px solid #09090e;border-top:none;border-left:none;transform:rotate(45deg) translateY(-1px)}
-.goal-check-wrap input:checked~.goal-check-box{background:var(--glow-green);border-color:var(--glow-green);box-shadow:0 0 16px rgba(0,245,160,0.55),0 0 4px rgba(0,245,160,0.9);transform:scale(1.12)}
-.goal-check-wrap input:checked~.goal-check-box::after{display:block;animation:checkmark 300ms var(--spring-easing) forwards}
+.opal-checkbox::after{content:'';display:none;width:5px;height:9px;border:2px solid #09090e;border-top:none;border-left:none;transform:rotate(45deg) translateY(-1px)}
+.opal-checkbox-wrap input:checked~.opal-checkbox{background:var(--glow-green);border-color:var(--glow-green);box-shadow:0 0 16px rgba(0,245,160,0.55),0 0 4px rgba(0,245,160,0.9);transform:scale(1.12)}
+.opal-checkbox-wrap input:checked~.opal-checkbox::after{display:block;animation:checkmark 300ms var(--spring-easing) forwards}
 @keyframes checkmark{from{transform:rotate(45deg) scale(0) translateY(-1px)}to{transform:rotate(45deg) scale(1) translateY(-1px)}}
 
 .goal-text{flex:1;font-size:12.5px;font-weight:500;outline:none;word-break:break-word;min-width:0}
@@ -476,7 +467,7 @@ input[type=number]::-webkit-outer-spin-button{opacity:0.5}
 /* ── Global micro-interactions ──────────────────────────────────────────── */
 button{transition:transform 200ms var(--spring-easing)}
 button:active{transform:scale(0.96);transition:transform 60ms ease-out}
-.goal-check-wrap input[type=checkbox]:active{transform:none}
+.opal-checkbox-wrap input[type=checkbox]:active{transform:none}
 
 /* Card hover lift */
 @media(hover:hover){
@@ -484,9 +475,6 @@ button:active{transform:scale(0.96);transition:transform 60ms ease-out}
   .card:hover{transform:translateY(-1px);border-color:rgba(255,255,255,0.10)}
 }
 
-/* Nav tab active underline indicator — glow-blue */
-.nav-tab.active::after{content:'';position:absolute;bottom:0;left:10%;height:1.5px;background:var(--glow-blue);border-radius:1px;animation:tab-line-in 240ms var(--ease-out) forwards}
-@keyframes tab-line-in{from{width:0;left:50%}to{width:80%;left:10%}}
 
 /* XP floating label */
 @keyframes xp-float-up{0%{opacity:1;transform:translateY(0)}100%{opacity:0;transform:translateY(-40px)}}
@@ -497,7 +485,7 @@ button:active{transform:scale(0.96);transition:transform 60ms ease-out}
 
 /* ══ OPAL FLOATING DOCK ══════════════════════════════════════════════════════ */
 .opal-dock-container{
-  display:none;
+  display:block;
   position:fixed;bottom:20px;left:50%;
   transform:translateX(-50%);
   z-index:400;
@@ -558,15 +546,9 @@ button:active{transform:scale(0.96);transition:transform 60ms ease-out}
 .bn-more-item:active{transform:scale(0.95);transition:transform 60ms ease-out}
 .bn-more-item.active{color:var(--text1);border-color:rgba(79,142,247,0.3);background:rgba(79,142,247,0.08)}
 @media(max-width:768px){
-  /* Dock */
-  .opal-dock-container{display:block !important}
-  .nav-tabs{display:none !important}
-  #liveClock{display:none !important}
-  #globalSearch{display:none !important}
-  #globalSearchResults{display:none !important}
 
-  /* Page — extra bottom padding for dock */
-  .page{padding:64px 14px 100px !important}
+  /* Page — tighter on mobile */
+  .page{padding:24px 14px 110px !important}
 
   /* Quote strip */
   .quote-strip{flex-direction:column !important;gap:8px !important}
@@ -660,32 +642,6 @@ p,li,.card div,.card span{line-height:1.65}
 
 <div id="sb-loader"><div class="sb-dots"><div class="sb-dot"></div><div class="sb-dot"></div><div class="sb-dot"></div></div><div class="sb-lbl">SYNCING DATA…</div></div>
 
-<nav class="nav">
-  <div class="nav-brand">CASSIUS <span class="sep">/ OS</span></div>
-  <div id="liveClock" style="font-family:var(--mono);font-size:10px;color:var(--text3);white-space:nowrap;flex-shrink:0;padding-right:16px"></div>
-  <div style="position:relative;flex-shrink:0;margin-right:12px">
-    <input id="globalSearch" type="text" placeholder="Search…"
-      style="background:rgba(255,255,255,0.05);border:0.5px solid var(--border2);border-radius:8px;color:var(--text1);font-family:var(--mono);font-size:11px;padding:5px 10px 5px 28px;width:160px;outline:none;transition:width .2s,border-color .2s"
-      oninput="runGlobalSearch(this.value)"
-      onfocus="this.style.width='220px';this.style.borderColor='rgba(255,255,255,0.2)'"
-      onblur="if(!this.value)this.style.width='160px';this.style.borderColor='rgba(255,255,255,0.12)'">
-    <span style="position:absolute;left:9px;top:50%;transform:translateY(-50%);font-size:11px;opacity:0.35;pointer-events:none">⌕</span>
-  </div>
-  <div id="globalSearchResults" style="display:none;position:fixed;top:56px;right:24px;width:320px;background:rgba(12,12,14,0.97);border:0.5px solid var(--border2);border-radius:12px;backdrop-filter:blur(20px);z-index:200;max-height:400px;overflow-y:auto;padding:8px"></div>
-  <div class="nav-tabs">
-    <button class="nav-tab active" data-page="dashboard"    onclick="showPage('dashboard',this)">Dashboard</button>
-    <button class="nav-tab"        data-page="ritual"       onclick="showPage('ritual',this)">Ritual</button>
-    <button class="nav-tab"        data-page="wins"         onclick="showPage('wins',this)">Wins</button>
-    <button class="nav-tab"        data-page="principles"   onclick="showPage('principles',this)">Principles</button>
-    <button class="nav-tab"        data-page="character"   onclick="showPage('character',this)">Character</button>
-    <button class="nav-tab"        data-page="domains"     onclick="showPage('domains',this)">Domains</button>
-    <button class="nav-tab"        data-page="nomadica"    onclick="showPage('nomadica',this)">Nomadica</button>
-    <button class="nav-tab"        data-page="books"       onclick="showPage('books',this)">Books</button>
-    <button class="nav-tab"        data-page="lab"         onclick="showPage('lab',this)">Lab</button>
-    <button class="nav-tab"        data-page="weeklyreview" onclick="showPage('weeklyreview',this)">Weekly Review</button>
-    <button class="nav-tab"        data-page="calendar"    onclick="showPage('calendar',this)">Calendar &amp; Email</button>
-  </div>
-</nav>
 
 <!-- PAGE: DASHBOARD -->
 <div id="page-dashboard" class="page active">
@@ -1215,27 +1171,27 @@ function runGlobalSearch(query) {
 
   (storeGet('goals:' + getActiveDateString()) || []).forEach(g => {
     if (g.text.toLowerCase().includes(q))
-      results.push({ section:'Goals', text: g.text, action: ()=>showPage('dashboard', document.querySelector('.nav-tab[data-page="dashboard"]')) });
+      results.push({ section:'Goals', text: g.text, action: ()=>showPage('dashboard') });
   });
 
   (getBooks() || []).forEach(b => {
     if ((b.title + ' ' + b.author).toLowerCase().includes(q))
-      results.push({ section:'Books', text: `${b.title} — ${b.author}`, action: ()=>showPage('books', document.querySelectorAll('.nav-tab')[4]) });
+      results.push({ section:'Books', text: `${b.title} — ${b.author}`, action: ()=>showPage('books') });
   });
 
   (storeGet('cassius_experiments') || []).forEach(e => {
     if ((e.name + ' ' + (e.hypothesis||'')).toLowerCase().includes(q))
-      results.push({ section:'Lab', text: e.name, action: ()=>showPage('lab', document.querySelectorAll('.nav-tab')[5]) });
+      results.push({ section:'Lab', text: e.name, action: ()=>showPage('lab') });
   });
 
   (storeGet('cassius_projects') || []).forEach(p => {
     if ((p.name + ' ' + (p.desc||'')).toLowerCase().includes(q))
-      results.push({ section:'Domains', text: p.name, action: ()=>showPage('domains', document.querySelectorAll('.nav-tab')[2]) });
+      results.push({ section:'Domains', text: p.name, action: ()=>showPage('domains') });
   });
 
   (storeGet('nomadica_captures') || []).forEach(c => {
     if (c.text.toLowerCase().includes(q))
-      results.push({ section:'Capture', text: c.text.slice(0,80), action: ()=>showPage('nomadica', document.querySelectorAll('.nav-tab')[3]) });
+      results.push({ section:'Capture', text: c.text.slice(0,80), action: ()=>showPage('nomadica') });
   });
 
   panel.innerHTML = '';
@@ -1558,7 +1514,7 @@ function buildGoalRow(goal, idx, key, readOnly, reloadFn) {
     li.appendChild(h);
   }
 
-  const wrap = document.createElement('label'); wrap.className = 'goal-check-wrap';
+  const wrap = document.createElement('label'); wrap.className = 'opal-checkbox-wrap';
   const cb = document.createElement('input'); cb.type = 'checkbox'; cb.checked = goal.done;
   if (readOnly) { cb.disabled = true; cb.title = 'Activates at 6 AM tomorrow'; }
   cb.addEventListener('change', () => {
@@ -1569,7 +1525,7 @@ function buildGoalRow(goal, idx, key, readOnly, reloadFn) {
     }
     const gs = storeGet(key) || []; gs[idx].done = cb.checked; storeSet(key, gs); reloadFn();
   });
-  const box = document.createElement('span'); box.className = 'goal-check-box';
+  const box = document.createElement('span'); box.className = 'opal-checkbox';
   wrap.appendChild(cb); wrap.appendChild(box); li.appendChild(wrap);
 
   const txt = document.createElement('div'); txt.className = 'goal-text'; txt.textContent = goal.text;
@@ -2560,7 +2516,7 @@ function renderBooksSummary() {
   const reading  = books.filter(b => b.status === 'reading').length;
   const finished = books.filter(b => b.status === 'finished').length;
   const notesCount = books.filter(b => b.notes && b.notes.trim()).length;
-  el.innerHTML = `<div style="display:flex;align-items:center;gap:12px;padding:10px 16px;border-radius:12px;background:var(--bg2);border:0.5px solid var(--border);cursor:pointer;-webkit-tap-highlight-color:transparent" onclick="showPage('books',document.querySelector('.nav-tab[data-page=books]'))">
+  el.innerHTML = `<div style="display:flex;align-items:center;gap:12px;padding:10px 16px;border-radius:12px;background:var(--bg2);border:0.5px solid var(--border);cursor:pointer;-webkit-tap-highlight-color:transparent" onclick="showPage('books')">
     <div style="font-size:16px">📚</div>
     <div style="flex:1">
       <div style="font-size:11px;font-weight:700;font-family:var(--mono);color:var(--text2)">BOOKS</div>
@@ -3370,10 +3326,6 @@ function showPage(id, el) {
   const next    = document.getElementById('page-' + id);
   if (!next || current === next) return;
 
-  // Update nav tabs
-  document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
-  if (el) el.classList.add('active');
-
   // Sync floating dock
   document.querySelectorAll('.dock-tab').forEach(b => b.classList.toggle('active', b.dataset.page === id));
   document.querySelectorAll('.bn-more-item').forEach(b => b.classList.toggle('active', b.dataset.page === id));
@@ -3511,10 +3463,11 @@ function esc(s) {
 
   updateDayBar(); setInterval(updateDayBar, 60000);
   function updateLiveClock() {
+    const el = document.getElementById('liveClock');
+    if (!el) return;
     const now = new Date();
-    const date = now.toLocaleDateString('en-US', { weekday:'long', month:'long', day:'numeric' });
-    const time = now.toLocaleTimeString('en-US', { hour:'numeric', minute:'2-digit', hour12:true });
-    document.getElementById('liveClock').textContent = date + ' · ' + time;
+    el.textContent = now.toLocaleDateString('en-US', { weekday:'long', month:'long', day:'numeric' })
+      + ' · ' + now.toLocaleTimeString('en-US', { hour:'numeric', minute:'2-digit', hour12:true });
   }
   updateLiveClock(); setInterval(updateLiveClock, 1000);
   document.addEventListener('click', e => {

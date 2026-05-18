@@ -108,7 +108,7 @@ export function renderObservations(){
 
     <div id="obs-list">
       ${sorted.length===0
-        ?`<div class="empty-state"><div class="empty-icon">○</div><div class="empty-text">No observations yet. Train your eye.</div></div>`
+        ?`<div class="empty-state"><div class="empty-icon">○</div><div class="empty-text">You have not observed. The unexamined world teaches nothing.</div></div>`
         :sorted.map(buildObsCard).join('')}
     </div>
 

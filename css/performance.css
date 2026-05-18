@@ -20,10 +20,11 @@
 /* WEEK STRIP */
 .week-strip{
   display:flex;gap:6px;
-  margin:32px 0 28px;
+  margin:var(--s-7) 0 var(--s-7);
   overflow-x:auto;
   -webkit-overflow-scrolling:touch;
   padding-bottom:2px;
+  scrollbar-width:none;
 }
 .week-strip::-webkit-scrollbar{display:none}
 .day-cell{
@@ -50,15 +51,14 @@
 .day-dot{
   width:4px;height:4px;border-radius:50%;
   background:rgba(255,255,255,0.3);
-  margin-top:0;
 }
 .day-cell.today .day-dot{background:var(--t1);opacity:0.5}
 
 /* HOURLY BAR CHART */
-.chart-wrap{margin-bottom:28px}
+.chart-wrap{margin-bottom:var(--s-7)}
 .chart-header{
   display:flex;justify-content:space-between;align-items:baseline;
-  margin-bottom:16px;
+  margin-bottom:var(--s-4);
 }
 .chart-title{font-size:13px;font-weight:600;letter-spacing:-.02em}
 .chart-meta{font-size:11px;color:var(--t4);letter-spacing:-.01em}
@@ -103,7 +103,7 @@
 .bar-col:hover .bar-tooltip{opacity:1}
 
 /* CHART LEGEND */
-.chart-legend{display:flex;gap:16px;margin-top:12px;}
+.chart-legend{display:flex;gap:var(--s-4);margin-top:var(--s-3)}
 .legend-item{display:flex;align-items:center;gap:6px;font-size:11px;color:var(--t4);letter-spacing:-.01em}
 .legend-dot{width:8px;height:8px;border-radius:2px;flex-shrink:0}
 
@@ -112,8 +112,8 @@
   background:var(--surface);
   border:0.5px solid var(--border);
   border-radius:var(--r-md);
-  padding:16px 18px;
-  margin-bottom:20px;
+  padding:var(--s-4) 18px;
+  margin-bottom:var(--s-5);
   transition:all .2s;
 }
 .scrub-hour{font-size:11px;font-weight:600;color:var(--t4);letter-spacing:.04em;text-transform:uppercase;margin-bottom:10px}
@@ -125,9 +125,8 @@
 .skill-list{display:flex;flex-direction:column;gap:var(--s-1)}
 .skill-item{
   display:flex;align-items:center;gap:var(--s-4);
-  padding:var(--s-4) var(--s-4);
+  padding:var(--s-4);
   background:var(--surface);
-  border:none;
   border-radius:var(--r-sm);
   transition:background 0.2s ease;
 }

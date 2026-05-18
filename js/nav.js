@@ -3,6 +3,10 @@ import {updateOpsHero} from './tasks.js';
 import {animatePillarsChart} from './pillars.js';
 import {renderVirtue} from './virtue.js';
 import {renderArcs} from './arcs.js';
+import {renderLibrary, showLibrarySkeleton} from './library.js';
+import {renderSocial} from './social.js';
+import {renderLegacy} from './legacy.js';
+import {renderConstitutionContent} from './constitution.js';
 
 export let isTransitioning=false;
 
@@ -23,13 +27,17 @@ export function go(id){
     setTimeout(()=>{
       current.classList.remove('active','exiting');
       target.classList.add('active');
+      if(id==='constitution') renderConstitutionContent();
       if(id==='pillars') animatePillarsChart();
       if(id==='arcs') renderArcs();
+      if(id==='library') { showLibrarySkeleton(); requestAnimationFrame(() => requestAnimationFrame(renderLibrary)); }
+      if(id==='legacy') renderLegacy();
       if(id==='mentor') localStorage.setItem('cos_mentor_last_open',new Date().toISOString());
       if(id==='operations'){
         updateOpsHero();
         animateRollups();
         renderVirtue();
+        renderSocial();
       }
       isTransitioning=false;
     },260);

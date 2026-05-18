@@ -94,8 +94,8 @@
   color:var(--t4);
   letter-spacing:0.15em;
   text-transform:uppercase;
-  margin-top:-12px;
-  margin-bottom:24px;
+  margin-top:calc(var(--s-3)*-1);
+  margin-bottom:var(--s-6);
 }
 
 /* ══ CONSTITUTION ══ */

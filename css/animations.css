@@ -19,17 +19,77 @@
   60%{transform:scale(1.25) rotate(0deg)}
   100%{transform:scale(1) rotate(0deg)}
 }
+@keyframes checkBounce{
+  0%,100%{transform:scale(1)}
+  40%{transform:scale(1.15)}
+}
 @keyframes rowGlow{
   0%{background:rgba(255,255,255,0)}
   30%{background:rgba(255,255,255,0.06)}
   100%{background:rgba(255,255,255,0)}
 }
 .t-check.done::after{animation:checkPop .35s var(--spring)}
+.t-check.done{animation:checkBounce .3s var(--spring)}
 .task-item.celebrating{animation:rowGlow .6s ease}
 
 @keyframes compassRotate{
   from{transform:rotate(0deg)}
   to{transform:rotate(360deg)}
+}
+
+@keyframes breathe{
+  0%,100%{opacity:0.6;transform:scale(1)}
+  50%{opacity:1;transform:scale(1.04)}
+}
+
+@keyframes dotPulse{
+  0%,100%{opacity:0.2}
+  50%{opacity:1}
+}
+
+/* SHARED LOADING DOTS */
+.loading-dots{display:flex;gap:4px;align-items:center}
+.loading-dots span{
+  width:5px;height:5px;
+  border-radius:50%;
+  background:var(--t3);
+  animation:dotPulse 1.2s ease-in-out infinite;
+}
+.loading-dots span:nth-child(2){animation-delay:.2s}
+.loading-dots span:nth-child(3){animation-delay:.4s}
+
+/* SKELETON SHIMMER */
+@keyframes shimmer{
+  0%{background-position:-200% 0}
+  100%{background-position:200% 0}
+}
+.skeleton{
+  background:linear-gradient(90deg,var(--surface) 25%,var(--surface-2) 50%,var(--surface) 75%);
+  background-size:200% 100%;
+  animation:shimmer 1.4s ease infinite;
+  border-radius:var(--r-sm);
+}
+
+/* ARC CARD ENTRANCE */
+@keyframes arcFadeIn{
+  from{opacity:0;transform:translateY(4px)}
+  to{opacity:1;transform:translateY(0)}
+}
+.arc-fade-in{animation:arcFadeIn .3s ease both}
+
+@keyframes libFadeUp{
+  from{opacity:0;transform:translateY(6px)}
+  to{opacity:1;transform:translateY(0)}
+}
+
+@keyframes socialBarIn{
+  from{width:0%}
+  to{width:var(--pct,0%)}
+}
+
+@keyframes driftPulse{
+  0%,100%{opacity:0.35;box-shadow:0 0 0 0 rgba(255,255,255,0.2)}
+  50%{opacity:1;box-shadow:0 0 0 5px rgba(255,255,255,0)}
 }
 
 .rollup{font-variant-numeric:tabular-nums;display:inline-block}

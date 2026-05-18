@@ -1,4 +1,5 @@
 import {state,save} from './state.js';
+import {animateRollups} from './performance.js';
 
 export function updateOpsHero(){
   const total=state.tasks.length;
@@ -12,13 +13,14 @@ export function updateOpsHero(){
   if(doneEl){doneEl.setAttribute('data-target',done);doneEl.textContent=done;}
   if(openEl){openEl.setAttribute('data-target',open);openEl.textContent=open;}
   if(heroLabel)heroLabel.textContent=total===1?'Task today':'Tasks today';
+  animateRollups();
 }
 
 export function renderTasks(){
   const el=document.getElementById('task-list');
   if(!el)return;
   if(!state.tasks.length){
-    el.innerHTML=`<div class="empty-state"><div class="empty-icon">○</div><div class="empty-text">Nothing in the queue.</div></div>`;
+    el.innerHTML=`<div class="empty-state"><div class="empty-icon">○</div><div class="empty-text">The queue is empty. This is mastery, not laziness.</div><div class="empty-sub">Add a task to build.</div></div>`;
     return;
   }
   el.innerHTML=state.tasks.map(t=>`

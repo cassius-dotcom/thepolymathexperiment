@@ -2,10 +2,10 @@
 #drift-banner{
   display:flex;
   align-items:center;
-  gap:12px;
+  gap:var(--s-3);
   background:var(--surface-2);
   border-radius:var(--r-sm);
-  padding:12px 16px;
+  padding:var(--s-3) var(--s-4);
   margin-bottom:var(--s-4);
 }
 .drift-pulse{
@@ -14,10 +14,6 @@
   background:var(--t1);
   flex-shrink:0;
   animation:driftPulse 2.4s ease-in-out infinite;
-}
-@keyframes driftPulse{
-  0%,100%{opacity:0.35;box-shadow:0 0 0 0 rgba(255,255,255,0.2)}
-  50%{opacity:1;box-shadow:0 0 0 5px rgba(255,255,255,0)}
 }
 .drift-text{
   font-size:var(--fs-sm);

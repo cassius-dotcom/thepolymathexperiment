@@ -172,7 +172,7 @@ export async function generateMirror(){
   if(btn)btn.disabled=true;
   if(docEl)docEl.innerHTML=`
     <div class="mirror-card mirror-loading">
-      <div class="mentor-dots"><span></span><span></span><span></span></div>
+      <div class="loading-dots"><span></span><span></span><span></span></div>
       <div class="mirror-loading-text">The Mirror is forming…</div>
     </div>`;
 

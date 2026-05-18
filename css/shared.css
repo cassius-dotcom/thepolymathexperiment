@@ -56,7 +56,11 @@ body::after{
   pointer-events:none;
 }
 
+/* BUTTON PRESS */
+button:active{transform:scale(0.97)}
+
 /* EMPTY STATE */
-.empty-state{text-align:center;padding:32px 0 16px}
+.empty-state{text-align:center;padding:var(--s-7) 0 var(--s-4)}
 .empty-icon{font-size:22px;margin-bottom:10px;opacity:0.25}
 .empty-text{font-size:13px;color:var(--t4);letter-spacing:-.01em}
+.empty-sub{font-size:var(--fs-xs);color:var(--t4);letter-spacing:-.01em;font-style:italic;margin-top:var(--s-2);opacity:0.6}

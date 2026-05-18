@@ -58,7 +58,7 @@
   box-shadow:0 8px 32px rgba(0,0,0,0.5);
   transition:transform 0.4s var(--spring),opacity 0.2s;
 }
-.obs-fab:hover{transform:translateY(-2px) scale(1.05)}
+.obs-fab:hover{transform:translateY(-2px) scale(1.07) rotate(15deg)}
 .obs-fab:active{transform:translateY(0) scale(0.96)}
 
 .obs-panel{
@@ -67,7 +67,7 @@
   background:var(--surface);
   border:0.5px solid var(--border-2);
   border-radius:var(--r-md);
-  padding:16px;
+  padding:var(--s-4);
   opacity:0;
   transform:translateY(-6px);
   transition:opacity 0.2s ease,transform 0.25s var(--spring);
@@ -91,7 +91,7 @@
   font-weight:500;
   padding:5px 12px;
   cursor:pointer;
-  transition:background .15s,color .15s;
+  transition:background .15s,color .15s,border-color .15s;
   letter-spacing:-.01em;
 }
 .obs-tag-btn:hover{color:var(--t2)}
@@ -120,7 +120,6 @@
 }
 .obs-textarea:focus{border-color:var(--border-3)}
 .obs-textarea::placeholder{color:var(--t4)}
-.obs-textarea-sm{rows:2}
 
 .obs-panel-actions{
   display:flex;
@@ -204,7 +203,7 @@
   margin-top:var(--s-2);
 }
 
-/* TAG PILLS (shared — used in cards + filter active) */
+/* TAG PILLS */
 .obs-tag-pill{
   display:inline-block;
   font-size:9px;font-weight:700;

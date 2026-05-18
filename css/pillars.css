@@ -2,7 +2,7 @@
 .pillar-chart-wrap{
   display:flex;
   justify-content:center;
-  padding:32px 0 8px;
+  padding:var(--s-7) 0 var(--s-2);
 }
 .radar-svg{overflow:visible}
 .radar-ring{
@@ -44,8 +44,8 @@
   gap:var(--s-4);
   background:var(--surface);
   border-radius:var(--r-sm);
-  padding:12px 14px;
-  margin:16px 0 24px;
+  padding:var(--s-3) 14px;
+  margin:var(--s-4) 0 var(--s-6);
   position:relative;
   overflow:hidden;
 }
@@ -54,7 +54,7 @@
   position:absolute;
   left:0;top:0;bottom:0;
   width:3px;
-  background:var(--pillar-gem);
+  background:var(--pillar-gem,var(--t4));
 }
 .pillar-callout-gem{
   width:28px;height:28px;
@@ -87,7 +87,7 @@
 .pillar-list{display:flex;flex-direction:column;gap:var(--s-1)}
 .pillar-row{
   display:flex;align-items:center;gap:var(--s-4);
-  padding:var(--s-4) var(--s-4);
+  padding:var(--s-4);
   background:var(--surface);
   border-radius:var(--r-sm);
   transition:background 0.2s ease;
@@ -98,3 +98,7 @@
   border-radius:var(--r-xs);
   flex-shrink:0;
 }
+.pillar-row-info{flex:1}
+.pillar-row-name{font-size:var(--fs-md);font-weight:600;letter-spacing:-.02em;margin-bottom:2px}
+.pillar-row-desc{font-size:var(--fs-xs);color:var(--t4);letter-spacing:-.01em}
+.pillar-row-score{font-size:var(--fs-xl);font-weight:600;letter-spacing:-.04em;color:var(--t2)}

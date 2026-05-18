@@ -35,7 +35,8 @@
   border:0.5px solid transparent;
   transition:background .15s,border-color .15s,transform .15s ease,box-shadow .15s ease;
 }
-.lib-active-card:hover{background:var(--surface-2);border-color:var(--border-2);transform:translateY(-1px);box-shadow:0 4px 20px rgba(0,0,0,0.3)}
+.lib-active-card:hover{background:var(--surface-2);border-color:var(--border-2);box-shadow:0 4px 20px rgba(0,0,0,0.3)}
+@media(hover:hover) and (pointer:fine){.lib-active-card:hover{transform:translateY(-1px)}}
 .lib-active-top{
   display:flex;
   align-items:center;
@@ -135,7 +136,8 @@
   border:0.5px solid transparent;
   transition:background .15s,border-color .15s,transform .15s ease,box-shadow .15s ease;
 }
-.lib-book-card:hover{background:var(--surface-2);border-color:var(--border-2);transform:translateY(-1px);box-shadow:0 4px 20px rgba(0,0,0,0.3)}
+.lib-book-card:hover{background:var(--surface-2);border-color:var(--border-2);box-shadow:0 4px 20px rgba(0,0,0,0.3)}
+@media(hover:hover) and (pointer:fine){.lib-book-card:hover{transform:translateY(-1px)}}
 .lib-book-top{margin-bottom:var(--s-3)}
 .lib-book-title{
   font-size:var(--fs-md);
@@ -503,7 +505,8 @@
   border:0.5px solid transparent;
   transition:background .15s,border-color .15s,transform .15s ease,box-shadow .15s ease;
 }
-.lib-deck-card:hover{background:var(--surface-2);border-color:var(--border-2);transform:translateY(-1px);box-shadow:0 4px 20px rgba(0,0,0,0.3)}
+.lib-deck-card:hover{background:var(--surface-2);border-color:var(--border-2);box-shadow:0 4px 20px rgba(0,0,0,0.3)}
+@media(hover:hover) and (pointer:fine){.lib-deck-card:hover{transform:translateY(-1px)}}
 .lib-deck-top{
   display:flex;
   align-items:center;

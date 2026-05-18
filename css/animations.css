@@ -75,7 +75,7 @@
   from{opacity:0;transform:translateY(4px)}
   to{opacity:1;transform:translateY(0)}
 }
-.arc-fade-in{animation:arcFadeIn .3s ease both}
+.arc-fade-in{animation:arcFadeIn .25s var(--ease-out) both}
 
 @keyframes libFadeUp{
   from{opacity:0;transform:translateY(6px)}
@@ -93,3 +93,10 @@
 }
 
 .rollup{font-variant-numeric:tabular-nums;display:inline-block}
+
+/* LIST ITEM ENTRANCE — reused across task list, obs cards, principles */
+@keyframes listItemIn{
+  from{opacity:0;transform:translateY(6px)}
+  to{opacity:1;transform:translateY(0)}
+}
+.list-enter{animation:listItemIn 200ms var(--ease-out) both}

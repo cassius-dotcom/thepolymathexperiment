@@ -18,7 +18,8 @@
   transition:opacity .15s,transform .2s var(--spring);
   display:inline-block;margin-bottom:var(--s-2);
 }
-.mirror-gen-btn:hover{opacity:0.9;transform:translateY(-1px)}
+.mirror-gen-btn:hover{opacity:0.9}
+@media(hover:hover) and (pointer:fine){.mirror-gen-btn:hover{transform:translateY(-1px)}}
 .mirror-gen-btn:active{transform:translateY(1px)}
 .mirror-gen-btn:disabled{opacity:0.3;cursor:default;transform:none}
 .mirror-gen-meta{font-size:var(--fs-xs);color:var(--t4);letter-spacing:-.01em}

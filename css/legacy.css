@@ -60,7 +60,7 @@
   transition:transform .15s;
   border:0.5px solid rgba(255,255,255,0.1);
 }
-.leg-axiom-gem-btn:hover{transform:scale(1.15)}
+@media(hover:hover) and (pointer:fine){.leg-axiom-gem-btn:hover{transform:scale(1.15)}}
 .leg-axiom-fields{
   flex:1;
   display:flex;
@@ -173,7 +173,13 @@
   border-radius:var(--r-md);
   padding:var(--s-4) var(--s-5);
   margin-bottom:var(--s-3);
+  animation:listItemIn 200ms var(--ease-out) both;
 }
+.leg-principle-card:nth-child(1){animation-delay:0ms}
+.leg-principle-card:nth-child(2){animation-delay:40ms}
+.leg-principle-card:nth-child(3){animation-delay:80ms}
+.leg-principle-card:nth-child(4){animation-delay:120ms}
+.leg-principle-card:nth-child(n+5){animation-delay:160ms}
 .leg-principle-editing{background:var(--surface-2)}
 .leg-principle-top{
   display:flex;
@@ -305,7 +311,8 @@
   border:0.5px solid transparent;
   transition:background .15s,border-color .15s,transform .15s ease,box-shadow .15s ease;
 }
-.leg-letter-card:hover{background:var(--surface-2);border-color:var(--border-2);transform:translateY(-1px);box-shadow:0 4px 20px rgba(0,0,0,0.3)}
+.leg-letter-card:hover{background:var(--surface-2);border-color:var(--border-2);box-shadow:0 4px 20px rgba(0,0,0,0.3)}
+@media(hover:hover) and (pointer:fine){.leg-letter-card:hover{transform:translateY(-1px)}}
 .leg-letter-sealed{opacity:0.55;cursor:default}
 .leg-letter-sealed:hover{background:var(--surface);border-color:transparent}
 .leg-letter-card-top{

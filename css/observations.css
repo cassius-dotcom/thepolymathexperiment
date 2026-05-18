@@ -58,7 +58,7 @@
   box-shadow:0 8px 32px rgba(0,0,0,0.5);
   transition:transform 0.4s var(--spring),opacity 0.2s;
 }
-.obs-fab:hover{transform:translateY(-2px) scale(1.07) rotate(15deg)}
+@media(hover:hover) and (pointer:fine){.obs-fab:hover{transform:translateY(-2px) scale(1.07) rotate(15deg)}}
 .obs-fab:active{transform:translateY(0) scale(0.96)}
 
 .obs-panel{
@@ -69,11 +69,11 @@
   border-radius:var(--r-md);
   padding:var(--s-4);
   opacity:0;
-  transform:translateY(-6px);
-  transition:opacity 0.2s ease,transform 0.25s var(--spring);
+  transform:translateY(-6px) scale(0.98);
+  transition:opacity 0.2s var(--ease-out),transform 0.22s var(--ease-out);
 }
 .obs-panel.visible{display:block}
-.obs-panel.open{opacity:1;transform:translateY(0)}
+.obs-panel.open{opacity:1;transform:translateY(0) scale(1)}
 
 .obs-tags-row{
   display:flex;
@@ -163,7 +163,14 @@
   border-radius:var(--r-sm);
   padding:14px 16px;
   position:relative;
+  animation:listItemIn 200ms var(--ease-out) both;
 }
+#obs-list .obs-card:nth-child(1){animation-delay:0ms}
+#obs-list .obs-card:nth-child(2){animation-delay:40ms}
+#obs-list .obs-card:nth-child(3){animation-delay:80ms}
+#obs-list .obs-card:nth-child(4){animation-delay:120ms}
+#obs-list .obs-card:nth-child(5){animation-delay:160ms}
+#obs-list .obs-card:nth-child(n+6){animation-delay:200ms}
 .obs-delete{
   position:absolute;
   top:10px;right:12px;

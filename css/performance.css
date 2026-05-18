@@ -38,7 +38,7 @@
   width:36px;height:36px;border-radius:50%;
   display:flex;align-items:center;justify-content:center;
   font-size:13px;font-weight:500;color:var(--t3);
-  transition:all .15s;
+  transition:background-color 150ms ease-out,color 150ms ease-out,border-color 150ms ease-out;
   position:relative;
 }
 .day-bubble.has-data{color:var(--t2)}
@@ -114,7 +114,7 @@
   border-radius:var(--r-md);
   padding:var(--s-4) 18px;
   margin-bottom:var(--s-5);
-  transition:all .2s;
+  transition:opacity 200ms ease-out,transform 200ms var(--ease-out);
 }
 .scrub-hour{font-size:11px;font-weight:600;color:var(--t4);letter-spacing:.04em;text-transform:uppercase;margin-bottom:10px}
 .scrub-stats{display:flex;gap:24px}

@@ -58,23 +58,41 @@ function initApp() {
 }
 
 document.addEventListener('DOMContentLoaded', async () => {
+  const timeout = (ms) => new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), ms));
+
+  const loadingTimeout = setTimeout(() => { initApp(); dismissLoading(); }, 5000);
+
   supabase.auth.onAuthStateChange(async (event, session) => {
     if (event === 'SIGNED_IN' && session) {
+      clearTimeout(loadingTimeout);
       removeAuthOverlay();
-      await loadAll(session.user.id);
+      try { await Promise.race([loadAll(session.user.id), timeout(4000)]); } catch(e) {}
       initApp();
       dismissLoading();
       loadDeferred(session.user.id);
     }
   });
 
-  const { data: { session } } = await supabase.auth.getSession();
-  if (!session) {
+  let session = null;
+  try {
+    const result = await Promise.race([supabase.auth.getSession(), timeout(5000)]);
+    session = result.data?.session;
+  } catch(e) {
+    clearTimeout(loadingTimeout);
+    dismissLoading();
     renderAuthOverlay();
     return;
   }
 
-  await loadAll(session.user.id);
+  if (!session) {
+    clearTimeout(loadingTimeout);
+    dismissLoading();
+    renderAuthOverlay();
+    return;
+  }
+
+  try { await Promise.race([loadAll(session.user.id), timeout(4000)]); } catch(e) {}
+  clearTimeout(loadingTimeout);
   initApp();
   dismissLoading();
   loadDeferred(session.user.id);

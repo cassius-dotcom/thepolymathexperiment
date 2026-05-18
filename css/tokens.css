@@ -55,6 +55,18 @@
   --ease-out:cubic-bezier(0.23,1,0.32,1);
   --ease-in-out:cubic-bezier(0.77,0,0.175,1);
 }
+@media(max-width:600px){
+  :root{
+    --fs-xs:12px;
+    --fs-sm:15px;
+    --fs-md:17px;
+    --fs-lg:19px;
+    --fs-xl:24px;
+    --fs-display-sm:38px;
+    --fs-display-md:52px;
+    --fs-display-lg:68px;
+  }
+}
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;-webkit-font-smoothing:antialiased}
 body{background:var(--bg);color:var(--t1);font-family:var(--f);min-height:100vh;overflow-x:hidden}
 ::-webkit-scrollbar{width:0}

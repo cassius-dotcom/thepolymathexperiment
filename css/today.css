@@ -12,6 +12,7 @@
   max-width:340px;
   margin:0 auto;
 }
+@media(max-width:600px){.today-identity{max-width:none}}
 
 /* SECTION 2 & 3 — Surface cards */
 .today-card{

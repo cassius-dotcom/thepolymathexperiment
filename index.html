@@ -990,11 +990,11 @@ function renderTasks(){
     el.innerHTML=`<div class="empty-state"><div class="empty-icon">○</div><div class="empty-text">Nothing in the queue.</div></div>`;
     return;
   }
-  el.innerHTML=state.tasks.map((t,i)=>`
-    <div class="task-item" style="opacity:${t.done?0.4:1}">
-      <div class="t-check ${t.done?'done':''}" onclick="toggleTask(${i})"></div>
+  el.innerHTML=state.tasks.map(t=>`
+    <div class="task-item" data-id="${t.id}" style="opacity:${t.done?0.4:1}">
+      <div class="t-check ${t.done?'done':''}" onclick="toggleTask(${t.id})"></div>
       <span class="t-text ${t.done?'done':''}">${t.text}</span>
-      <button class="t-del" onclick="deleteTask(${i})">&times;</button>
+      <button class="t-del" onclick="deleteTask(${t.id})">&times;</button>
     </div>`).join('');
 }
 
@@ -1005,22 +1005,23 @@ function addTask(){
   inp.value='';save();renderTasks();updateOpsHero();
   collapseAdd();
 }
-function toggleTask(i){
-  const wasComplete=state.tasks[i].done;
-  state.tasks[i].done=!state.tasks[i].done;
+function toggleTask(id){
+  const task=state.tasks.find(t=>t.id===id);
+  if(!task)return;
+  const wasComplete=task.done;
+  task.done=!task.done;
   save();renderTasks();updateOpsHero();
-  // celebrate on completion (not un-completion)
   if(!wasComplete){
     setTimeout(()=>{
-      const rows=document.querySelectorAll('.task-item');
-      if(rows[i]){
-        rows[i].classList.add('celebrating');
-        setTimeout(()=>rows[i].classList.remove('celebrating'),600);
+      const row=document.querySelector(`.task-item[data-id="${id}"]`);
+      if(row){
+        row.classList.add('celebrating');
+        setTimeout(()=>row.classList.remove('celebrating'),600);
       }
     },10);
   }
 }
-function deleteTask(i){state.tasks.splice(i,1);save();renderTasks();updateOpsHero();}
+function deleteTask(id){state.tasks=state.tasks.filter(t=>t.id!==id);save();renderTasks();updateOpsHero();}
 function save(){localStorage.setItem('cos3_tasks',JSON.stringify(state.tasks));}
 
 /* ── SKILLS ── */

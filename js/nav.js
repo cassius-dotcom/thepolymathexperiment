@@ -2,6 +2,7 @@ import {animateRollups} from './performance.js';
 import {updateOpsHero} from './tasks.js';
 import {animatePillarsChart} from './pillars.js';
 import {renderVirtue} from './virtue.js';
+import {renderArcs} from './arcs.js';
 
 export let isTransitioning=false;
 
@@ -23,6 +24,7 @@ export function go(id){
       current.classList.remove('active','exiting');
       target.classList.add('active');
       if(id==='pillars') animatePillarsChart();
+      if(id==='arcs') renderArcs();
       if(id==='operations'){
         updateOpsHero();
         animateRollups();

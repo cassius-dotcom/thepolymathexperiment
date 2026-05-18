@@ -1,4 +1,4 @@
-import {PILLARS,VIRTUES} from './state.js';
+import {PILLARS,VIRTUES,ARCS} from './state.js';
 
 let messages=[];
 let busy=false;
@@ -34,17 +34,33 @@ function getNightAudit(){
   return JSON.parse(raw)[4]===true;
 }
 
+function getArcCtx(){
+  const raw=localStorage.getItem('cos_arc');
+  if(!raw)return null;
+  const {id,startDate}=JSON.parse(raw);
+  const arc=ARCS.find(a=>a.id===id);
+  if(!arc)return null;
+  const week=Math.max(1,Math.min(Math.floor((new Date()-new Date(startDate+'T00:00:00'))/(1000*60*60*24*7))+1,arc.weeks));
+  const phase=arc.phases[week-1]||arc.phases[arc.phases.length-1];
+  return{name:arc.name,week,total:arc.weeks,phaseTitle:phase.title,phaseFocus:phase.focus};
+}
+
 function buildSystemPrompt(){
   const vc=getVirtueCtx();
   const pct=getChecklistPct();
   const audit=getNightAudit();
   const pillarStr=PILLARS.map(p=>`${p.name}: ${p.score}`).join(', ');
+  const arc=getArcCtx();
+  const arcLine=arc
+    ?`- Active arc: ${arc.name} (Week ${arc.week} of ${arc.total}: ${arc.phaseTitle} — ${arc.phaseFocus})`
+    :'- Active arc: none';
   return `You are a Renaissance Mentor — a calm, intelligent, demanding philosophical guide. You speak with precision and restraint. No motivational clichés. No flattery. You respond like Marcus Aurelius would coach a young man — direct, grounded, honest.
 
 Current user context:
 - Active virtue: ${vc.name} (Day ${vc.day} of 14)
 - Daily completion: ${pct}% of today's checklist done
 - Night audit: ${audit?'complete':'not yet'}
+${arcLine}
 - Pillar scores — ${pillarStr}
 - Identity: Produces value at scale. Governs himself under pressure. Builds strength in body and character. Communicates with precision and restraint. Loves deeply without losing himself. Anchors meaning in God, not ego.
 

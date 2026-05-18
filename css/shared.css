@@ -25,7 +25,8 @@ body::after{
 .skill-gem,
 .milestone-gem,
 .pillar-gem,
-.pillar-callout-gem{
+.pillar-callout-gem,
+.arc-gem{
   position:relative;
   box-shadow:
     inset 0 1px 0 rgba(255,255,255,0.4),
@@ -36,7 +37,8 @@ body::after{
 .skill-gem::before,
 .milestone-gem::before,
 .pillar-gem::before,
-.pillar-callout-gem::before{
+.pillar-callout-gem::before,
+.arc-gem::before{
   content:'';position:absolute;inset:0;
   border-radius:inherit;
   background:radial-gradient(ellipse at 30% 20%,rgba(255,255,255,0.55) 0%,rgba(255,255,255,0.15) 25%,transparent 55%);
@@ -46,7 +48,8 @@ body::after{
 .skill-gem::after,
 .milestone-gem::after,
 .pillar-gem::after,
-.pillar-callout-gem::after{
+.pillar-callout-gem::after,
+.arc-gem::after{
   content:'';position:absolute;inset:0;
   border-radius:inherit;
   background:radial-gradient(ellipse at 70% 80%,rgba(0,0,0,0.2) 0%,transparent 50%);

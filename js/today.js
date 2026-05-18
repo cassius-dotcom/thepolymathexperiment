@@ -1,5 +1,6 @@
 import {VIRTUES} from './state.js';
 import {getVirtueState} from './virtue.js';
+import {appData, dbSaveChecklist, dbSaveAudit} from './db.js';
 
 const AUDIT_QUESTIONS = [
   {key:'alignment', text:'Did you act in alignment with your values today?'},
@@ -19,21 +20,17 @@ const CHECKLIST_ITEMS=[
   "Night audit complete"
 ];
 
-function safeJson(raw, fallback) {
-  try { return raw ? JSON.parse(raw) : fallback; } catch { return fallback; }
-}
-
 function getTodayKey(){
   const d=new Date();
-  return `cos_daily_${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
 }
 
 function getSaved(){
-  return safeJson(localStorage.getItem(getTodayKey()), Array(CHECKLIST_ITEMS.length).fill(false));
+  return appData.checklists[getTodayKey()] ?? Array(CHECKLIST_ITEMS.length).fill(false);
 }
 
 function saveChecklist(checks){
-  localStorage.setItem(getTodayKey(),JSON.stringify(checks));
+  dbSaveChecklist(getTodayKey(), checks);
 }
 
 export function renderToday(){
@@ -101,8 +98,8 @@ function auditDateStr(){
 function renderAudit(){
   const card=document.getElementById('audit-card');
   if(!card)return;
-  const saved=localStorage.getItem('cos_audit_'+auditDateStr());
-  if(saved){const parsed=safeJson(saved,null);if(parsed)card.innerHTML=auditClosedHTML(parsed);return;}
+  const saved=appData.audits[auditDateStr()];
+  if(saved){card.innerHTML=auditClosedHTML(saved);return;}
   const locked=new Date().getHours()<20;
   card.innerHTML=locked?auditLockedHTML():auditFormHTML();
 }
@@ -172,7 +169,7 @@ export function submitAudit(){
     reflection:(document.getElementById('audit-reflection')?.value||'').trim(),
     timestamp: new Date().toISOString(),
   };
-  localStorage.setItem('cos_audit_'+auditDateStr(), JSON.stringify(data));
+  dbSaveAudit(auditDateStr(), data);
   auditDraft={alignment:null,mission:null,pillars:null,tag:null};
   renderAudit();
 }

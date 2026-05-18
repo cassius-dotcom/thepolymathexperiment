@@ -1,4 +1,5 @@
-import {BOOKS, FLASHCARD_DECKS, state, save} from './state.js';
+import {BOOKS, FLASHCARD_DECKS} from './state.js';
+import {appData, dbUpsertLibraryBook, dbRemoveLibraryBook, dbAddLibraryNote, dbSaveCardReview, dbAddTask} from './db.js';
 
 /* ── MODULE STATE ── */
 let libMode = 'active';
@@ -14,17 +15,10 @@ let sessionIdx = 0;
 let sessionFlipped = false;
 let sessionResults = [];
 
-function safeJson(raw, fallback) {
-  try { return raw ? JSON.parse(raw) : fallback; } catch { return fallback; }
-}
-
-/* ── LOCALSTORAGE ── */
-function getActive() { return safeJson(localStorage.getItem('cos_library_active'), []); }
-function saveActive(arr) { localStorage.setItem('cos_library_active', JSON.stringify(arr)); }
-function getNotes() { return safeJson(localStorage.getItem('cos_library_notes'), []); }
-function saveNotes(arr) { localStorage.setItem('cos_library_notes', JSON.stringify(arr)); }
-function getCardReviews() { return safeJson(localStorage.getItem('cos_card_reviews'), {}); }
-function saveCardReviews(obj) { localStorage.setItem('cos_card_reviews', JSON.stringify(obj)); }
+/* ── DATA ACCESSORS ── */
+function getActive() { return appData.libraryActive; }
+function getNotes() { return appData.libraryNotes; }
+function getCardReviews() { return appData.cardReviews; }
 
 /* ── UTILITIES ── */
 function gem(gradient, size, radius) {
@@ -69,15 +63,13 @@ function getNextDueInfo(deckId) {
 }
 
 function updateCardReview(deckId, cardIdx, result) {
-  const reviews = getCardReviews();
   const key = `${deckId}_${cardIdx}`;
-  const current = reviews[key];
+  const current = getCardReviews()[key];
   const lvl = current ? current.level : 1;
   const newLvl = result === 'embodied' ? Math.min(lvl+1, 5) : result === 'familiar' ? lvl : 1;
   const days = LEVEL_DAYS[newLvl] || 1;
   const next = new Date(); next.setDate(next.getDate()+days); next.setHours(0, 0, 0, 0);
-  reviews[key] = {lastReview: new Date().toISOString(), nextReview: next.toISOString(), level: newLvl};
-  saveCardReviews(reviews);
+  dbSaveCardReview(key, {lastReview: new Date().toISOString(), nextReview: next.toISOString(), level: newLvl});
 }
 
 function getDeckDueCount(deckId) {
@@ -432,24 +424,21 @@ function libCloseModal() {
 }
 
 function libBeginReading(bookId) {
-  const active = getActive();
-  if (!active.find(a => a.bookId === bookId)) {
-    active.push({bookId, pagesRead: 0, totalPages: 0});
-    saveActive(active);
+  if (!getActive().find(a => a.bookId === bookId)) {
+    dbUpsertLibraryBook({bookId, pagesRead: 0, totalPages: 0});
   }
   libCloseModal();
   setTimeout(() => renderModal(bookId), 220);
 }
 
 function libSaveProgress() {
-  const active = getActive();
-  const entry = active.find(a => a.bookId === modalBookId);
+  const entry = getActive().find(a => a.bookId === modalBookId);
   if (!entry) return;
   const readInput = document.getElementById('lib-pages-read');
   const totalInput = document.getElementById('lib-pages-total');
   entry.pagesRead = Math.max(0, parseInt(readInput?.value)||0);
   entry.totalPages = Math.max(0, parseInt(totalInput?.value)||0);
-  saveActive(active);
+  dbUpsertLibraryBook(entry);
   const pct = entry.totalPages > 0 ? Math.round((entry.pagesRead/entry.totalPages)*100) : 0;
   const fill = document.getElementById('lib-modal-progress-fill');
   const pctEl = document.getElementById('lib-modal-progress-pct');
@@ -492,15 +481,13 @@ function libSetNoteType(type) {
 function libSaveNote() {
   const content = document.getElementById('lib-note-content')?.value.trim();
   if (!content) return;
-  const notes = getNotes();
-  notes.push({id: Date.now(), bookId: modalBookId, date: new Date().toISOString(), type: noteType, content});
-  saveNotes(notes);
+  dbAddLibraryNote({id: Date.now(), bookId: modalBookId, date: new Date().toISOString(), type: noteType, content});
   libCloseModal();
   setTimeout(() => renderModal(modalBookId), 220);
 }
 
 function libRemoveActive(bookId) {
-  saveActive(getActive().filter(a => a.bookId !== bookId));
+  dbRemoveLibraryBook(bookId);
   libCloseModal();
   renderLibrary();
 }
@@ -512,8 +499,7 @@ function libCommitExpression(idx) {
     `Three actions to apply ${_expressionBook.title}`,
     `Teach ${_expressionBook.title} to one person this week`
   ];
-  state.tasks.push({id: Date.now(), text: `[${_expressionBook.title}] ${opts[idx]}`, done: false});
-  save();
+  dbAddTask({id: Date.now(), text: `[${_expressionBook.title}] ${opts[idx]}`, done: false});
   const overlay = document.getElementById('lib-expression-overlay');
   if (overlay) { overlay.classList.remove('open'); setTimeout(() => overlay.remove(), 200); }
 }

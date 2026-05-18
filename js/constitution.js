@@ -1,4 +1,5 @@
 import {FILTERS} from './state.js';
+import {appData} from './db.js';
 
 const DEFAULT_IDENTITY = 'Produces value at scale. Governs himself under pressure. Builds strength in body and character. Communicates with precision and restraint. Loves deeply without losing himself. Anchors meaning in God, not ego.';
 const DEFAULT_AXIOMS = [
@@ -8,62 +9,49 @@ const DEFAULT_AXIOMS = [
 ];
 
 function getStoredIdentity() {
-  return localStorage.getItem('cos_constitution_identity') || DEFAULT_IDENTITY;
+  return appData.constitution?.identity || DEFAULT_IDENTITY;
 }
-function safeJson(raw, fallback) {
-  try { return raw ? JSON.parse(raw) : fallback; } catch { return fallback; }
-}
-
 function getStoredAxioms() {
-  const r = localStorage.getItem('cos_constitution_axioms');
-  return safeJson(r, DEFAULT_AXIOMS).filter(a => a.title && a.title.trim());
+  return (appData.constitution?.axioms || DEFAULT_AXIOMS).filter(a => a.title && a.title.trim());
 }
 function getStoredFilters() {
-  const r = localStorage.getItem('cos_constitution_filters');
-  return safeJson(r, FILTERS).filter(f => f && f.trim());
+  return (appData.constitution?.filters || FILTERS).filter(f => f && f.trim());
 }
 
 export function renderCompass() {
   const el = document.getElementById('compass-marks');
   if (!el) return;
+  const identity = getStoredIdentity();
+  const filters = getStoredFilters();
   let html = '';
-  for (let i = 0; i < 16; i++) {
-    const angle = (360 / 16) * i;
-    const isCardinal = i % 4 === 0;
-    html += `<div class="compass-mark${isCardinal ? '' : ' minor'}" style="transform:translateX(-50%) rotate(${angle}deg)"></div>`;
-  }
+  html += `<div class="compass-identity">${identity}</div>`;
+  html += `<div class="compass-filters-label eyebrow">Filters</div>`;
+  html += filters.map(f => `<div class="compass-filter-item">— ${f}</div>`).join('');
   el.innerHTML = html;
 }
 
-export function renderFilters() {
-  const el = document.getElementById('filters');
-  if (!el) return;
-  const filters = getStoredFilters();
-  el.innerHTML = filters.map((f, i) => `
-    <div class="filter-item">
-      <span class="f-num">${String(i + 1).padStart(2, '0')}</span>
-      <span class="f-text">${f}</span>
-    </div>`).join('');
-}
-
 export function renderConstitutionContent() {
+  const el = document.getElementById('view-constitution');
+  if (!el) return;
   const identity = getStoredIdentity();
   const axioms = getStoredAxioms();
+  const filters = getStoredFilters();
 
-  const identityEl = document.getElementById('constitution-identity-text');
-  if (identityEl) identityEl.textContent = `"${identity}"`;
-
-  const axiomsEl = document.getElementById('constitution-axioms-list');
-  if (axiomsEl) {
-    axiomsEl.innerHTML = axioms.map(a => `
-      <div class="axiom-row">
-        <div class="axiom-icon" style="background:${a.gem}"></div>
-        <div>
-          <div class="axiom-title">${a.title}</div>
-          <div class="axiom-body">${a.body}</div>
-        </div>
-      </div>`).join('');
-  }
-
-  renderFilters();
+  el.innerHTML = `
+    <div class="const-hero">
+      <div class="eyebrow">Identity</div>
+      <div class="const-identity-text">${identity}</div>
+    </div>
+    <div class="eyebrow" style="margin-top:var(--s-7)">Axioms</div>
+    <div class="const-axioms">
+      ${axioms.map(a => `
+        <div class="const-axiom-card" style="background:${a.gem}">
+          <div class="const-axiom-title">${a.title}</div>
+          <div class="const-axiom-body">${a.body}</div>
+        </div>`).join('')}
+    </div>
+    <div class="eyebrow" style="margin-top:var(--s-7)">Decision filters</div>
+    <div class="const-filters">
+      ${filters.map(f => `<div class="const-filter-item">— ${f}</div>`).join('')}
+    </div>`;
 }

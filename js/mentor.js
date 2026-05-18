@@ -1,14 +1,11 @@
 import {PILLARS,VIRTUES,ARCS,BOOKS,FLASHCARD_DECKS} from './state.js';
+import {appData, dbSaveApiKey} from './db.js';
 
 let messages = [];
 let busy = false;
 
-function safeJson(raw, fallback) {
-  try { return raw ? JSON.parse(raw) : fallback; } catch { return fallback; }
-}
-
 /* ── API KEY ── */
-function getApiKey() { return localStorage.getItem('anthropic_api_key') || ''; }
+function getApiKey() { return appData.apiKey || ''; }
 
 /* ── CONTEXT HELPERS ── */
 function todayKey() {
@@ -17,9 +14,7 @@ function todayKey() {
 }
 
 function getVirtueCtx() {
-  const raw = localStorage.getItem('cos_virtue');
-  if (!raw) return {name:'Discipline', day:1};
-  const vs = safeJson(raw, null);
+  const vs = appData.virtue;
   if (!vs) return {name:'Discipline', day:1};
   const v = VIRTUES[vs.index] || VIRTUES[0];
   const diff = Math.floor((new Date() - new Date(vs.startDate+'T00:00:00')) / (1000*60*60*24));
@@ -27,41 +22,34 @@ function getVirtueCtx() {
 }
 
 function getChecklistPct() {
-  const raw = localStorage.getItem('cos_daily_'+todayKey());
-  if (!raw) return 0;
-  const checks = safeJson(raw, []);
+  const checks = appData.checklists[todayKey()] || [];
   if (!checks.length) return 0;
   return Math.round(checks.filter(v => v === true).length / checks.length * 100);
 }
 
 function getNightAudit() {
-  return localStorage.getItem('cos_audit_'+todayKey()) !== null;
+  return appData.audits[todayKey()] != null;
 }
 
 function getArcCtx() {
-  const raw = localStorage.getItem('cos_arc');
-  if (!raw) return null;
-  const arc_data = safeJson(raw, null);
-  if (!arc_data) return null;
-  const {id, startDate} = arc_data;
-  const arc = ARCS.find(a => a.id === id);
+  const s = appData.arc;
+  if (!s) return null;
+  const arc = ARCS.find(a => a.id === s.id);
   if (!arc) return null;
-  const week = Math.max(1, Math.min(Math.floor((new Date() - new Date(startDate+'T00:00:00')) / (1000*60*60*24*7))+1, arc.weeks));
+  const week = Math.max(1, Math.min(Math.floor((new Date() - new Date(s.startDate+'T00:00:00')) / (1000*60*60*24*7))+1, arc.weeks));
   const phase = arc.phases[week-1] || arc.phases[arc.phases.length-1];
   return {name: arc.name, week, total: arc.weeks, phaseTitle: phase.title, phaseFocus: phase.focus};
 }
 
 function getRecentObsCtx() {
-  const raw = localStorage.getItem('cos_observations');
-  if (!raw) return null;
-  const obs = safeJson(raw, []);
+  const obs = appData.observations;
   if (!obs.length) return null;
   return obs.slice(-5).map(o => o.observation).join(' · ');
 }
 
 function getLibraryCtx() {
-  const active = safeJson(localStorage.getItem('cos_library_active'), []);
-  const notes = safeJson(localStorage.getItem('cos_library_notes'), []);
+  const active = appData.libraryActive;
+  const notes = appData.libraryNotes;
   const activeTitles = active.map(a => {
     const book = BOOKS.find(b => b.id === a.bookId);
     if (!book) return null;
@@ -76,7 +64,7 @@ function getLibraryCtx() {
 }
 
 function getCardsCtx() {
-  const reviews = safeJson(localStorage.getItem('cos_card_reviews'), {});
+  const reviews = appData.cardReviews;
   const today = new Date(); today.setHours(23, 59, 59, 999);
   let dueCount = 0, masteredCount = 0, totalCount = 0;
   FLASHCARD_DECKS.forEach(deck => {
@@ -91,8 +79,8 @@ function getCardsCtx() {
 }
 
 function getSocialCtx() {
-  const level = parseInt(localStorage.getItem('cos_exposure_level') || '1');
-  const interactions = safeJson(localStorage.getItem('cos_interactions'), []).slice(-5);
+  const level = appData.exposureLevel || 1;
+  const interactions = (appData.interactions || []).slice(-5);
   if (!interactions.length) return {level, summary: null};
   const n = interactions.length;
   const overexplain = interactions.filter(i => i.overexplained).length;
@@ -102,8 +90,8 @@ function getSocialCtx() {
 }
 
 function getLegacyCtx() {
-  const principles = safeJson(localStorage.getItem('cos_principles'), []);
-  const letters = safeJson(localStorage.getItem('cos_letters'), []);
+  const principles = appData.principles;
+  const letters = appData.letters;
   const latest = principles.length ? principles[principles.length-1] : null;
   return {principleCount: principles.length, letterCount: letters.length, latestPrinciple: latest?.text || null};
 }
@@ -257,7 +245,7 @@ export function renderMentor() {
 export function saveMentorKey() {
   const val = document.getElementById('mentor-key-input')?.value.trim();
   if (!val) return;
-  localStorage.setItem('anthropic_api_key', val);
+  dbSaveApiKey(val);
   const cfg = document.getElementById('mentor-api-config');
   if (cfg) cfg.style.display = 'none';
   const status = document.getElementById('mentor-key-status');

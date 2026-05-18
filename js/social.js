@@ -1,4 +1,5 @@
 import {SOCIAL_MISSIONS} from './state.js';
+import {appData, dbSaveExposureLevel, dbSaveExposureChecks, dbAddInteraction} from './db.js';
 
 const LADDER = [
   {title:'Eye contact',      desc:'Hold eye contact in every interaction today.'},
@@ -13,25 +14,17 @@ let panelOpen = false;
 let panelAnswers = {overexplained:null, posture:null, speech:null, eyeContact:null};
 const expandedIds = new Set();
 
-function safeJson(raw, fallback) {
-  try { return raw ? JSON.parse(raw) : fallback; } catch { return fallback; }
-}
-
-/* ── STORAGE ── */
 function todayKey() {
   const d = new Date();
   return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
 }
-function getLevel() { return parseInt(localStorage.getItem('cos_exposure_level')||'1'); }
-function getTodayChecks() {
-  const raw = localStorage.getItem('cos_exposure_checks_'+todayKey());
-  return safeJson(raw, [false,false,false,false,false,false]);
-}
-function saveTodayChecks(c) { localStorage.setItem('cos_exposure_checks_'+todayKey(), JSON.stringify(c)); }
-function getInteractions() { return safeJson(localStorage.getItem('cos_interactions'), []); }
-function saveInteractions(a) { localStorage.setItem('cos_interactions', JSON.stringify(a)); }
 
-/* ── HELPERS ── */
+function getLevel() { return appData.exposureLevel || 1; }
+
+function getTodayChecks() {
+  return appData.exposureChecks[todayKey()] ?? [false,false,false,false,false,false];
+}
+
 function getMission(level) {
   const d = new Date();
   const seed = d.getFullYear()*10000 + (d.getMonth()+1)*100 + d.getDate();
@@ -52,7 +45,7 @@ function escHtml(s) {
 }
 
 function getWeeklyPattern() {
-  const all = getInteractions();
+  const all = appData.interactions;
   const cutoff = new Date(); cutoff.setDate(cutoff.getDate()-7);
   const week = all.filter(i => new Date(i.date) >= cutoff);
   if (week.length < 5) return null;
@@ -71,7 +64,6 @@ function getWeeklyPattern() {
   return {n, noOverexplain, posture, speech, eyeContact, insight};
 }
 
-/* ── BUILD HTML HELPERS ── */
 function buildQuestion(key, text) {
   const v = panelAnswers[key];
   return `
@@ -99,19 +91,17 @@ function buildPanel() {
     </div>`;
 }
 
-/* ── RENDER ── */
 export function renderSocial() {
   const section = document.getElementById('social-section');
   if (!section) return;
 
   const level = getLevel();
   const checks = getTodayChecks();
-  const interactions = getInteractions();
+  const interactions = appData.interactions;
   const recent = interactions.slice(-5).reverse();
   const pattern = getWeeklyPattern();
   const mission = getMission(level);
 
-  /* ladder */
   let ladderHtml = '';
   LADDER.forEach((rung, i) => {
     const n = i+1;
@@ -133,15 +123,11 @@ export function renderSocial() {
       </div>`;
   });
 
-  /* history */
   let historyHtml = '';
   if (recent.length) {
     historyHtml = recent.map(i => {
       const dots = [
-        {good: !i.overexplained},
-        {good: i.posture},
-        {good: i.speech},
-        {good: i.eyeContact}
+        {good: !i.overexplained},{good: i.posture},{good: i.speech},{good: i.eyeContact}
       ];
       const exp = expandedIds.has(i.id);
       return `
@@ -163,7 +149,6 @@ export function renderSocial() {
     }).join('');
   }
 
-  /* weekly pattern */
   let weeklyHtml = '';
   if (pattern) {
     const metrics = [
@@ -190,40 +175,34 @@ export function renderSocial() {
   section.innerHTML = `
     <div class="eyebrow">Exposure ladder</div>
     <div class="social-subtitle">Climb deliberately. Skip nothing.</div>
-
     <div class="social-level-header">
       <span class="social-level-label">Focus level</span>
       <div class="social-level-pills">
         ${[1,2,3,4,5,6].map(n=>`<button class="social-level-btn${level===n?' active':''}" onclick="socialSetLevel(${n})">${n}</button>`).join('')}
       </div>
     </div>
-
     <div class="social-ladder">${ladderHtml}</div>
-
     <div class="social-mission-card">
       <div class="eyebrow">Today's social mission</div>
       <div class="social-mission-text">${escHtml(mission)}</div>
     </div>
-
     <button class="social-log-btn" onclick="socialOpenPanel()">${panelOpen?'Close':'Log an interaction'}</button>
     ${buildPanel()}
-
     ${recent.length
       ?`<div class="social-history">${historyHtml}</div>`
       :`<div class="empty-state"><div class="empty-icon">○</div><div class="empty-text">No social data. You are invisible by choice or by avoidance.</div></div>`}
     ${weeklyHtml}`;
 }
 
-/* ── WINDOW FUNCTIONS ── */
 function socialSetLevel(n) {
-  localStorage.setItem('cos_exposure_level', String(n));
+  dbSaveExposureLevel(n);
   renderSocial();
 }
 
 function socialToggleCheck(idx) {
   const checks = getTodayChecks();
   checks[idx] = !checks[idx];
-  saveTodayChecks(checks);
+  dbSaveExposureChecks(todayKey(), checks);
   renderSocial();
 }
 
@@ -248,9 +227,10 @@ function socialSaveInteraction() {
   const {overexplained, posture, speech, eyeContact} = panelAnswers;
   if (overexplained===null||posture===null||speech===null||eyeContact===null) return;
   const notes = document.getElementById('social-notes')?.value.trim()||'';
-  const all = getInteractions();
-  all.push({id:Date.now(), date:new Date().toISOString(), level:getLevel(), overexplained, posture, speech, eyeContact, notes});
-  saveInteractions(all);
+  dbAddInteraction({
+    id:Date.now(), date:new Date().toISOString(), level:getLevel(),
+    overexplained, posture, speech, eyeContact, notes
+  });
   panelOpen = false;
   panelAnswers = {overexplained:null, posture:null, speech:null, eyeContact:null};
   renderSocial();

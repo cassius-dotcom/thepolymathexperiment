@@ -1,13 +1,5 @@
 import {ARCS} from './state.js';
-
-function safeJson(raw, fallback) {
-  try { return raw ? JSON.parse(raw) : fallback; } catch { return fallback; }
-}
-
-/* ── STATE ── */
-function getArcState() {
-  return safeJson(localStorage.getItem('cos_arc'), null);
-}
+import {appData, dbSaveArc} from './db.js';
 
 function todayStr() {
   const d = new Date();
@@ -35,7 +27,7 @@ export function renderArcs() {
 function renderActiveArc() {
   const wrap = document.getElementById('arc-active-wrap');
   if (!wrap) return;
-  const s = getArcState();
+  const s = appData.arc;
 
   if (!s) {
     wrap.innerHTML = `
@@ -104,7 +96,7 @@ function renderArcTimeline(arc, currentWeek) {
 function renderArcLibrary() {
   const wrap = document.getElementById('arc-library-wrap');
   if (!wrap) return;
-  const active = getArcState();
+  const active = appData.arc;
   wrap.innerHTML = `
     <div class="eyebrow" style="margin-top:32px">Available arcs</div>
     <div class="arc-library-grid">
@@ -159,7 +151,7 @@ export function closeArcModal() {
 }
 
 export function confirmStartArc(arcId) {
-  localStorage.setItem('cos_arc', JSON.stringify({id: arcId, startDate: todayStr()}));
+  dbSaveArc({id: arcId, startDate: todayStr()});
   closeArcModal();
   renderArcs();
 }

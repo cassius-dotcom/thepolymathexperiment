@@ -8,6 +8,7 @@ import {renderSocial} from './social.js';
 import {renderLegacy} from './legacy.js';
 import {renderConstitutionContent} from './constitution.js';
 import {renderObservations} from './observations.js';
+import {dbSaveMentorLastOpen} from './db.js';
 
 export let isTransitioning=false;
 
@@ -33,7 +34,7 @@ export function go(id){
       if(id==='arcs') renderArcs();
       if(id==='library') { showLibrarySkeleton(); requestAnimationFrame(() => requestAnimationFrame(renderLibrary)); }
       if(id==='legacy') renderLegacy();
-      if(id==='mentor') localStorage.setItem('cos_mentor_last_open',new Date().toISOString());
+      if(id==='mentor') dbSaveMentorLastOpen(new Date().toISOString());
       if(id==='operations'){
         updateOpsHero();
         animateRollups();

@@ -1,10 +1,7 @@
 import {PILLARS,VIRTUES,ARCS} from './state.js';
+import {appData, dbSaveMirror} from './db.js';
 
-function safeJson(raw, fallback) {
-  try { return raw ? JSON.parse(raw) : fallback; } catch { return fallback; }
-}
-
-function getApiKey(){return localStorage.getItem('anthropic_api_key')||'';}
+function getApiKey(){ return appData.apiKey || ''; }
 
 const CHECKLIST_ITEMS=[
   "Trained today","No impulsive consumption","Produced before consumed",
@@ -13,7 +10,7 @@ const CHECKLIST_ITEMS=[
 
 /* ── DATA DUMP ── */
 function buildDataDump(){
-  const tasks=safeJson(localStorage.getItem('cos3_tasks'), []);
+  const tasks=appData.tasks;
   const doneCount=tasks.filter(t=>t.done).length;
   const taskStr=tasks.length
     ?`${doneCount}/${tasks.length} complete. Open: ${tasks.filter(t=>!t.done).map(t=>t.text).join('; ')||'none'}`
@@ -22,10 +19,9 @@ function buildDataDump(){
   const dailyLines=[];
   for(let i=0;i<14;i++){
     const d=new Date();d.setDate(d.getDate()-i);
-    const key=`cos_daily_${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
-    const raw=localStorage.getItem(key);
-    if(raw){
-      const checks=safeJson(raw, []);
+    const key=`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+    const checks=appData.checklists[key];
+    if(checks){
       const completed=CHECKLIST_ITEMS.filter((_,j)=>checks[j]);
       const ds=d.toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'});
       dailyLines.push(`${ds}: ${completed.length}/5 — ${completed.join(', ')||'none'}`);
@@ -33,17 +29,15 @@ function buildDataDump(){
   }
 
   let virtueStr='None set';
-  const vRaw=localStorage.getItem('cos_virtue');
-  const vData=safeJson(vRaw, null);
+  const vData=appData.virtue;
   if(vData){
-    const vs=vData;const v=VIRTUES[vs.index]||VIRTUES[0];
-    const day=Math.max(1,Math.min(Math.floor((new Date()-new Date(vs.startDate+'T00:00:00'))/(1000*60*60*24))+1,14));
+    const v=VIRTUES[vData.index]||VIRTUES[0];
+    const day=Math.max(1,Math.min(Math.floor((new Date()-new Date(vData.startDate+'T00:00:00'))/(1000*60*60*24))+1,14));
     virtueStr=`${v.name} (Day ${day} of 14) — Challenge: ${v.challenge}`;
   }
 
   let arcStr='None active';
-  const aRaw=localStorage.getItem('cos_arc');
-  const aData=safeJson(aRaw, null);
+  const aData=appData.arc;
   if(aData){
     const{id,startDate}=aData;const arc=ARCS.find(a=>a.id===id);
     if(arc){
@@ -53,13 +47,12 @@ function buildDataDump(){
     }
   }
 
-  const obsArr=safeJson(localStorage.getItem('cos_observations'), []);
+  const obsArr=appData.observations;
   const obsStr=obsArr.length
     ?obsArr.map(o=>`[${o.tag}] ${o.observation}${o.meaning?' → '+o.meaning:''}`).join('\n')
     :'None recorded.';
 
-  const driftLogRaw=localStorage.getItem('cos_drift_log');
-  const driftLog=safeJson(driftLogRaw, {});
+  const driftLog=appData.driftLog||{};
   const driftHistory=Object.entries(driftLog)
     .sort(([a],[b])=>a.localeCompare(b))
     .slice(-7)
@@ -141,8 +134,7 @@ function relDate(iso){
 export function renderMirror(){
   const pane=document.getElementById('mentor-mirror-pane');
   if(!pane)return;
-  const raw=localStorage.getItem('cos_mirror');
-  const mirror=safeJson(raw, null);
+  const mirror=appData.mirror;
   const days=mirror?daysLeft(mirror.date):0;
   const canGen=days===0;
   const hasKey=!!getApiKey();
@@ -200,7 +192,7 @@ export async function generateMirror(){
     });
     if(!res.ok){const e=await res.json().catch(()=>({}));throw new Error(e.error?.message||`Error ${res.status}`);}
     const content=(await res.json()).content[0].text;
-    localStorage.setItem('cos_mirror',JSON.stringify({date:new Date().toISOString(),content}));
+    dbSaveMirror({date:new Date().toISOString(),content});
     renderMirror();
   }catch(err){
     if(docEl)docEl.innerHTML=`

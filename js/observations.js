@@ -1,28 +1,18 @@
+import {appData, dbAddObservation, dbDeleteObservation} from './db.js';
+
 let activeFilter='All';
 let activeTag='Self';
 
 const TAG_COLORS={Self:'#A9CBFF',Social:'#D4FF9C',World:'#ECB8FF',Tactic:'#FFD6AA'};
 
-function safeJson(raw, fallback) {
-  try { return raw ? JSON.parse(raw) : fallback; } catch { return fallback; }
-}
-
-/* ── STORAGE ── */
-function getObs(){
-  return safeJson(localStorage.getItem('cos_observations'), []);
-}
-function saveObs(arr){localStorage.setItem('cos_observations',JSON.stringify(arr));}
-
-/* ── HELPERS ── */
 function relDate(iso){
   const diff=Math.floor((new Date()-new Date(iso))/(1000*60*60*24));
   if(diff===0)return'Today';
   if(diff===1)return'Yesterday';
   return`${diff}d ago`;
 }
-function escHtml(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+function escHtml(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
 
-/* ── BUILD HTML ── */
 function buildObsCard(o){
   const tagCls=o.tag.toLowerCase();
   return`
@@ -73,25 +63,22 @@ function buildPatterns(obs){
     </div>`;
 }
 
-/* ── MAIN RENDER ── */
 export function renderObservations(){
   const wrap=document.getElementById('observation-section');
   if(!wrap)return;
 
-  const obs=getObs();
+  const obs=appData.observations;
   const filtered=activeFilter==='All'?obs:obs.filter(o=>o.tag===activeFilter);
   const sorted=[...filtered].reverse();
 
   wrap.innerHTML=`
     <div class="eyebrow">Observations</div>
     <div class="obs-subtitle">Patterns. People. Self. The world.</div>
-
     <div class="obs-filter-bar">
       ${['All','Self','Social','World','Tactic'].map(f=>
         `<button class="obs-filter-pill${f===activeFilter?' active':''}" onclick="setObsFilter('${f}')">${f}</button>`
       ).join('')}
     </div>
-
     <div class="obs-add-area">
       <button class="obs-fab" id="obs-fab" onclick="expandObsPanel()" aria-label="Add observation">+</button>
       <div class="obs-panel" id="obs-panel">
@@ -108,17 +95,14 @@ export function renderObservations(){
         </div>
       </div>
     </div>
-
     <div id="obs-list">
       ${sorted.length===0
         ?`<div class="empty-state"><div class="empty-icon">○</div><div class="empty-text">You have not observed. The unexamined world teaches nothing.</div></div>`
         :sorted.map(buildObsCard).join('')}
     </div>
-
     ${obs.length>=5?buildPatterns(obs):''}`;
 }
 
-/* ── PANEL ACTIONS ── */
 export function expandObsPanel(){
   const panel=document.getElementById('obs-panel');
   const fab=document.getElementById('obs-fab');
@@ -151,21 +135,17 @@ export function selectObsTag(tag){
   document.querySelectorAll('.obs-tag-btn').forEach(b=>b.classList.toggle('active',b.textContent===tag));
 }
 
-/* ── DATA ACTIONS ── */
 export function saveObservation(){
   const text=(document.getElementById('obs-text')?.value||'').trim();
   if(!text)return;
   const meaning=(document.getElementById('obs-meaning')?.value||'').trim();
-  const obs=getObs();
-  obs.push({id:Date.now(),date:new Date().toISOString(),tag:activeTag,observation:text,meaning});
-  saveObs(obs);
+  dbAddObservation({id:Date.now(),date:new Date().toISOString(),tag:activeTag,observation:text,meaning});
   collapseObsPanel();
   setTimeout(()=>renderObservations(),240);
 }
 
 export function deleteObs(id){
-  const obs=getObs().filter(o=>o.id!==id);
-  saveObs(obs);
+  dbDeleteObservation(id);
   renderObservations();
 }
 

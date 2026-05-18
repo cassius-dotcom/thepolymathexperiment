@@ -1,4 +1,5 @@
 import {renderConstitutionContent} from './constitution.js';
+import {appData, dbAddPrinciple, dbUpdatePrinciple, dbDeletePrinciple, dbAddLetter, dbMarkLetterNotified, dbSaveConstitution} from './db.js';
 
 const GEM_PALETTE = [
   'linear-gradient(135deg,#FFD6AA,#ECB8FF)',
@@ -33,24 +34,12 @@ const DEFAULT_FILTERS = [
   "Does this increase or decrease self-respect?"
 ];
 
-function safeJson(raw, fallback) {
-  try { return raw ? JSON.parse(raw) : fallback; } catch { return fallback; }
-}
-
 /* ── STORAGE ── */
-function getIdentity() { return localStorage.getItem('cos_constitution_identity') || DEFAULT_IDENTITY; }
-function getAxioms() {
-  return safeJson(localStorage.getItem('cos_constitution_axioms'), DEFAULT_AXIOMS);
-}
-function getFilters() {
-  return safeJson(localStorage.getItem('cos_constitution_filters'), DEFAULT_FILTERS);
-}
-function getPrinciples() { return safeJson(localStorage.getItem('cos_principles'), []); }
-function savePrinciples(a) { localStorage.setItem('cos_principles', JSON.stringify(a)); }
-function getLetters() { return safeJson(localStorage.getItem('cos_letters'), []); }
-function saveLetters(a) { localStorage.setItem('cos_letters', JSON.stringify(a)); }
-function getNotifiedIds() { return safeJson(localStorage.getItem('cos_letters_notified'), []); }
-function saveNotifiedIds(ids) { localStorage.setItem('cos_letters_notified', JSON.stringify(ids)); }
+function getIdentity() { return appData.constitution?.identity || DEFAULT_IDENTITY; }
+function getAxioms() { return appData.constitution?.axioms || DEFAULT_AXIOMS; }
+function getFilters() { return appData.constitution?.filters || DEFAULT_FILTERS; }
+function getPrinciples() { return appData.principles; }
+function getLetters() { return appData.letters; }
 
 function escHtml(s) {
   return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
@@ -71,13 +60,11 @@ function relDate(iso) {
 
 /* ── UNLOCK NOTIFICATIONS ── */
 function checkUnlocked() {
-  const letters = getLetters();
-  const notified = getNotifiedIds();
   const today = new Date(); today.setHours(23, 59, 59, 999);
-  const fresh = letters.filter(l =>
-    l.unlockDate && new Date(l.unlockDate) <= today && !notified.includes(l.id)
+  const fresh = getLetters().filter(l =>
+    l.unlockDate && new Date(l.unlockDate) <= today && !l.notified
   );
-  if (fresh.length) saveNotifiedIds([...notified, ...fresh.map(l => l.id)]);
+  fresh.forEach(l => dbMarkLetterNotified(l.id));
   return fresh;
 }
 
@@ -256,8 +243,7 @@ function legSaveIdentity() {
   const el = document.querySelector('.leg-identity-input');
   if (!el) return;
   const val = el.value.trim();
-  if (val) localStorage.setItem('cos_constitution_identity', val);
-  else localStorage.removeItem('cos_constitution_identity');
+  dbSaveConstitution({ identity: val || DEFAULT_IDENTITY });
   renderConstitutionContent();
 }
 
@@ -270,7 +256,7 @@ function legSaveAxioms() {
       body: row.querySelector('.leg-axiom-body-input')?.value || ''
     });
   });
-  localStorage.setItem('cos_constitution_axioms', JSON.stringify(axioms));
+  dbSaveConstitution({ axioms });
   renderConstitutionContent();
 }
 
@@ -280,7 +266,7 @@ function legSaveFilters() {
     const v = row.querySelector('.leg-filter-input')?.value || '';
     filters.push(v);
   });
-  localStorage.setItem('cos_constitution_filters', JSON.stringify(filters));
+  dbSaveConstitution({ filters });
   renderConstitutionContent();
 }
 
@@ -298,17 +284,17 @@ function legCycleGem(idx) {
 }
 
 function legDeleteAxiom(idx) {
-  const axioms = getAxioms();
+  const axioms = [...getAxioms()];
   axioms.splice(idx, 1);
-  localStorage.setItem('cos_constitution_axioms', JSON.stringify(axioms));
+  dbSaveConstitution({ axioms });
   renderConstitutionContent();
   renderLegacy();
 }
 
 function legAddAxiom() {
-  const axioms = getAxioms();
+  const axioms = [...getAxioms()];
   axioms.push({gem: GEM_PALETTE[axioms.length % GEM_PALETTE.length], title:'', body:''});
-  localStorage.setItem('cos_constitution_axioms', JSON.stringify(axioms));
+  dbSaveConstitution({ axioms });
   renderLegacy();
   setTimeout(() => {
     const rows = document.querySelectorAll('#leg-axioms-list .leg-axiom-row');
@@ -317,17 +303,16 @@ function legAddAxiom() {
 }
 
 function legDeleteFilter(idx) {
-  const filters = getFilters();
+  const filters = [...getFilters()];
   filters.splice(idx, 1);
-  localStorage.setItem('cos_constitution_filters', JSON.stringify(filters));
+  dbSaveConstitution({ filters });
   renderConstitutionContent();
   renderLegacy();
 }
 
 function legAddFilter() {
-  const filters = getFilters();
-  filters.push('');
-  localStorage.setItem('cos_constitution_filters', JSON.stringify(filters));
+  const filters = [...getFilters(), ''];
+  dbSaveConstitution({ filters });
   renderLegacy();
   setTimeout(() => {
     const rows = document.querySelectorAll('#leg-filters-list .leg-filter-row');
@@ -350,9 +335,8 @@ function legSaveNewPrinciple() {
   const text = document.getElementById('leg-new-text')?.value.trim();
   if (!text) return;
   const context = document.getElementById('leg-new-ctx')?.value.trim() || '';
-  const principles = getPrinciples();
-  principles.push({id: Date.now(), number: principles.length+1, text, context, date: new Date().toISOString()});
-  savePrinciples(principles);
+  const p = {id: Date.now(), number: getPrinciples().length+1, text, context, date: new Date().toISOString()};
+  dbAddPrinciple(p);
   addingPrinciple = false;
   renderLegacy();
 }
@@ -369,16 +353,13 @@ function legSavePrincipleEdit(id) {
   const text = document.getElementById(`leg-edit-text-${id}`)?.value.trim();
   if (!text) return;
   const context = document.getElementById(`leg-edit-ctx-${id}`)?.value.trim() || '';
-  const principles = getPrinciples();
-  const p = principles.find(p => p.id === id);
-  if (p) { p.text = text; p.context = context; }
-  savePrinciples(principles);
+  dbUpdatePrinciple(id, { text, context });
   editingPrincipleId = null;
   renderLegacy();
 }
 
 function legDeletePrinciple(id) {
-  savePrinciples(getPrinciples().filter(p => p.id !== id));
+  dbDeletePrinciple(id);
   renderLegacy();
 }
 
@@ -420,9 +401,7 @@ function legSaveLetter() {
   const unlockDate = document.getElementById('leg-unlock')?.value || null;
   const content = document.getElementById('leg-body')?.value || '';
   if (!content.trim()) return;
-  const letters = getLetters();
-  letters.push({id: Date.now(), recipient, date: new Date().toISOString(), unlockDate: unlockDate||null, content});
-  saveLetters(letters);
+  dbAddLetter({id: Date.now(), recipient, date: new Date().toISOString(), unlockDate: unlockDate||null, content});
   legCloseLetterOverlay();
   setTimeout(() => renderLegacy(), 220);
 }

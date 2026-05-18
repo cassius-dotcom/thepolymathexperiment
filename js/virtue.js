@@ -1,20 +1,15 @@
 import {VIRTUES} from './state.js';
+import {appData, dbSaveVirtue} from './db.js';
 
 function todayStr(){
   const d=new Date();
   return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
 }
 
-function safeJson(raw, fallback) {
-  try { return raw ? JSON.parse(raw) : fallback; } catch { return fallback; }
-}
-
 export function getVirtueState(){
-  const raw=localStorage.getItem('cos_virtue');
-  const stored=safeJson(raw, null);
-  if(stored) return stored;
+  if(appData.virtue) return appData.virtue;
   const s={index:0,startDate:todayStr()};
-  localStorage.setItem('cos_virtue',JSON.stringify(s));
+  dbSaveVirtue(s);
   return s;
 }
 
@@ -61,9 +56,8 @@ export function renderVirtue(){
 
 export function rotateVirtue(){
   const vs=getVirtueState();
-  vs.index=(vs.index+1)%VIRTUES.length;
-  vs.startDate=todayStr();
-  localStorage.setItem('cos_virtue',JSON.stringify(vs));
+  const updated={index:(vs.index+1)%VIRTUES.length,startDate:todayStr()};
+  dbSaveVirtue(updated);
   renderVirtue();
 }
 

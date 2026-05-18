@@ -1,13 +1,10 @@
-function safeJson(raw, fallback) {
-  try { return raw ? JSON.parse(raw) : fallback; } catch { return fallback; }
-}
+import {appData, dbSaveDismissedDrifts, dbSaveDriftLog} from './db.js';
 
 /* ── HELPERS ── */
 function getDayChecklist(daysAgo) {
   const d = new Date(); d.setDate(d.getDate() - daysAgo);
-  const key = `cos_daily_${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
-  const raw = localStorage.getItem(key);
-  return safeJson(raw, null);
+  const key = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+  return appData.checklists[key] ?? null;
 }
 
 function consecutiveUnchecked(itemIndex) {
@@ -22,20 +19,17 @@ function consecutiveUnchecked(itemIndex) {
 }
 
 function isDismissed(type) {
-  const raw = localStorage.getItem('cos_dismissed_drifts');
-  if (!raw) return false;
-  const d = safeJson(raw, []).find(x => x.type === type);
+  const d = (appData.dismissedDrifts || []).find(x => x.type === type);
   if (!d) return false;
   return (new Date() - new Date(d.date)) < 1000*60*60*24;
 }
 
 function dismissDrift(type) {
-  const raw = localStorage.getItem('cos_dismissed_drifts');
-  const arr = safeJson(raw, []);
+  const arr = [...(appData.dismissedDrifts || [])];
   const idx = arr.findIndex(x => x.type === type);
   const entry = {type, date: new Date().toISOString()};
   if (idx > -1) arr[idx] = entry; else arr.push(entry);
-  localStorage.setItem('cos_dismissed_drifts', JSON.stringify(arr));
+  dbSaveDismissedDrifts(arr);
 }
 
 /* ── DETECTION ── */
@@ -56,18 +50,15 @@ export function detectDrift() {
   }
 
   if (!isDismissed('virtue')) {
-    const vRaw = localStorage.getItem('cos_virtue');
-    const vData = safeJson(vRaw, null);
+    const vData = appData.virtue;
     if (vData) {
-      const {startDate} = vData;
-      const days = Math.floor((new Date() - new Date(startDate+'T00:00:00')) / (1000*60*60*24));
+      const days = Math.floor((new Date() - new Date(vData.startDate+'T00:00:00')) / (1000*60*60*24));
       if (days >= 14) alerts.push({type:'virtue', text:'Your virtue cycle has expired. Rotate.', severity:4, page:'operations'});
     }
   }
 
   if (!isDismissed('tasks')) {
-    const tasks = safeJson(localStorage.getItem('cos3_tasks'), []);
-    const open = tasks.filter(t => !t.done && t.id > 100000000000);
+    const open = appData.tasks.filter(t => !t.done && t.id > 100000000000);
     if (open.length >= 5) {
       const ageMs = Date.now() - open.reduce((min, t) => t.id < min ? t.id : min, Infinity);
       if (ageMs >= 1000*60*60*24*7) alerts.push({type:'tasks', text:`You have ${open.length} open tasks. Complete or remove.`, severity:5, page:'operations'});
@@ -75,7 +66,7 @@ export function detectDrift() {
   }
 
   if (!isDismissed('observations')) {
-    const obs = safeJson(localStorage.getItem('cos_observations'), []);
+    const obs = appData.observations;
     if (obs.length > 0) {
       const daysSince = Math.floor((new Date() - new Date(obs[obs.length-1].date)) / (1000*60*60*24));
       if (daysSince >= 4) alerts.push({type:'observations', text:'You have stopped observing. Train your eye again.', severity:6, page:'operations'});
@@ -83,7 +74,7 @@ export function detectDrift() {
   }
 
   if (!isDismissed('mentor')) {
-    const last = localStorage.getItem('cos_mentor_last_open');
+    const last = appData.mentorLastOpen;
     if (last) {
       const days = Math.floor((new Date() - new Date(last)) / (1000*60*60*24));
       if (days >= 7) alerts.push({type:'mentor', text:'You are avoiding counsel. Open the Mentor.', severity:7, page:'mentor'});
@@ -97,12 +88,11 @@ export function detectDrift() {
 /* ── DAILY LOG ── */
 export function logDrift(drifts) {
   const today = new Date().toISOString().split('T')[0];
-  const raw = localStorage.getItem('cos_drift_log');
-  const log = safeJson(raw, {});
+  const log = { ...(appData.driftLog || {}) };
   log[today] = drifts.map(d => d.type);
   const keys = Object.keys(log).sort().slice(-14);
   const pruned = Object.fromEntries(keys.map(k => [k, log[k]]));
-  localStorage.setItem('cos_drift_log', JSON.stringify(pruned));
+  dbSaveDriftLog(pruned);
 }
 
 /* ── BANNER ── */

@@ -1,9 +1,9 @@
-import {state,save} from './state.js';
 import {animateRollups} from './performance.js';
+import {appData, dbAddTask, dbUpdateTask, dbDeleteTask} from './db.js';
 
 export function updateOpsHero(){
-  const total=state.tasks.length;
-  const done=state.tasks.filter(t=>t.done).length;
+  const total=appData.tasks.length;
+  const done=appData.tasks.filter(t=>t.done).length;
   const open=total-done;
   const hero=document.getElementById('ops-hero');
   const heroLabel=document.getElementById('ops-hero-label');
@@ -19,11 +19,11 @@ export function updateOpsHero(){
 export function renderTasks(){
   const el=document.getElementById('task-list');
   if(!el)return;
-  if(!state.tasks.length){
+  if(!appData.tasks.length){
     el.innerHTML=`<div class="empty-state"><div class="empty-icon">○</div><div class="empty-text">The queue is empty. This is mastery, not laziness.</div><div class="empty-sub">Add a task to build.</div></div>`;
     return;
   }
-  el.innerHTML=state.tasks.map(t=>`
+  el.innerHTML=appData.tasks.map(t=>`
     <div class="task-item" data-id="${t.id}" style="opacity:${t.done?0.4:1}">
       <div class="t-check ${t.done?'done':''}" onclick="toggleTask(${t.id})"></div>
       <span class="t-text ${t.done?'done':''}">${t.text}</span>
@@ -34,17 +34,17 @@ export function renderTasks(){
 export function addTask(){
   const inp=document.getElementById('task-input');
   const t=inp.value.trim();if(!t)return;
-  state.tasks.push({id:Date.now(),text:t,done:false});
-  inp.value='';save();renderTasks();updateOpsHero();
+  dbAddTask({id:Date.now(),text:t,done:false});
+  inp.value='';renderTasks();updateOpsHero();
   collapseAdd();
 }
 
 export function toggleTask(id){
-  const task=state.tasks.find(t=>t.id===id);
+  const task=appData.tasks.find(t=>t.id===id);
   if(!task)return;
   const wasComplete=task.done;
-  task.done=!task.done;
-  save();renderTasks();updateOpsHero();
+  dbUpdateTask(id,{done:!task.done});
+  renderTasks();updateOpsHero();
   if(!wasComplete){
     const row=document.querySelector(`.task-item[data-id="${id}"]`);
     if(row){
@@ -55,7 +55,7 @@ export function toggleTask(id){
   }
 }
 
-export function deleteTask(id){state.tasks=state.tasks.filter(t=>t.id!==id);save();renderTasks();updateOpsHero();}
+export function deleteTask(id){dbDeleteTask(id);renderTasks();updateOpsHero();}
 
 export function expandAdd(){
   const wrap=document.getElementById('add-fab-wrap');

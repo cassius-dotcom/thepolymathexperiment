@@ -18,6 +18,13 @@ function safe(label, fn) {
   try { fn(); } catch(e) { console.error('[Cassius OS] ' + label + ' failed:', e); }
 }
 
+function dismissLoading() {
+  const el = document.getElementById('app-loading');
+  if (!el) return;
+  el.style.opacity = '0';
+  setTimeout(() => el.remove(), 300);
+}
+
 function initApp() {
   safe('renderToday',               () => renderToday());
   safe('renderCompass',             () => renderCompass());
@@ -56,6 +63,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       removeAuthOverlay();
       await loadAll(session.user.id);
       initApp();
+      dismissLoading();
     }
   });
 
@@ -67,4 +75,5 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   await loadAll(session.user.id);
   initApp();
+  dismissLoading();
 });

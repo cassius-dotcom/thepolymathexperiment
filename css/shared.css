@@ -12,6 +12,32 @@ body::after{
 }
 @media(max-width:600px){body::after{display:none}}
 
+/* APP LOADING OVERLAY */
+#app-loading{
+  position:fixed;inset:0;
+  background:var(--bg);
+  z-index:9000;
+  display:flex;align-items:center;justify-content:center;
+  transition:opacity 300ms ease-out;
+  pointer-events:none;
+}
+.app-loading-inner{
+  display:flex;flex-direction:column;align-items:center;
+  gap:20px;
+}
+.app-loading-wordmark{
+  font-size:var(--fs-xl);
+  font-weight:600;
+  letter-spacing:-.04em;
+  color:var(--t1);
+}
+.app-loading-line{
+  width:120px;height:2px;
+  background:var(--t3);
+  border-radius:2px;
+  animation:dotPulse 1.4s ease-in-out infinite;
+}
+
 /* VIEWS */
 .view{display:none}
 .view.active{display:block;animation:slidein .35s cubic-bezier(0.22,1,0.36,1)}

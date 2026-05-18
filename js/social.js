@@ -13,6 +13,10 @@ let panelOpen = false;
 let panelAnswers = {overexplained:null, posture:null, speech:null, eyeContact:null};
 const expandedIds = new Set();
 
+function safeJson(raw, fallback) {
+  try { return raw ? JSON.parse(raw) : fallback; } catch { return fallback; }
+}
+
 /* ── STORAGE ── */
 function todayKey() {
   const d = new Date();
@@ -21,17 +25,18 @@ function todayKey() {
 function getLevel() { return parseInt(localStorage.getItem('cos_exposure_level')||'1'); }
 function getTodayChecks() {
   const raw = localStorage.getItem('cos_exposure_checks_'+todayKey());
-  return raw ? JSON.parse(raw) : [false,false,false,false,false,false];
+  return safeJson(raw, [false,false,false,false,false,false]);
 }
 function saveTodayChecks(c) { localStorage.setItem('cos_exposure_checks_'+todayKey(), JSON.stringify(c)); }
-function getInteractions() { return JSON.parse(localStorage.getItem('cos_interactions')||'[]'); }
+function getInteractions() { return safeJson(localStorage.getItem('cos_interactions'), []); }
 function saveInteractions(a) { localStorage.setItem('cos_interactions', JSON.stringify(a)); }
 
 /* ── HELPERS ── */
 function getMission(level) {
   const d = new Date();
   const seed = d.getFullYear()*10000 + (d.getMonth()+1)*100 + d.getDate();
-  const missions = SOCIAL_MISSIONS[level-1];
+  const idx = Math.max(0, Math.min(level - 1, SOCIAL_MISSIONS.length - 1));
+  const missions = SOCIAL_MISSIONS[idx];
   return missions[seed % missions.length];
 }
 

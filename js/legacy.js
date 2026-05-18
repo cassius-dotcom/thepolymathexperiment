@@ -33,21 +33,23 @@ const DEFAULT_FILTERS = [
   "Does this increase or decrease self-respect?"
 ];
 
+function safeJson(raw, fallback) {
+  try { return raw ? JSON.parse(raw) : fallback; } catch { return fallback; }
+}
+
 /* ── STORAGE ── */
 function getIdentity() { return localStorage.getItem('cos_constitution_identity') || DEFAULT_IDENTITY; }
 function getAxioms() {
-  const r = localStorage.getItem('cos_constitution_axioms');
-  return r ? JSON.parse(r) : DEFAULT_AXIOMS;
+  return safeJson(localStorage.getItem('cos_constitution_axioms'), DEFAULT_AXIOMS);
 }
 function getFilters() {
-  const r = localStorage.getItem('cos_constitution_filters');
-  return r ? JSON.parse(r) : DEFAULT_FILTERS;
+  return safeJson(localStorage.getItem('cos_constitution_filters'), DEFAULT_FILTERS);
 }
-function getPrinciples() { return JSON.parse(localStorage.getItem('cos_principles') || '[]'); }
+function getPrinciples() { return safeJson(localStorage.getItem('cos_principles'), []); }
 function savePrinciples(a) { localStorage.setItem('cos_principles', JSON.stringify(a)); }
-function getLetters() { return JSON.parse(localStorage.getItem('cos_letters') || '[]'); }
+function getLetters() { return safeJson(localStorage.getItem('cos_letters'), []); }
 function saveLetters(a) { localStorage.setItem('cos_letters', JSON.stringify(a)); }
-function getNotifiedIds() { return JSON.parse(localStorage.getItem('cos_letters_notified') || '[]'); }
+function getNotifiedIds() { return safeJson(localStorage.getItem('cos_letters_notified'), []); }
 function saveNotifiedIds(ids) { localStorage.setItem('cos_letters_notified', JSON.stringify(ids)); }
 
 function escHtml(s) {
@@ -288,7 +290,7 @@ function legCycleGem(idx) {
   if (!row) return;
   const cur = row.dataset.gem;
   const pi = GEM_PALETTE.indexOf(cur);
-  const next = GEM_PALETTE[(pi+1) % GEM_PALETTE.length];
+  const next = GEM_PALETTE[(Math.max(pi, 0) + 1) % GEM_PALETTE.length];
   row.dataset.gem = next;
   const btn = row.querySelector('.leg-axiom-gem-btn');
   if (btn) btn.style.background = next;

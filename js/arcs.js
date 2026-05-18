@@ -1,9 +1,12 @@
 import {ARCS} from './state.js';
 
+function safeJson(raw, fallback) {
+  try { return raw ? JSON.parse(raw) : fallback; } catch { return fallback; }
+}
+
 /* ── STATE ── */
 function getArcState() {
-  const raw = localStorage.getItem('cos_arc');
-  return raw ? JSON.parse(raw) : null;
+  return safeJson(localStorage.getItem('cos_arc'), null);
 }
 
 function todayStr() {
@@ -51,6 +54,7 @@ function renderActiveArc() {
   const week = Math.min(computeWeek(s.startDate), arc.weeks);
   const done = computeWeek(s.startDate) > arc.weeks;
   const phase = arc.phases[week - 1];
+  if (!phase) { wrap.innerHTML = ''; return; }
   const daysLeft = done ? 0 : daysRemainingInPhase(s.startDate, week);
 
   wrap.innerHTML = `

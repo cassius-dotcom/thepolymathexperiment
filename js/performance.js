@@ -64,7 +64,7 @@ export function renderBarChart(){
   const el=document.getElementById('bar-chart');
   const titleEl=document.getElementById('chart-title');
   const metaEl=document.getElementById('chart-meta');
-  if(!el)return;
+  if(!el||!titleEl||!metaEl)return;
 
   const nowHour=today.getHours();
   const seed=WEEK_SEEDS[((todayIdx-selectedDayOffset)%7+7)%7];
@@ -123,10 +123,14 @@ export function showScrub(hour,focused,distracted,score){
   const el=document.getElementById('scrub-detail');
   if(!el)return;
   el.style.display='block';
-  document.getElementById('scrub-hour').textContent=hour;
-  document.getElementById('scrub-focus').textContent=focused;
-  document.getElementById('scrub-dist').textContent=distracted;
-  document.getElementById('scrub-score').textContent=score;
+  const hourEl=document.getElementById('scrub-hour');
+  const focusEl=document.getElementById('scrub-focus');
+  const distEl=document.getElementById('scrub-dist');
+  const scoreEl=document.getElementById('scrub-score');
+  if(hourEl)hourEl.textContent=hour;
+  if(focusEl)focusEl.textContent=focused;
+  if(distEl)distEl.textContent=distracted;
+  if(scoreEl)scoreEl.textContent=score;
 }
 
 export function hideScrub(){

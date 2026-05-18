@@ -10,13 +10,17 @@ const DEFAULT_AXIOMS = [
 function getStoredIdentity() {
   return localStorage.getItem('cos_constitution_identity') || DEFAULT_IDENTITY;
 }
+function safeJson(raw, fallback) {
+  try { return raw ? JSON.parse(raw) : fallback; } catch { return fallback; }
+}
+
 function getStoredAxioms() {
   const r = localStorage.getItem('cos_constitution_axioms');
-  return r ? JSON.parse(r).filter(a => a.title && a.title.trim()) : DEFAULT_AXIOMS;
+  return safeJson(r, DEFAULT_AXIOMS).filter(a => a.title && a.title.trim());
 }
 function getStoredFilters() {
   const r = localStorage.getItem('cos_constitution_filters');
-  return r ? JSON.parse(r).filter(f => f && f.trim()) : FILTERS;
+  return safeJson(r, FILTERS).filter(f => f && f.trim());
 }
 
 export function renderCompass() {

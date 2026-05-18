@@ -19,14 +19,17 @@ const CHECKLIST_ITEMS=[
   "Night audit complete"
 ];
 
+function safeJson(raw, fallback) {
+  try { return raw ? JSON.parse(raw) : fallback; } catch { return fallback; }
+}
+
 function getTodayKey(){
   const d=new Date();
   return `cos_daily_${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
 }
 
 function getSaved(){
-  const raw=localStorage.getItem(getTodayKey());
-  return raw?JSON.parse(raw):Array(CHECKLIST_ITEMS.length).fill(false);
+  return safeJson(localStorage.getItem(getTodayKey()), Array(CHECKLIST_ITEMS.length).fill(false));
 }
 
 function saveChecklist(checks){
@@ -99,7 +102,7 @@ function renderAudit(){
   const card=document.getElementById('audit-card');
   if(!card)return;
   const saved=localStorage.getItem('cos_audit_'+auditDateStr());
-  if(saved){card.innerHTML=auditClosedHTML(JSON.parse(saved));return;}
+  if(saved){const parsed=safeJson(saved,null);if(parsed)card.innerHTML=auditClosedHTML(parsed);return;}
   const locked=new Date().getHours()<20;
   card.innerHTML=locked?auditLockedHTML():auditFormHTML();
 }

@@ -1,5 +1,9 @@
 import {PILLARS,VIRTUES,ARCS} from './state.js';
 
+function safeJson(raw, fallback) {
+  try { return raw ? JSON.parse(raw) : fallback; } catch { return fallback; }
+}
+
 function getApiKey(){return localStorage.getItem('anthropic_api_key')||'';}
 
 const CHECKLIST_ITEMS=[
@@ -9,7 +13,7 @@ const CHECKLIST_ITEMS=[
 
 /* ── DATA DUMP ── */
 function buildDataDump(){
-  const tasks=JSON.parse(localStorage.getItem('cos3_tasks')||'[]');
+  const tasks=safeJson(localStorage.getItem('cos3_tasks'), []);
   const doneCount=tasks.filter(t=>t.done).length;
   const taskStr=tasks.length
     ?`${doneCount}/${tasks.length} complete. Open: ${tasks.filter(t=>!t.done).map(t=>t.text).join('; ')||'none'}`
@@ -21,7 +25,7 @@ function buildDataDump(){
     const key=`cos_daily_${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
     const raw=localStorage.getItem(key);
     if(raw){
-      const checks=JSON.parse(raw);
+      const checks=safeJson(raw, []);
       const completed=CHECKLIST_ITEMS.filter((_,j)=>checks[j]);
       const ds=d.toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'});
       dailyLines.push(`${ds}: ${completed.length}/5 — ${completed.join(', ')||'none'}`);
@@ -30,16 +34,18 @@ function buildDataDump(){
 
   let virtueStr='None set';
   const vRaw=localStorage.getItem('cos_virtue');
-  if(vRaw){
-    const vs=JSON.parse(vRaw);const v=VIRTUES[vs.index]||VIRTUES[0];
+  const vData=safeJson(vRaw, null);
+  if(vData){
+    const vs=vData;const v=VIRTUES[vs.index]||VIRTUES[0];
     const day=Math.max(1,Math.min(Math.floor((new Date()-new Date(vs.startDate+'T00:00:00'))/(1000*60*60*24))+1,14));
     virtueStr=`${v.name} (Day ${day} of 14) — Challenge: ${v.challenge}`;
   }
 
   let arcStr='None active';
   const aRaw=localStorage.getItem('cos_arc');
-  if(aRaw){
-    const{id,startDate}=JSON.parse(aRaw);const arc=ARCS.find(a=>a.id===id);
+  const aData=safeJson(aRaw, null);
+  if(aData){
+    const{id,startDate}=aData;const arc=ARCS.find(a=>a.id===id);
     if(arc){
       const week=Math.max(1,Math.min(Math.floor((new Date()-new Date(startDate+'T00:00:00'))/(1000*60*60*24*7))+1,arc.weeks));
       const phase=arc.phases[week-1]||arc.phases[arc.phases.length-1];
@@ -47,13 +53,13 @@ function buildDataDump(){
     }
   }
 
-  const obsArr=JSON.parse(localStorage.getItem('cos_observations')||'[]');
+  const obsArr=safeJson(localStorage.getItem('cos_observations'), []);
   const obsStr=obsArr.length
     ?obsArr.map(o=>`[${o.tag}] ${o.observation}${o.meaning?' → '+o.meaning:''}`).join('\n')
     :'None recorded.';
 
   const driftLogRaw=localStorage.getItem('cos_drift_log');
-  const driftLog=driftLogRaw?JSON.parse(driftLogRaw):{};
+  const driftLog=safeJson(driftLogRaw, {});
   const driftHistory=Object.entries(driftLog)
     .sort(([a],[b])=>a.localeCompare(b))
     .slice(-7)
@@ -136,7 +142,7 @@ export function renderMirror(){
   const pane=document.getElementById('mentor-mirror-pane');
   if(!pane)return;
   const raw=localStorage.getItem('cos_mirror');
-  const mirror=raw?JSON.parse(raw):null;
+  const mirror=safeJson(raw, null);
   const days=mirror?daysLeft(mirror.date):0;
   const canGen=days===0;
   const hasKey=!!getApiKey();

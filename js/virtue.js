@@ -5,9 +5,14 @@ function todayStr(){
   return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
 }
 
+function safeJson(raw, fallback) {
+  try { return raw ? JSON.parse(raw) : fallback; } catch { return fallback; }
+}
+
 export function getVirtueState(){
   const raw=localStorage.getItem('cos_virtue');
-  if(raw) return JSON.parse(raw);
+  const stored=safeJson(raw, null);
+  if(stored) return stored;
   const s={index:0,startDate:todayStr()};
   localStorage.setItem('cos_virtue',JSON.stringify(s));
   return s;

@@ -3,6 +3,10 @@ import {PILLARS,VIRTUES,ARCS,BOOKS,FLASHCARD_DECKS} from './state.js';
 let messages = [];
 let busy = false;
 
+function safeJson(raw, fallback) {
+  try { return raw ? JSON.parse(raw) : fallback; } catch { return fallback; }
+}
+
 /* ── API KEY ── */
 function getApiKey() { return localStorage.getItem('anthropic_api_key') || ''; }
 
@@ -15,7 +19,8 @@ function todayKey() {
 function getVirtueCtx() {
   const raw = localStorage.getItem('cos_virtue');
   if (!raw) return {name:'Discipline', day:1};
-  const vs = JSON.parse(raw);
+  const vs = safeJson(raw, null);
+  if (!vs) return {name:'Discipline', day:1};
   const v = VIRTUES[vs.index] || VIRTUES[0];
   const diff = Math.floor((new Date() - new Date(vs.startDate+'T00:00:00')) / (1000*60*60*24));
   return {name: v.name, day: Math.max(1, Math.min(diff+1, 14))};
@@ -24,20 +29,21 @@ function getVirtueCtx() {
 function getChecklistPct() {
   const raw = localStorage.getItem('cos_daily_'+todayKey());
   if (!raw) return 0;
-  const checks = JSON.parse(raw);
-  return Math.round(checks.filter(Boolean).length / checks.length * 100);
+  const checks = safeJson(raw, []);
+  if (!checks.length) return 0;
+  return Math.round(checks.filter(v => v === true).length / checks.length * 100);
 }
 
 function getNightAudit() {
-  const raw = localStorage.getItem('cos_daily_'+todayKey());
-  if (!raw) return false;
-  return JSON.parse(raw)[4] === true;
+  return localStorage.getItem('cos_audit_'+todayKey()) !== null;
 }
 
 function getArcCtx() {
   const raw = localStorage.getItem('cos_arc');
   if (!raw) return null;
-  const {id, startDate} = JSON.parse(raw);
+  const arc_data = safeJson(raw, null);
+  if (!arc_data) return null;
+  const {id, startDate} = arc_data;
   const arc = ARCS.find(a => a.id === id);
   if (!arc) return null;
   const week = Math.max(1, Math.min(Math.floor((new Date() - new Date(startDate+'T00:00:00')) / (1000*60*60*24*7))+1, arc.weeks));
@@ -48,14 +54,14 @@ function getArcCtx() {
 function getRecentObsCtx() {
   const raw = localStorage.getItem('cos_observations');
   if (!raw) return null;
-  const obs = JSON.parse(raw);
+  const obs = safeJson(raw, []);
   if (!obs.length) return null;
   return obs.slice(-5).map(o => o.observation).join(' · ');
 }
 
 function getLibraryCtx() {
-  const active = JSON.parse(localStorage.getItem('cos_library_active') || '[]');
-  const notes = JSON.parse(localStorage.getItem('cos_library_notes') || '[]');
+  const active = safeJson(localStorage.getItem('cos_library_active'), []);
+  const notes = safeJson(localStorage.getItem('cos_library_notes'), []);
   const activeTitles = active.map(a => {
     const book = BOOKS.find(b => b.id === a.bookId);
     if (!book) return null;
@@ -70,7 +76,7 @@ function getLibraryCtx() {
 }
 
 function getCardsCtx() {
-  const reviews = JSON.parse(localStorage.getItem('cos_card_reviews') || '{}');
+  const reviews = safeJson(localStorage.getItem('cos_card_reviews'), {});
   const today = new Date(); today.setHours(23, 59, 59, 999);
   let dueCount = 0, masteredCount = 0, totalCount = 0;
   FLASHCARD_DECKS.forEach(deck => {
@@ -86,7 +92,7 @@ function getCardsCtx() {
 
 function getSocialCtx() {
   const level = parseInt(localStorage.getItem('cos_exposure_level') || '1');
-  const interactions = JSON.parse(localStorage.getItem('cos_interactions') || '[]').slice(-5);
+  const interactions = safeJson(localStorage.getItem('cos_interactions'), []).slice(-5);
   if (!interactions.length) return {level, summary: null};
   const n = interactions.length;
   const overexplain = interactions.filter(i => i.overexplained).length;
@@ -96,8 +102,8 @@ function getSocialCtx() {
 }
 
 function getLegacyCtx() {
-  const principles = JSON.parse(localStorage.getItem('cos_principles') || '[]');
-  const letters = JSON.parse(localStorage.getItem('cos_letters') || '[]');
+  const principles = safeJson(localStorage.getItem('cos_principles'), []);
+  const letters = safeJson(localStorage.getItem('cos_letters'), []);
   const latest = principles.length ? principles[principles.length-1] : null;
   return {principleCount: principles.length, letterCount: letters.length, latestPrinciple: latest?.text || null};
 }
@@ -241,7 +247,8 @@ export function renderMentor() {
   });
 
   if (getApiKey()) {
-    document.getElementById('mentor-key-status').style.display = '';
+    const status = document.getElementById('mentor-key-status');
+    if (status) status.style.display = '';
   } else {
     showSetup();
   }

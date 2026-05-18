@@ -1,16 +1,21 @@
+function safeJson(raw, fallback) {
+  try { return raw ? JSON.parse(raw) : fallback; } catch { return fallback; }
+}
+
 /* ── HELPERS ── */
 function getDayChecklist(daysAgo) {
   const d = new Date(); d.setDate(d.getDate() - daysAgo);
   const key = `cos_daily_${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
   const raw = localStorage.getItem(key);
-  return raw ? JSON.parse(raw) : null;
+  return safeJson(raw, null);
 }
 
 function consecutiveUnchecked(itemIndex) {
   let count = 0;
   for (let i = 1; i <= 14; i++) {
     const checks = getDayChecklist(i);
-    if (!checks || checks[itemIndex] !== true) count++;
+    if (!checks) break;
+    if (checks[itemIndex] !== true) count++;
     else break;
   }
   return count;
@@ -19,14 +24,14 @@ function consecutiveUnchecked(itemIndex) {
 function isDismissed(type) {
   const raw = localStorage.getItem('cos_dismissed_drifts');
   if (!raw) return false;
-  const d = JSON.parse(raw).find(x => x.type === type);
+  const d = safeJson(raw, []).find(x => x.type === type);
   if (!d) return false;
   return (new Date() - new Date(d.date)) < 1000*60*60*24;
 }
 
 function dismissDrift(type) {
   const raw = localStorage.getItem('cos_dismissed_drifts');
-  const arr = raw ? JSON.parse(raw) : [];
+  const arr = safeJson(raw, []);
   const idx = arr.findIndex(x => x.type === type);
   const entry = {type, date: new Date().toISOString()};
   if (idx > -1) arr[idx] = entry; else arr.push(entry);
@@ -52,24 +57,25 @@ export function detectDrift() {
 
   if (!isDismissed('virtue')) {
     const vRaw = localStorage.getItem('cos_virtue');
-    if (vRaw) {
-      const {startDate} = JSON.parse(vRaw);
+    const vData = safeJson(vRaw, null);
+    if (vData) {
+      const {startDate} = vData;
       const days = Math.floor((new Date() - new Date(startDate+'T00:00:00')) / (1000*60*60*24));
       if (days >= 14) alerts.push({type:'virtue', text:'Your virtue cycle has expired. Rotate.', severity:4, page:'operations'});
     }
   }
 
   if (!isDismissed('tasks')) {
-    const tasks = JSON.parse(localStorage.getItem('cos3_tasks') || '[]');
+    const tasks = safeJson(localStorage.getItem('cos3_tasks'), []);
     const open = tasks.filter(t => !t.done && t.id > 100000000000);
     if (open.length >= 5) {
-      const ageMs = Date.now() - Math.min(...open.map(t => t.id));
+      const ageMs = Date.now() - open.reduce((min, t) => t.id < min ? t.id : min, Infinity);
       if (ageMs >= 1000*60*60*24*7) alerts.push({type:'tasks', text:`You have ${open.length} open tasks. Complete or remove.`, severity:5, page:'operations'});
     }
   }
 
   if (!isDismissed('observations')) {
-    const obs = JSON.parse(localStorage.getItem('cos_observations') || '[]');
+    const obs = safeJson(localStorage.getItem('cos_observations'), []);
     if (obs.length > 0) {
       const daysSince = Math.floor((new Date() - new Date(obs[obs.length-1].date)) / (1000*60*60*24));
       if (daysSince >= 4) alerts.push({type:'observations', text:'You have stopped observing. Train your eye again.', severity:6, page:'operations'});
@@ -92,7 +98,7 @@ export function detectDrift() {
 export function logDrift(drifts) {
   const today = new Date().toISOString().split('T')[0];
   const raw = localStorage.getItem('cos_drift_log');
-  const log = raw ? JSON.parse(raw) : {};
+  const log = safeJson(raw, {});
   log[today] = drifts.map(d => d.type);
   const keys = Object.keys(log).sort().slice(-14);
   const pruned = Object.fromEntries(keys.map(k => [k, log[k]]));

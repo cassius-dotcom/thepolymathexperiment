@@ -14,12 +14,16 @@ let sessionIdx = 0;
 let sessionFlipped = false;
 let sessionResults = [];
 
+function safeJson(raw, fallback) {
+  try { return raw ? JSON.parse(raw) : fallback; } catch { return fallback; }
+}
+
 /* ── LOCALSTORAGE ── */
-function getActive() { return JSON.parse(localStorage.getItem('cos_library_active') || '[]'); }
+function getActive() { return safeJson(localStorage.getItem('cos_library_active'), []); }
 function saveActive(arr) { localStorage.setItem('cos_library_active', JSON.stringify(arr)); }
-function getNotes() { return JSON.parse(localStorage.getItem('cos_library_notes') || '[]'); }
+function getNotes() { return safeJson(localStorage.getItem('cos_library_notes'), []); }
 function saveNotes(arr) { localStorage.setItem('cos_library_notes', JSON.stringify(arr)); }
-function getCardReviews() { return JSON.parse(localStorage.getItem('cos_card_reviews') || '{}'); }
+function getCardReviews() { return safeJson(localStorage.getItem('cos_card_reviews'), {}); }
 function saveCardReviews(obj) { localStorage.setItem('cos_card_reviews', JSON.stringify(obj)); }
 
 /* ── UTILITIES ── */

@@ -46,13 +46,12 @@ export function toggleTask(id){
   task.done=!task.done;
   save();renderTasks();updateOpsHero();
   if(!wasComplete){
-    setTimeout(()=>{
-      const row=document.querySelector(`.task-item[data-id="${id}"]`);
-      if(row){
-        row.classList.add('celebrating');
-        setTimeout(()=>row.classList.remove('celebrating'),600);
-      }
-    },10);
+    const row=document.querySelector(`.task-item[data-id="${id}"]`);
+    if(row){
+      void row.offsetWidth;
+      row.classList.add('celebrating');
+      setTimeout(()=>{if(row.isConnected)row.classList.remove('celebrating');},600);
+    }
   }
 }
 
@@ -64,6 +63,7 @@ export function expandAdd(){
   wrap.classList.add('expanded');
   setTimeout(()=>{
     const inp=document.getElementById('task-input');
+    if(!inp)return;
     inp.focus();
     inp.scrollIntoView({behavior:'smooth',block:'center'});
   },200);
@@ -73,7 +73,8 @@ export function collapseAdd(){
   const wrap=document.getElementById('add-fab-wrap');
   if(!wrap)return;
   wrap.classList.remove('expanded');
-  document.getElementById('task-input').value='';
+  const inp=document.getElementById('task-input');
+  if(inp)inp.value='';
 }
 
 window.addTask=addTask;

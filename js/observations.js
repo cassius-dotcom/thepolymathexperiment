@@ -3,10 +3,13 @@ let activeTag='Self';
 
 const TAG_COLORS={Self:'#A9CBFF',Social:'#D4FF9C',World:'#ECB8FF',Tactic:'#FFD6AA'};
 
+function safeJson(raw, fallback) {
+  try { return raw ? JSON.parse(raw) : fallback; } catch { return fallback; }
+}
+
 /* ── STORAGE ── */
 function getObs(){
-  const raw=localStorage.getItem('cos_observations');
-  return raw?JSON.parse(raw):[];
+  return safeJson(localStorage.getItem('cos_observations'), []);
 }
 function saveObs(arr){localStorage.setItem('cos_observations',JSON.stringify(arr));}
 

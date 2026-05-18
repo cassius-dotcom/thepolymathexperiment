@@ -199,11 +199,15 @@ export const BOOKS=[
 export const DAYS=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
 export const WEEK_SEEDS=[42,17,88,63,29,74,51];
 
+function safeJson(raw, fallback) {
+  try { return raw ? JSON.parse(raw) : fallback; } catch { return fallback; }
+}
+
 export let state={
-  tasks:JSON.parse(localStorage.getItem('cos3_tasks'))||[
+  tasks: safeJson(localStorage.getItem('cos3_tasks'), [
     {id:1,text:"Execute weight training splits baseline.",done:true},
     {id:2,text:"Verify database sync connection strings.",done:false}
-  ]
+  ])
 };
 
 export function save(){localStorage.setItem('cos3_tasks',JSON.stringify(state.tasks));}

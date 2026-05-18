@@ -7,6 +7,7 @@ import {renderLibrary, showLibrarySkeleton} from './library.js';
 import {renderSocial} from './social.js';
 import {renderLegacy} from './legacy.js';
 import {renderConstitutionContent} from './constitution.js';
+import {renderObservations} from './observations.js';
 
 export let isTransitioning=false;
 
@@ -38,6 +39,7 @@ export function go(id){
         animateRollups();
         renderVirtue();
         renderSocial();
+        renderObservations();
       }
       isTransitioning=false;
     },260);

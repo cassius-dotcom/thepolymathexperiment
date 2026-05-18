@@ -45,6 +45,14 @@ function getArcCtx(){
   return{name:arc.name,week,total:arc.weeks,phaseTitle:phase.title,phaseFocus:phase.focus};
 }
 
+function getRecentObsCtx(){
+  const raw=localStorage.getItem('cos_observations');
+  if(!raw)return null;
+  const obs=JSON.parse(raw);
+  if(!obs.length)return null;
+  return obs.slice(-5).map(o=>o.observation).join(' · ');
+}
+
 function buildSystemPrompt(){
   const vc=getVirtueCtx();
   const pct=getChecklistPct();
@@ -54,6 +62,7 @@ function buildSystemPrompt(){
   const arcLine=arc
     ?`- Active arc: ${arc.name} (Week ${arc.week} of ${arc.total}: ${arc.phaseTitle} — ${arc.phaseFocus})`
     :'- Active arc: none';
+  const obsStr=getRecentObsCtx();
   return `You are a Renaissance Mentor — a calm, intelligent, demanding philosophical guide. You speak with precision and restraint. No motivational clichés. No flattery. You respond like Marcus Aurelius would coach a young man — direct, grounded, honest.
 
 Current user context:
@@ -62,6 +71,7 @@ Current user context:
 - Night audit: ${audit?'complete':'not yet'}
 ${arcLine}
 - Pillar scores — ${pillarStr}
+${obsStr?`- Recent observations: ${obsStr}`:''}
 - Identity: Produces value at scale. Governs himself under pressure. Builds strength in body and character. Communicates with precision and restraint. Loves deeply without losing himself. Anchors meaning in God, not ego.
 
 Respond in 3-6 sentences maximum. No bullet points. No headers. Prose only. Be honest even when uncomfortable.`;

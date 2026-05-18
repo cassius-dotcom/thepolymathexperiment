@@ -4,6 +4,7 @@ import {renderPillars} from './pillars.js';
 import {renderToday} from './today.js';
 import {renderVirtue} from './virtue.js';
 import {renderArcs} from './arcs.js';
+import {renderObservations} from './observations.js';
 import {renderMentor} from './mentor.js';
 
 document.addEventListener('DOMContentLoaded',()=>{
@@ -14,6 +15,7 @@ document.addEventListener('DOMContentLoaded',()=>{
   renderPillars();
   renderVirtue();
   renderArcs();
+  renderObservations();
   renderMentor();
   document.getElementById('task-input').addEventListener('keydown',e=>{
     if(e.key==='Enter')addTask();

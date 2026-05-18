@@ -1,0 +1,262 @@
+.obs-subtitle{
+  font-size:var(--fs-xs);
+  color:var(--t4);
+  letter-spacing:-.01em;
+  margin-bottom:var(--s-4);
+  margin-top:calc(var(--s-3) * -1);
+}
+
+/* FILTER BAR */
+.obs-filter-bar{
+  display:flex;
+  gap:var(--s-2);
+  overflow-x:auto;
+  -webkit-overflow-scrolling:touch;
+  padding-bottom:2px;
+  margin-bottom:var(--s-5);
+  scrollbar-width:none;
+}
+.obs-filter-bar::-webkit-scrollbar{display:none}
+.obs-filter-pill{
+  background:transparent;
+  border:0.5px solid var(--border-2);
+  border-radius:var(--r-pill);
+  color:var(--t3);
+  font-family:var(--f);
+  font-size:var(--fs-xs);
+  font-weight:500;
+  padding:5px 12px;
+  cursor:pointer;
+  white-space:nowrap;
+  transition:background .15s,color .15s,border-color .15s;
+  letter-spacing:-.01em;
+}
+.obs-filter-pill:hover{color:var(--t2)}
+.obs-filter-pill.active{
+  background:rgba(255,255,255,0.08);
+  color:var(--t1);
+  border-color:var(--border-3);
+}
+
+/* ADD FAB + PANEL */
+.obs-add-area{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:var(--s-4);
+  margin-bottom:var(--s-5);
+}
+.obs-fab{
+  width:48px;height:48px;
+  border-radius:50%;
+  background:var(--t1);
+  color:#000;
+  border:none;
+  cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+  font-size:24px;font-weight:300;line-height:0;
+  box-shadow:0 8px 32px rgba(0,0,0,0.5);
+  transition:transform 0.4s var(--spring),opacity 0.2s;
+}
+.obs-fab:hover{transform:translateY(-2px) scale(1.05)}
+.obs-fab:active{transform:translateY(0) scale(0.96)}
+
+.obs-panel{
+  display:none;
+  width:100%;
+  background:var(--surface);
+  border:0.5px solid var(--border-2);
+  border-radius:var(--r-md);
+  padding:16px;
+  opacity:0;
+  transform:translateY(-6px);
+  transition:opacity 0.2s ease,transform 0.25s var(--spring);
+}
+.obs-panel.visible{display:block}
+.obs-panel.open{opacity:1;transform:translateY(0)}
+
+.obs-tags-row{
+  display:flex;
+  gap:var(--s-2);
+  margin-bottom:var(--s-4);
+  flex-wrap:wrap;
+}
+.obs-tag-btn{
+  background:transparent;
+  border:0.5px solid var(--border-2);
+  border-radius:var(--r-pill);
+  color:var(--t3);
+  font-family:var(--f);
+  font-size:var(--fs-xs);
+  font-weight:500;
+  padding:5px 12px;
+  cursor:pointer;
+  transition:background .15s,color .15s;
+  letter-spacing:-.01em;
+}
+.obs-tag-btn:hover{color:var(--t2)}
+.obs-tag-btn.active{
+  background:rgba(255,255,255,0.1);
+  color:var(--t1);
+  border-color:var(--border-3);
+}
+
+.obs-textarea{
+  width:100%;
+  background:var(--surface-2);
+  border:0.5px solid var(--border-2);
+  border-radius:var(--r-sm);
+  color:var(--t1);
+  font-family:var(--f);
+  font-size:var(--fs-sm);
+  letter-spacing:-.01em;
+  line-height:1.5;
+  padding:10px 12px;
+  resize:none;
+  outline:none;
+  margin-bottom:var(--s-3);
+  transition:border-color .15s;
+  display:block;
+}
+.obs-textarea:focus{border-color:var(--border-3)}
+.obs-textarea::placeholder{color:var(--t4)}
+.obs-textarea-sm{rows:2}
+
+.obs-panel-actions{
+  display:flex;
+  gap:var(--s-3);
+  margin-top:var(--s-1);
+}
+.obs-save-btn{
+  flex:1;
+  background:var(--t1);
+  border:none;
+  border-radius:var(--r-pill);
+  color:#000;
+  font-family:var(--f);
+  font-size:var(--fs-sm);
+  font-weight:600;
+  padding:10px;
+  cursor:pointer;
+  transition:opacity .15s;
+  letter-spacing:-.01em;
+}
+.obs-save-btn:hover{opacity:0.9}
+.obs-cancel-btn{
+  background:transparent;
+  border:0.5px solid var(--border-2);
+  border-radius:var(--r-pill);
+  color:var(--t3);
+  font-family:var(--f);
+  font-size:var(--fs-sm);
+  font-weight:500;
+  padding:10px 20px;
+  cursor:pointer;
+  transition:color .15s,border-color .15s;
+  letter-spacing:-.01em;
+}
+.obs-cancel-btn:hover{color:var(--t2);border-color:var(--border-3)}
+
+/* OBSERVATION CARDS */
+#obs-list{display:flex;flex-direction:column;gap:var(--s-2)}
+.obs-card{
+  background:var(--surface);
+  border-radius:var(--r-sm);
+  padding:14px 16px;
+  position:relative;
+}
+.obs-delete{
+  position:absolute;
+  top:10px;right:12px;
+  background:none;border:none;
+  color:var(--t4);
+  font-size:16px;
+  cursor:pointer;
+  line-height:1;
+  padding:2px 4px;
+  transition:color .15s;
+}
+.obs-delete:hover{color:var(--t2)}
+.obs-card-top{
+  display:flex;
+  align-items:center;
+  gap:var(--s-2);
+  margin-bottom:var(--s-2);
+  padding-right:24px;
+}
+.obs-card-date{
+  font-size:var(--fs-xs);
+  color:var(--t4);
+  letter-spacing:-.01em;
+}
+.obs-card-text{
+  font-size:var(--fs-sm);
+  color:var(--t1);
+  letter-spacing:-.01em;
+  line-height:1.5;
+}
+.obs-card-meaning{
+  font-size:var(--fs-sm);
+  color:var(--t3);
+  font-style:italic;
+  letter-spacing:-.01em;
+  line-height:1.5;
+  margin-top:var(--s-2);
+}
+
+/* TAG PILLS (shared — used in cards + filter active) */
+.obs-tag-pill{
+  display:inline-block;
+  font-size:9px;font-weight:700;
+  letter-spacing:.05em;text-transform:uppercase;
+  padding:2px 8px;
+  border-radius:var(--r-pill);
+}
+.obs-tag-self{color:var(--gem-c);background:rgba(169,203,255,0.1)}
+.obs-tag-social{color:var(--gem-e);background:rgba(212,255,156,0.1)}
+.obs-tag-world{color:var(--gem-g);background:rgba(236,184,255,0.1)}
+.obs-tag-tactic{color:var(--gem-h);background:rgba(255,214,170,0.1)}
+
+/* PATTERN DETECTION */
+.obs-pattern-card{
+  background:var(--surface);
+  border-radius:var(--r-md);
+  padding:16px 18px;
+}
+.obs-pattern-row{
+  display:flex;
+  align-items:center;
+  gap:var(--s-4);
+  padding:6px 0;
+}
+.obs-pattern-label{
+  display:flex;align-items:center;gap:var(--s-2);
+  min-width:110px;
+}
+.obs-pattern-count{
+  font-size:var(--fs-xs);
+  color:var(--t4);
+  font-variant-numeric:tabular-nums;
+}
+.obs-pattern-bar-wrap{
+  flex:1;
+  height:2px;
+  background:rgba(255,255,255,0.06);
+  border-radius:2px;
+  overflow:hidden;
+}
+.obs-pattern-bar{
+  height:100%;
+  border-radius:2px;
+  opacity:0.6;
+  transition:width .4s ease;
+}
+.obs-insight{
+  font-size:var(--fs-xs);
+  color:var(--t3);
+  letter-spacing:-.01em;
+  margin-top:var(--s-4);
+  padding-top:var(--s-4);
+  border-top:0.5px solid var(--border);
+  font-style:italic;
+}

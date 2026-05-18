@@ -13,6 +13,14 @@ export const SKILLS=[
   {name:"Writing & prose",domain:"Communication",xp:60,gem:"linear-gradient(135deg,#E2C9FF,#8CFFDD)"},
 ];
 
+export const PILLARS=[
+  {name:"Mind",descriptor:"Cognition & knowledge",score:72,gem:"linear-gradient(135deg,#A9CBFF,#B39AFF)"},
+  {name:"Craft",descriptor:"Output & execution",score:65,gem:"linear-gradient(135deg,#D4FF9C,#9EF9FF)"},
+  {name:"Body",descriptor:"Strength & discipline",score:80,gem:"linear-gradient(135deg,#FFD6AA,#ECB8FF)"},
+  {name:"Expression",descriptor:"Communication & presence",score:55,gem:"linear-gradient(135deg,#E2C9FF,#8CFFDD)"},
+  {name:"Virtue",descriptor:"Character & integrity",score:68,gem:"linear-gradient(135deg,#9EF9FF,#A9CBFF)"},
+];
+
 export const DAYS=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
 export const WEEK_SEEDS=[42,17,88,63,29,74,51];
 

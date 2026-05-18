@@ -14,6 +14,7 @@
 <link rel="stylesheet" href="css/constitution.css">
 <link rel="stylesheet" href="css/operations.css">
 <link rel="stylesheet" href="css/performance.css">
+<link rel="stylesheet" href="css/pillars.css">
 </head>
 <body>
 
@@ -21,7 +22,7 @@
   <div class="nav-pill">
     <button class="n-tab active" onclick="go('constitution')">Constitution</button>
     <button class="n-tab" onclick="go('operations')">Operations</button>
-    <button class="n-tab" onclick="go('performance')">Performance</button>
+    <button class="n-tab" onclick="go('pillars')">Pillars</button>
   </div>
 </nav>
 <div class="nav-avatar">C</div>
@@ -111,76 +112,12 @@
     </div>
   </section>
 
-  <!-- ══ PERFORMANCE ══ -->
-  <section id="view-performance" class="view">
-    <div class="perf-hero">
-      <div class="perf-score rollup" id="hero-score" data-target="78">0</div>
-      <div class="perf-score-label">Focus</div>
-      <div class="perf-stats">
-        <div><div class="perf-stat-val rollup" data-target="347">0</div><div class="perf-stat-label">Hours</div></div>
-        <div><div class="perf-stat-val rollup" id="streak-val" data-target="21">0</div><div class="perf-stat-label">Streak</div></div>
-        <div><div class="perf-stat-val rollup" data-target="4">0</div><div class="perf-stat-label">Domains</div></div>
-      </div>
-    </div>
-
-    <!-- WEEK STRIP -->
-    <div class="week-strip" id="week-strip"></div>
-
-    <!-- HOURLY BAR CHART -->
-    <div class="chart-wrap">
-      <div class="chart-header">
-        <div class="chart-title" id="chart-title">Today's focus</div>
-        <div class="chart-meta" id="chart-meta"></div>
-      </div>
-      <div class="bar-chart" id="bar-chart"></div>
-      <div class="chart-legend">
-        <div class="legend-item">
-          <div class="legend-dot" style="background:rgba(255,255,255,0.75)"></div>
-          Focused
-        </div>
-        <div class="legend-item">
-          <div class="legend-dot" style="background:rgba(255,255,255,0.12)"></div>
-          Distracted
-        </div>
-        <div class="legend-item">
-          <div class="legend-dot" style="background:rgba(255,255,255,0.04);border:0.5px solid rgba(255,255,255,0.08)"></div>
-          Upcoming
-        </div>
-      </div>
-    </div>
-
-    <!-- SCRUB DETAIL (shows on bar hover) -->
-    <div class="scrub-detail" id="scrub-detail" style="display:none">
-      <div class="scrub-hour" id="scrub-hour">6:00 AM</div>
-      <div class="scrub-stats">
-        <div><div class="scrub-stat-val" id="scrub-focus">52 min</div><div class="scrub-stat-label">Focused</div></div>
-        <div><div class="scrub-stat-val" id="scrub-dist">8 min</div><div class="scrub-stat-label">Distracted</div></div>
-        <div><div class="scrub-stat-val" id="scrub-score">87%</div><div class="scrub-stat-label">Score</div></div>
-      </div>
-    </div>
-
-    <!-- SKILLS -->
-    <div class="eyebrow" style="margin-top:8px">Skills</div>
-    <div class="skill-list" id="skill-list"></div>
-
-    <div class="eyebrow" style="margin-top:32px">Milestones</div>
-    <div>
-      <div class="milestone-item">
-        <div class="milestone-gem" style="background:linear-gradient(135deg,var(--gem-a),var(--gem-b))"></div>
-        <div style="flex:1"><div style="font-size:13px;font-weight:500;letter-spacing:-.02em">100 deep focus hours</div><div style="font-size:11px;color:var(--t4);margin-top:2px">Unlocked</div></div>
-        <span style="font-size:13px;color:var(--t2)">✓</span>
-      </div>
-      <div class="milestone-item">
-        <div class="milestone-gem" style="background:linear-gradient(135deg,var(--gem-c),var(--gem-d));opacity:0.35"></div>
-        <div style="flex:1"><div style="font-size:13px;font-weight:500;letter-spacing:-.02em;color:var(--t3)">500 focused hours</div><div style="font-size:11px;color:var(--t4);margin-top:2px">153 hrs to go</div></div>
-        <span style="font-size:12px;color:var(--t4)">69%</span>
-      </div>
-      <div class="milestone-item">
-        <div class="milestone-gem" style="background:linear-gradient(135deg,var(--gem-e),var(--gem-f));opacity:0.2"></div>
-        <div style="flex:1"><div style="font-size:13px;font-weight:500;letter-spacing:-.02em;color:var(--t3)">30-day streak</div><div style="font-size:11px;color:var(--t4);margin-top:2px">9 days to go</div></div>
-        <span style="font-size:12px;color:var(--t4)">70%</span>
-      </div>
-    </div>
+  <!-- ══ PILLARS ══ -->
+  <section id="view-pillars" class="view">
+    <div id="pillars-chart" class="pillar-chart-wrap"></div>
+    <div id="pillar-callout"></div>
+    <div class="eyebrow">Pillars</div>
+    <div id="pillar-list" class="pillar-list"></div>
   </section>
 
 </main>
@@ -192,13 +129,14 @@
   <button class="m-tab" onclick="go('operations')">
     <svg viewBox="0 0 24 24"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>Ops
   </button>
-  <button class="m-tab" onclick="go('performance')">
-    <svg viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>Perf
+  <button class="m-tab" onclick="go('pillars')">
+    <svg viewBox="0 0 24 24"><polygon points="12 2 22 8.5 22 15.5 12 22 2 15.5 2 8.5"/></svg>Pillars
   </button>
 </div>
 
 <script type="module" src="js/state.js"></script>
 <script type="module" src="js/performance.js"></script>
+<script type="module" src="js/pillars.js"></script>
 <script type="module" src="js/tasks.js"></script>
 <script type="module" src="js/nav.js"></script>
 <script type="module" src="js/constitution.js"></script>

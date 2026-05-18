@@ -1,5 +1,6 @@
-import {animateRollups,animateBars} from './performance.js';
+import {animateRollups} from './performance.js';
 import {updateOpsHero} from './tasks.js';
+import {animatePillarsChart} from './pillars.js';
 
 export let isTransitioning=false;
 
@@ -20,10 +21,7 @@ export function go(id){
     setTimeout(()=>{
       current.classList.remove('active','exiting');
       target.classList.add('active');
-      if(id==='performance'){
-        animateRollups();
-        animateBars();
-      }
+      if(id==='pillars') animatePillarsChart();
       if(id==='operations'){
         updateOpsHero();
         animateRollups();

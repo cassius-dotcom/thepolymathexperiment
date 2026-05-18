@@ -67,6 +67,32 @@ button:active{transform:scale(0.97)}
   *,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}
 }
 
+/* MOBILE TAP TARGETS */
+@media(max-width:600px){
+  .audit-tag, .audit-yn-btn,
+  .lib-note-type-btn, .mentor-prompt-pill,
+  .leg-add-btn, .leg-ghost-btn{
+    min-height:40px;
+    padding:10px 16px;
+    font-size:13px;
+  }
+  .lib-pages-btn{width:36px;height:36px;font-size:18px}
+  .lib-modal-close{width:36px;height:36px}
+  .obs-delete{width:32px;height:32px}
+}
+
+/* TAP FEEDBACK ON NON-BUTTON ELEMENTS */
+.today-card,.obs-card,.lib-note-item,.audit-tag,
+.audit-yn-btn,.mentor-prompt-pill,.const-axiom-card,
+.compass-filter-item,.nom-item,.leg-principle-card{
+  transition:transform 120ms var(--ease-out),background-color 150ms ease-out;
+  -webkit-tap-highlight-color:transparent;
+}
+.audit-tag:active,.audit-yn-btn:active,
+.mentor-prompt-pill:active{
+  transform:scale(0.97);
+}
+
 /* EMPTY STATE */
 .empty-state{text-align:center;padding:var(--s-7) 0 var(--s-4)}
 .empty-icon{font-size:22px;margin-bottom:10px;opacity:0.25}

@@ -1,0 +1,35 @@
+@keyframes slidein{from{opacity:0;transform:translateX(16px)}to{opacity:1;transform:translateX(0)}}
+@keyframes slideout{from{opacity:1;transform:translateX(0)}to{opacity:0;transform:translateX(-12px)}}
+
+@keyframes barRise{
+  from{height:0%;opacity:0}
+  to{height:var(--bar-h,3%);opacity:1}
+}
+.bar-inner.animating{animation:barRise .5s cubic-bezier(0.34,1.56,0.64,1) both}
+
+@keyframes daySelect{
+  0%{transform:scale(1)}
+  40%{transform:scale(1.12)}
+  100%{transform:scale(1)}
+}
+.day-bubble.tapped{animation:daySelect .35s var(--spring)}
+
+@keyframes checkPop{
+  0%{transform:scale(0) rotate(-12deg)}
+  60%{transform:scale(1.25) rotate(0deg)}
+  100%{transform:scale(1) rotate(0deg)}
+}
+@keyframes rowGlow{
+  0%{background:rgba(255,255,255,0)}
+  30%{background:rgba(255,255,255,0.06)}
+  100%{background:rgba(255,255,255,0)}
+}
+.t-check.done::after{animation:checkPop .35s var(--spring)}
+.task-item.celebrating{animation:rowGlow .6s ease}
+
+@keyframes compassRotate{
+  from{transform:rotate(0deg)}
+  to{transform:rotate(360deg)}
+}
+
+.rollup{font-variant-numeric:tabular-nums;display:inline-block}

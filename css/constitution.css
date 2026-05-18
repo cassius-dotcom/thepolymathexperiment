@@ -1,0 +1,121 @@
+/* ── OBSIDIAN COMPASS DISC ── */
+.compass-wrap{
+  position:relative;
+  width:200px;height:200px;
+  margin:8px auto 36px;
+  display:flex;align-items:center;justify-content:center;
+  will-change:transform;
+}
+.compass-glow{
+  position:absolute;inset:-40px;
+  background:radial-gradient(circle at 50% 50%,rgba(255,255,255,0.04) 0%,transparent 60%);
+  pointer-events:none;
+}
+.compass-disc{
+  position:relative;
+  width:180px;height:180px;
+  border-radius:50%;
+  background:
+    radial-gradient(ellipse at 30% 25%,rgba(255,255,255,0.08) 0%,rgba(255,255,255,0.02) 35%,transparent 60%),
+    radial-gradient(ellipse at 70% 80%,rgba(0,0,0,0.5) 0%,transparent 55%),
+    linear-gradient(145deg,#1A1A1E 0%,#0A0A0C 50%,#050506 100%);
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,0.12),
+    inset 0 -1px 2px rgba(0,0,0,0.6),
+    inset 0 0 40px rgba(0,0,0,0.6),
+    0 12px 40px rgba(0,0,0,0.7),
+    0 2px 8px rgba(0,0,0,0.5);
+  animation:compassRotate 90s linear infinite;
+  transform-origin:50% 50%;
+  will-change:transform;
+}
+.compass-spec{
+  position:absolute;inset:0;
+  border-radius:50%;
+  background:radial-gradient(ellipse 60% 40% at 35% 20%,rgba(255,255,255,0.18) 0%,transparent 50%);
+  pointer-events:none;
+  z-index:3;
+}
+.compass-ring{
+  position:absolute;
+  width:148px;height:148px;
+  top:50%;left:50%;transform:translate(-50%,-50%);
+  border-radius:50%;
+  border:0.5px solid rgba(255,255,255,0.06);
+  box-shadow:inset 0 0 0 0.5px rgba(0,0,0,0.5);
+}
+.compass-inner-ring{
+  position:absolute;
+  width:80px;height:80px;
+  top:50%;left:50%;transform:translate(-50%,-50%);
+  border-radius:50%;
+  border:0.5px solid rgba(255,255,255,0.08);
+}
+.compass-marks{position:absolute;inset:0;border-radius:50%;}
+.compass-mark{
+  position:absolute;left:50%;top:6px;
+  width:0.5px;height:8px;
+  background:rgba(255,255,255,0.18);
+  transform-origin:0.25px 84px;
+}
+.compass-mark.minor{height:4px;background:rgba(255,255,255,0.08)}
+.compass-needle{
+  position:absolute;
+  left:50%;top:10px;
+  width:2px;height:18px;
+  margin-left:-1px;
+  background:linear-gradient(180deg,#FFFFFF 0%,rgba(255,255,255,0.4) 100%);
+  border-radius:1px;
+  box-shadow:0 0 8px rgba(255,255,255,0.7),0 0 16px rgba(255,255,255,0.3);
+  z-index:2;
+}
+.compass-needle::after{
+  content:'';
+  position:absolute;
+  left:50%;top:-2px;
+  width:6px;height:6px;
+  margin-left:-3px;
+  border-radius:50%;
+  background:#FFFFFF;
+  box-shadow:0 0 10px rgba(255,255,255,0.9),0 0 20px rgba(255,255,255,0.5);
+}
+.compass-hub{
+  position:absolute;
+  top:50%;left:50%;transform:translate(-50%,-50%);
+  width:10px;height:10px;
+  border-radius:50%;
+  background:radial-gradient(circle at 35% 30%,#3A3A40 0%,#0A0A0C 70%);
+  box-shadow:inset 0 0.5px 1px rgba(255,255,255,0.3),0 0 4px rgba(0,0,0,0.6);
+  z-index:4;
+}
+.compass-caption{
+  text-align:center;
+  font-size:10px;font-weight:600;
+  color:var(--t4);
+  letter-spacing:0.15em;
+  text-transform:uppercase;
+  margin-top:-12px;
+  margin-bottom:24px;
+}
+
+/* ══ CONSTITUTION ══ */
+.constitution-hero{padding:var(--s-8) 0 var(--s-7);text-align:center}
+.c-eyebrow{font-size:var(--fs-xs);font-weight:600;color:var(--t4);letter-spacing:.08em;text-transform:uppercase;margin-bottom:var(--s-5)}
+.c-quote{font-size:var(--fs-lg);font-weight:500;line-height:1.65;color:var(--t1);letter-spacing:-.025em;max-width:420px;margin:0 auto var(--s-7)}
+.axiom-list{display:flex;flex-direction:column;gap:var(--s-1);margin-bottom:var(--s-7)}
+.axiom-row{
+  display:flex;align-items:flex-start;gap:var(--s-4);
+  padding:var(--s-4) var(--s-5);
+  background:var(--surface);
+  border:none;
+  border-radius:var(--r-sm);
+  transition:background 0.2s ease;
+}
+.axiom-row:hover{background:var(--surface-2)}
+.axiom-icon{width:32px;height:32px;border-radius:var(--r-xs);flex-shrink:0}
+.axiom-title{font-size:var(--fs-md);font-weight:600;letter-spacing:-.02em;margin-bottom:var(--s-1)}
+.axiom-body{font-size:var(--fs-sm);font-weight:400;color:var(--t3);line-height:1.5;letter-spacing:-.01em}
+.filter-item{display:flex;gap:14px;align-items:flex-start;padding:13px 0}
+.filter-item+.filter-item{border-top:0.5px solid var(--border)}
+.f-num{font-size:11px;font-weight:500;color:var(--t4);min-width:18px;padding-top:1px;font-variant-numeric:tabular-nums}
+.f-text{font-size:13px;font-weight:400;color:var(--t2);line-height:1.5;letter-spacing:-.01em}

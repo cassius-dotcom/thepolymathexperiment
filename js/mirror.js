@@ -52,6 +52,14 @@ function buildDataDump(){
     ?obsArr.map(o=>`[${o.tag}] ${o.observation}${o.meaning?' → '+o.meaning:''}`).join('\n')
     :'None recorded.';
 
+  const driftLogRaw=localStorage.getItem('cos_drift_log');
+  const driftLog=driftLogRaw?JSON.parse(driftLogRaw):{};
+  const driftHistory=Object.entries(driftLog)
+    .sort(([a],[b])=>a.localeCompare(b))
+    .slice(-7)
+    .map(([date,types])=>`${date}: ${types.length?types.join(', '):'none'}`)
+    .join('\n');
+
   return`BEHAVIORAL DATA
 Tasks: ${taskStr}
 
@@ -64,6 +72,9 @@ Pillar Scores: ${PILLARS.map(p=>`${p.name}: ${p.score}/100`).join(', ')}
 
 Observations (${obsArr.length} total):
 ${obsStr}
+
+Behavioral Drift Log (last 7 days):
+${driftHistory||'No drift data recorded.'}
 
 Identity: Produces value at scale. Governs himself under pressure. Builds strength in body and character. Communicates with precision and restraint. Loves deeply without losing himself. Anchors meaning in God, not ego.`;
 }

@@ -25,6 +25,7 @@ export function go(id){
       target.classList.add('active');
       if(id==='pillars') animatePillarsChart();
       if(id==='arcs') renderArcs();
+      if(id==='mentor') localStorage.setItem('cos_mentor_last_open',new Date().toISOString());
       if(id==='operations'){
         updateOpsHero();
         animateRollups();

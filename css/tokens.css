@@ -1,19 +1,19 @@
 :root {
   --bg:#000000;
-  --surface:#0E0E10;
-  --surface-2:#16161A;
-  --surface-3:#1F1F24;
+  --surface:#141417;
+  --surface-2:#1C1C20;
+  --surface-3:#26262C;
 
-  --border-1:rgba(255,255,255,0.04);
-  --border-2:rgba(255,255,255,0.08);
-  --border-3:rgba(255,255,255,0.14);
+  --border-1:rgba(255,255,255,0.08);
+  --border-2:rgba(255,255,255,0.14);
+  --border-3:rgba(255,255,255,0.22);
   --border:var(--border-1);
   --border-active:var(--border-3);
 
   --t1:#FFFFFF;
-  --t2:#BCBBC0;
-  --t3:rgba(255,255,255,0.38);
-  --t4:rgba(255,255,255,0.18);
+  --t2:#E4E4E7;
+  --t3:rgba(255,255,255,0.62);
+  --t4:rgba(255,255,255,0.42);
 
   --fs-xs:11px;
   --fs-sm:13px;

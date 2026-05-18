@@ -28,20 +28,12 @@ export const appData = {
   apiKey: '',
 };
 
-/* ── LOAD ALL ── */
+/* ── LOAD CRITICAL (Today + Operations — awaited before first render) ── */
 export async function loadAll(userId) {
   _uid = userId;
-  const [tR, clR, oR, ecR, iR, laR, lnR, crR, prR, leR, auR, stR] = await Promise.all([
+  const [tR, clR, auR, stR] = await Promise.all([
     supabase.from('tasks').select('*').eq('user_id', userId).order('id'),
     supabase.from('daily_checklists').select('*').eq('user_id', userId),
-    supabase.from('observations').select('*').eq('user_id', userId).order('id'),
-    supabase.from('exposure_checks').select('*').eq('user_id', userId),
-    supabase.from('interactions').select('*').eq('user_id', userId).order('id'),
-    supabase.from('library_active').select('*').eq('user_id', userId),
-    supabase.from('library_notes').select('*').eq('user_id', userId).order('id'),
-    supabase.from('card_reviews').select('*').eq('user_id', userId),
-    supabase.from('principles').select('*').eq('user_id', userId).order('id'),
-    supabase.from('letters').select('*').eq('user_id', userId).order('id'),
     supabase.from('audits').select('*').eq('user_id', userId),
     supabase.from('user_state').select('*').eq('user_id', userId).maybeSingle(),
   ]);
@@ -50,6 +42,36 @@ export async function loadAll(userId) {
 
   appData.checklists = {};
   (clR.data || []).forEach(r => { appData.checklists[r.date] = r.checks; });
+
+  appData.audits = {};
+  (auR.data || []).forEach(r => { appData.audits[r.date] = r.data; });
+
+  const s = stR.data;
+  if (s) {
+    appData.virtue = s.virtue;
+    appData.arc = s.arc;
+    appData.exposureLevel = s.exposure_level ?? 1;
+    appData.constitution = s.constitution || { identity: null, axioms: null, filters: null };
+    appData.mirror = s.mirror;
+    appData.mentorLastOpen = s.mentor_last_open;
+    appData.dismissedDrifts = s.dismissed_drifts || [];
+    appData.driftLog = s.drift_log || {};
+    appData.apiKey = s.api_key || '';
+  }
+}
+
+/* ── LOAD DEFERRED (secondary views — fire-and-forget after first render) ── */
+export async function loadDeferred(userId) {
+  const [oR, ecR, iR, laR, lnR, crR, prR, leR] = await Promise.all([
+    supabase.from('observations').select('*').eq('user_id', userId).order('id'),
+    supabase.from('exposure_checks').select('*').eq('user_id', userId),
+    supabase.from('interactions').select('*').eq('user_id', userId).order('id'),
+    supabase.from('library_active').select('*').eq('user_id', userId),
+    supabase.from('library_notes').select('*').eq('user_id', userId).order('id'),
+    supabase.from('card_reviews').select('*').eq('user_id', userId),
+    supabase.from('principles').select('*').eq('user_id', userId).order('id'),
+    supabase.from('letters').select('*').eq('user_id', userId).order('id'),
+  ]);
 
   appData.observations = (oR.data || []).map(o => ({
     id: o.id, date: o.date, tag: o.tag, observation: o.observation, meaning: o.meaning || ''
@@ -85,22 +107,6 @@ export async function loadAll(userId) {
     id: l.id, recipient: l.recipient, date: l.date,
     unlockDate: l.unlock_date, content: l.content, notified: l.notified
   }));
-
-  appData.audits = {};
-  (auR.data || []).forEach(r => { appData.audits[r.date] = r.data; });
-
-  const s = stR.data;
-  if (s) {
-    appData.virtue = s.virtue;
-    appData.arc = s.arc;
-    appData.exposureLevel = s.exposure_level ?? 1;
-    appData.constitution = s.constitution || { identity: null, axioms: null, filters: null };
-    appData.mirror = s.mirror;
-    appData.mentorLastOpen = s.mentor_last_open;
-    appData.dismissedDrifts = s.dismissed_drifts || [];
-    appData.driftLog = s.drift_log || {};
-    appData.apiKey = s.api_key || '';
-  }
 }
 
 /* ── HELPER: partial upsert on user_state ── */

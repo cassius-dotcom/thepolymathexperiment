@@ -11,7 +11,7 @@ import {renderSocial} from './social.js';
 import {renderLegacy} from './legacy.js';
 import {detectDrift, logDrift, renderDriftBanner, applyDriftDots} from './drift.js';
 import {supabase} from './supabase.js';
-import {loadAll} from './db.js';
+import {loadAll, loadDeferred} from './db.js';
 import {renderAuthOverlay, removeAuthOverlay, renderLogoutBtn} from './auth.js';
 
 function safe(label, fn) {
@@ -64,6 +64,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       await loadAll(session.user.id);
       initApp();
       dismissLoading();
+      loadDeferred(session.user.id);
     }
   });
 
@@ -76,4 +77,5 @@ document.addEventListener('DOMContentLoaded', async () => {
   await loadAll(session.user.id);
   initApp();
   dismissLoading();
+  loadDeferred(session.user.id);
 });

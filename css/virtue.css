@@ -1,0 +1,109 @@
+.virtue-card{
+  background:var(--surface);
+  border-radius:var(--r-md);
+  padding:20px;
+  margin-bottom:var(--s-3);
+}
+.virtue-name{
+  font-size:var(--fs-xl);
+  font-weight:600;
+  letter-spacing:-.04em;
+  margin-bottom:var(--s-2);
+}
+.virtue-challenge{
+  font-size:var(--fs-sm);
+  color:var(--t3);
+  letter-spacing:-.01em;
+  line-height:1.5;
+  margin-bottom:var(--s-4);
+}
+.virtue-day{
+  font-size:var(--fs-xs);
+  color:var(--t4);
+  letter-spacing:-.01em;
+  margin-bottom:var(--s-2);
+}
+.virtue-bar{
+  height:1.5px;
+  background:rgba(255,255,255,0.08);
+  border-radius:2px;
+  overflow:hidden;
+}
+.virtue-bar-fill{
+  height:100%;
+  background:rgba(255,255,255,0.35);
+  border-radius:2px;
+}
+
+.virtue-rotate-btn{
+  display:block;
+  width:100%;
+  background:transparent;
+  border:0.5px solid var(--border-2);
+  color:var(--t3);
+  font-family:var(--f);
+  font-size:var(--fs-sm);
+  font-weight:500;
+  padding:10px 16px;
+  border-radius:var(--r-pill);
+  cursor:pointer;
+  letter-spacing:-.01em;
+  transition:color .15s,border-color .15s;
+  margin-bottom:var(--s-6);
+}
+.virtue-rotate-btn:hover{color:var(--t2);border-color:var(--border-3)}
+.virtue-rotate-btn:active{opacity:0.7}
+
+.virtue-reflection{margin-bottom:var(--s-6)}
+.virtue-reflection-q{
+  font-size:var(--fs-sm);
+  color:var(--t2);
+  font-style:italic;
+  letter-spacing:-.01em;
+  line-height:1.6;
+}
+
+.virtue-all-wrap{border-top:0.5px solid var(--border)}
+.virtue-all-toggle{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  width:100%;
+  background:transparent;
+  border:none;
+  color:var(--t2);
+  font-family:var(--f);
+  font-size:var(--fs-sm);
+  font-weight:500;
+  padding:13px 0;
+  cursor:pointer;
+  letter-spacing:-.01em;
+  transition:color .15s;
+}
+.virtue-all-toggle:hover{color:var(--t1)}
+.virtue-all-chevron{
+  font-size:14px;
+  color:var(--t4);
+  transition:transform 0.2s ease;
+  display:inline-block;
+}
+.virtue-all-chevron.open{transform:rotate(90deg)}
+
+.virtue-all-list{display:none}
+.virtue-all-list.open{display:block}
+.virtue-all-item{
+  padding:12px 0;
+  border-top:0.5px solid var(--border);
+}
+.virtue-all-name{
+  font-size:var(--fs-sm);
+  font-weight:600;
+  letter-spacing:-.02em;
+  margin-bottom:var(--s-1);
+}
+.virtue-all-challenge{
+  font-size:var(--fs-xs);
+  color:var(--t3);
+  letter-spacing:-.01em;
+  line-height:1.4;
+}

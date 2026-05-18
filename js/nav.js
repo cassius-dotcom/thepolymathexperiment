@@ -1,6 +1,7 @@
 import {animateRollups} from './performance.js';
 import {updateOpsHero} from './tasks.js';
 import {animatePillarsChart} from './pillars.js';
+import {renderVirtue} from './virtue.js';
 
 export let isTransitioning=false;
 
@@ -25,6 +26,7 @@ export function go(id){
       if(id==='operations'){
         updateOpsHero();
         animateRollups();
+        renderVirtue();
       }
       isTransitioning=false;
     },260);

@@ -13,6 +13,15 @@ export const SKILLS=[
   {name:"Writing & prose",domain:"Communication",xp:60,gem:"linear-gradient(135deg,#E2C9FF,#8CFFDD)"},
 ];
 
+export const VIRTUES=[
+  {name:"Discipline",challenge:"Finish the hardest task before anything else.",reflection:"Where did you negotiate with yourself today?"},
+  {name:"Temperance",challenge:"Consume less than you produce today.",reflection:"Where did you overindulge or seek comfort?"},
+  {name:"Courage",challenge:"Initiate one difficult conversation or action.",reflection:"Where did you avoid discomfort?"},
+  {name:"Patience",challenge:"Respond slowly. Do not react.",reflection:"Where did you rush or force an outcome?"},
+  {name:"Justice",challenge:"Be fair in every interaction today.",reflection:"Where did you act from ego instead of principle?"},
+  {name:"Honor",challenge:"Keep every commitment you make today.",reflection:"Where did you compromise your word?"},
+];
+
 export const PILLARS=[
   {name:"Mind",descriptor:"Cognition & knowledge",score:72,gem:"linear-gradient(135deg,#A9CBFF,#B39AFF)"},
   {name:"Craft",descriptor:"Output & execution",score:65,gem:"linear-gradient(135deg,#D4FF9C,#9EF9FF)"},

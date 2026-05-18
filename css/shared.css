@@ -93,6 +93,12 @@ button:active{transform:scale(0.97)}
   transform:scale(0.97);
 }
 
+/* FASTER VIEW TRANSITIONS ON MOBILE */
+@media(max-width:600px){
+  .view.active{animation-duration:.18s}
+  .view.exiting{animation-duration:.12s}
+}
+
 /* EMPTY STATE */
 .empty-state{text-align:center;padding:var(--s-7) 0 var(--s-4)}
 .empty-icon{font-size:22px;margin-bottom:10px;opacity:0.25}

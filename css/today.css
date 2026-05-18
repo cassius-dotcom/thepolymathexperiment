@@ -1,0 +1,103 @@
+/* SECTION 1 — Identity hero */
+.today-hero{
+  padding:var(--s-8) 0 var(--s-6);
+  text-align:center;
+}
+.today-identity{
+  font-size:var(--fs-lg);
+  font-weight:500;
+  color:var(--t2);
+  line-height:1.65;
+  letter-spacing:-.025em;
+  max-width:340px;
+  margin:0 auto;
+}
+
+/* SECTION 2 & 3 — Surface cards */
+.today-card{
+  background:var(--surface);
+  border-radius:var(--r-md);
+  padding:20px;
+  margin-bottom:var(--s-3);
+}
+
+/* Virtue */
+.today-virtue-name{
+  font-size:var(--fs-xl);
+  font-weight:600;
+  letter-spacing:-.04em;
+  margin-bottom:var(--s-2);
+}
+.today-virtue-challenge{
+  font-size:var(--fs-sm);
+  color:var(--t3);
+  letter-spacing:-.01em;
+  line-height:1.5;
+  margin-bottom:var(--s-5);
+}
+.today-cycle-bar{
+  height:1.5px;
+  background:rgba(255,255,255,0.08);
+  border-radius:2px;
+  overflow:hidden;
+  margin-bottom:var(--s-2);
+}
+.today-cycle-fill{
+  height:100%;
+  background:rgba(255,255,255,0.35);
+  border-radius:2px;
+}
+.today-cycle-label{
+  font-size:var(--fs-xs);
+  color:var(--t4);
+  letter-spacing:-.01em;
+}
+
+/* Mission */
+.today-mission{
+  font-size:var(--fs-md);
+  font-weight:600;
+  letter-spacing:-.02em;
+  margin-bottom:var(--s-4);
+}
+.today-actions{
+  display:flex;
+  flex-direction:column;
+  gap:var(--s-3);
+}
+.today-action{
+  display:flex;
+  align-items:flex-start;
+  gap:var(--s-3);
+  font-size:var(--fs-sm);
+  color:var(--t3);
+  line-height:1.5;
+  letter-spacing:-.01em;
+}
+.today-diamond{
+  font-size:7px;
+  color:var(--t4);
+  flex-shrink:0;
+  margin-top:4px;
+  line-height:1;
+}
+
+/* SECTION 4 — Daily checklist */
+.daily-row{
+  display:flex;
+  align-items:center;
+  gap:13px;
+  padding:13px 0;
+}
+.daily-row+.daily-row{
+  border-top:0.5px solid var(--border);
+}
+.daily-row.celebrating{animation:rowGlow .6s ease}
+.daily-label{
+  font-size:var(--fs-sm);
+  font-weight:400;
+  color:var(--t1);
+  flex:1;
+  letter-spacing:-.01em;
+}
+.daily-label.checked{color:var(--t3)}

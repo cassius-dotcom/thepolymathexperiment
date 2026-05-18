@@ -20,6 +20,7 @@
 <link rel="stylesheet" href="css/mentor.css">
 <link rel="stylesheet" href="css/arcs.css">
 <link rel="stylesheet" href="css/observations.css">
+<link rel="stylesheet" href="css/mirror.css">
 </head>
 <body>
 
@@ -163,25 +164,32 @@
 
   <!-- ══ MENTOR ══ -->
   <section id="view-mentor" class="view">
-    <div class="mentor-header">
-      <div class="mentor-title">The Mentor</div>
-      <div class="mentor-subtitle">Strategist. Philosopher. Architect.</div>
+    <div class="mentor-tab-bar">
+      <button class="mentor-tab active" data-tab="conversation" onclick="switchMentorTab('conversation')">Conversation</button>
+      <button class="mentor-tab" data-tab="mirror" onclick="switchMentorTab('mirror')">The Mirror</button>
     </div>
-    <div id="mentor-prompts" class="mentor-prompts">
-      <div class="mentor-prompt-pill" onclick="sendPrompt('How am I actually doing?')">How am I actually doing?</div>
-      <div class="mentor-prompt-pill" onclick="sendPrompt('What should I focus on today?')">What should I focus on today?</div>
-      <div class="mentor-prompt-pill" onclick="sendPrompt('Where am I deceiving myself?')">Where am I deceiving myself?</div>
-      <div class="mentor-prompt-pill" onclick="sendPrompt('What does discipline require of me right now?')">What does discipline require of me right now?</div>
-    </div>
-    <div id="mentor-chat" class="mentor-chat"></div>
-    <div class="mentor-input-wrap">
-      <div class="mentor-input-row">
-        <textarea id="mentor-input" class="mentor-textarea" placeholder="Ask the mentor…" rows="1"></textarea>
-        <button class="mentor-send-btn" id="mentor-send" onclick="sendMentorMessage()" aria-label="Send">
-          <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M8 12V4M4 8l4-4 4 4" stroke="#000" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-        </button>
+    <div id="mentor-conversation-pane">
+      <div class="mentor-header">
+        <div class="mentor-title">The Mentor</div>
+        <div class="mentor-subtitle">Strategist. Philosopher. Architect.</div>
+      </div>
+      <div id="mentor-prompts" class="mentor-prompts">
+        <div class="mentor-prompt-pill" onclick="sendPrompt('How am I actually doing?')">How am I actually doing?</div>
+        <div class="mentor-prompt-pill" onclick="sendPrompt('What should I focus on today?')">What should I focus on today?</div>
+        <div class="mentor-prompt-pill" onclick="sendPrompt('Where am I deceiving myself?')">Where am I deceiving myself?</div>
+        <div class="mentor-prompt-pill" onclick="sendPrompt('What does discipline require of me right now?')">What does discipline require of me right now?</div>
+      </div>
+      <div id="mentor-chat" class="mentor-chat"></div>
+      <div class="mentor-input-wrap">
+        <div class="mentor-input-row">
+          <textarea id="mentor-input" class="mentor-textarea" placeholder="Ask the mentor…" rows="1"></textarea>
+          <button class="mentor-send-btn" id="mentor-send" onclick="sendMentorMessage()" aria-label="Send">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M8 12V4M4 8l4-4 4 4" stroke="#000" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </button>
+        </div>
       </div>
     </div>
+    <div id="mentor-mirror-pane" style="display:none"></div>
   </section>
 
   <!-- ══ ARCS ══ -->
@@ -232,6 +240,7 @@
 <script type="module" src="js/constitution.js"></script>
 <script type="module" src="js/arcs.js"></script>
 <script type="module" src="js/observations.js"></script>
+<script type="module" src="js/mirror.js"></script>
 <script type="module" src="js/mentor.js"></script>
 <script type="module" src="js/init.js"></script>
 </body>

@@ -1,0 +1,4651 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<meta name="theme-color" content="#0a0a0a">
+<title>The Load-Bearing OS</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,400&family=Geist+Mono:wght@300;400;500&family=Geist:wght@300;400;500;600&display=swap');
+
+:root {
+  --bg: #0a0a0a;
+  --bg-1: #111110;
+  --bg-2: #18181a;
+  --bg-3: #1f1f22;
+  --line: #2a2a2e;
+  --line-bright: #3a3a40;
+  --ink: #f0ede5;
+  --ink-2: #b8b3a5;
+  --ink-3: #7a766c;
+  --ink-4: #4a4842;
+  --gold: #d4a857;
+  --gold-soft: #8a7240;
+  --green: #6ba76b;
+  --red: #c8674e;
+  --blue: #6b8aa7;
+  --display: 'Fraunces', serif;
+  --sans: 'Geist', sans-serif;
+  --mono: 'Geist Mono', monospace;
+  --ease: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
+html, body {
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--sans);
+  font-size: 15px;
+  line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+  min-height: 100vh;
+  overscroll-behavior-y: none;
+}
+
+body {
+  background-image:
+    radial-gradient(ellipse 80% 50% at 50% 0%, rgba(212, 168, 87, 0.06), transparent),
+    radial-gradient(ellipse 60% 40% at 50% 100%, rgba(20, 20, 22, 0.8), transparent);
+  padding-bottom: 88px;
+}
+
+/* ========== TOP BAR ========== */
+.topbar {
+  position: sticky; top: 0; z-index: 50;
+  background: rgba(10, 10, 10, 0.85);
+  backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+  border-bottom: 1px solid var(--line);
+  padding: 14px 20px;
+  display: flex; justify-content: space-between; align-items: center;
+}
+
+.brand { display: flex; align-items: center; gap: 10px; }
+.brand-mark {
+  width: 22px; height: 22px;
+  background: radial-gradient(circle at 35% 35%, var(--gold), var(--gold-soft));
+  border-radius: 50%;
+  box-shadow: 0 0 16px rgba(212, 168, 87, 0.4);
+  animation: pulse 4s ease-in-out infinite;
+}
+@keyframes pulse {
+  0%, 100% { box-shadow: 0 0 16px rgba(212, 168, 87, 0.4); }
+  50% { box-shadow: 0 0 22px rgba(212, 168, 87, 0.6); }
+}
+.brand-text {
+  font-family: var(--display);
+  font-size: 17px; font-weight: 500;
+  letter-spacing: -0.01em;
+}
+.date-pill {
+  font-family: var(--mono);
+  font-size: 11px; color: var(--ink-3); letter-spacing: 0.05em;
+}
+
+.container {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 24px 20px 40px;
+}
+
+/* ========== HERO ========== */
+.hero { text-align: center; padding: 24px 0 28px; }
+.hero-eyebrow {
+  font-family: var(--mono);
+  font-size: 10px; letter-spacing: 0.25em;
+  color: var(--ink-3); text-transform: uppercase;
+  margin-bottom: 14px;
+}
+.hero-title {
+  font-family: var(--display);
+  font-size: clamp(28px, 7vw, 38px);
+  font-weight: 400; line-height: 1.15;
+  letter-spacing: -0.02em;
+  margin-bottom: 8px;
+}
+.hero-title em { font-style: italic; color: var(--gold); }
+.hero-sub {
+  color: var(--ink-3); font-size: 14px;
+  max-width: 460px; margin: 0 auto;
+}
+
+/* ========== RING ========== */
+.ring-wrap {
+  position: relative; width: 200px; height: 200px;
+  margin: 16px auto 12px;
+}
+.ring-svg { width: 100%; height: 100%; transform: rotate(-90deg); }
+.ring-track { fill: none; stroke: var(--line); stroke-width: 7; }
+.ring-fill {
+  fill: none; stroke: url(#goldGrad);
+  stroke-width: 7; stroke-linecap: round;
+  transition: stroke-dashoffset 800ms var(--ease);
+  filter: drop-shadow(0 0 8px rgba(212, 168, 87, 0.4));
+}
+.ring-center {
+  position: absolute; inset: 0;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+}
+.ring-pct {
+  font-family: var(--display);
+  font-size: 52px; font-weight: 400;
+  line-height: 1; letter-spacing: -0.04em;
+}
+.ring-pct .pct-sign { color: var(--ink-3); font-size: 26px; margin-left: 2px; }
+.ring-label {
+  font-family: var(--mono);
+  font-size: 10px; letter-spacing: 0.2em;
+  color: var(--ink-3); text-transform: uppercase;
+  margin-top: 4px;
+}
+.ring-state {
+  font-family: var(--display);
+  font-style: italic; font-size: 14px;
+  color: var(--gold); margin-top: 12px;
+  min-height: 22px;
+}
+
+/* ========== STATS ========== */
+.quick-stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1px;
+  background: var(--line);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  overflow: hidden;
+  margin: 20px 0 28px;
+}
+.qs { background: var(--bg-1); padding: 16px 12px; text-align: center; }
+.qs-val {
+  font-family: var(--display);
+  font-size: 26px; font-weight: 500; line-height: 1;
+}
+.qs-val.gold { color: var(--gold); }
+.qs-label {
+  font-family: var(--mono);
+  font-size: 9px; letter-spacing: 0.2em;
+  color: var(--ink-3); text-transform: uppercase;
+  margin-top: 8px;
+}
+
+/* ========== SECTION HEADERS ========== */
+.sect-head {
+  display: flex; justify-content: space-between;
+  align-items: flex-end; margin: 32px 0 16px;
+}
+.sect-title {
+  font-family: var(--display);
+  font-size: 22px; font-weight: 500;
+  letter-spacing: -0.01em;
+}
+.sect-meta {
+  font-family: var(--mono);
+  font-size: 10px; letter-spacing: 0.15em;
+  color: var(--ink-3); text-transform: uppercase;
+}
+.sect-action {
+  background: none; border: 1px solid var(--line);
+  color: var(--ink-2); font-family: var(--sans);
+  font-size: 12px; padding: 6px 12px;
+  border-radius: 100px; cursor: pointer;
+  transition: all 200ms ease;
+  display: flex; align-items: center; gap: 4px;
+}
+.sect-action:active { transform: scale(0.96); }
+@media (hover: hover) {
+  .sect-action:hover { color: var(--gold); border-color: var(--gold-soft); }
+}
+
+/* ========== PILLAR CARDS ========== */
+.pillar {
+  background: var(--bg-1);
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  margin-bottom: 14px;
+  overflow: hidden;
+  transition: border-color 200ms ease;
+}
+.pillar.complete { border-color: rgba(212, 168, 87, 0.4); }
+.pillar-head {
+  padding: 18px 20px 14px;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+  cursor: pointer;
+  user-select: none;
+}
+.pillar-info { flex: 1; min-width: 0; }
+.pillar-name {
+  font-family: var(--display);
+  font-size: 19px; font-weight: 500;
+  margin-bottom: 3px;
+  letter-spacing: -0.01em;
+  display: flex; align-items: center; gap: 8px;
+}
+.pillar-emoji { font-size: 18px; filter: grayscale(0.3); }
+.pillar-quote {
+  font-family: var(--display);
+  font-style: italic; font-size: 13px;
+  color: var(--ink-3); line-height: 1.4;
+}
+.pillar-progress {
+  display: flex; flex-direction: column;
+  align-items: flex-end; gap: 6px; flex-shrink: 0;
+}
+.pillar-count {
+  font-family: var(--mono);
+  font-size: 11px; color: var(--ink-3);
+  letter-spacing: 0.05em;
+}
+.pillar-count strong {
+  color: var(--ink); font-weight: 500;
+  font-family: var(--display);
+  font-size: 16px;
+}
+.pillar.complete .pillar-count strong { color: var(--gold); }
+.pillar-bar {
+  width: 56px; height: 4px;
+  background: var(--line);
+  border-radius: 2px; overflow: hidden;
+}
+.pillar-bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--gold-soft), var(--gold));
+  width: 0%;
+  transition: width 500ms var(--ease);
+}
+.chevron {
+  width: 14px; height: 14px;
+  color: var(--ink-3);
+  transition: transform 250ms var(--ease);
+  margin-left: 4px; margin-top: 4px;
+}
+.pillar.open .chevron { transform: rotate(180deg); }
+.reps { max-height: 0; overflow: hidden; transition: max-height 500ms var(--ease); }
+.pillar.open .reps { max-height: 3000px; }
+.rep {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  padding: 14px 20px;
+  border-top: 1px solid var(--line);
+  cursor: pointer;
+  transition: background 150ms ease;
+  user-select: none;
+}
+.rep:active { background: var(--bg-2); }
+@media (hover: hover) {
+  .rep:hover { background: var(--bg-2); }
+}
+.check {
+  width: 22px; height: 22px;
+  border-radius: 7px;
+  border: 1.5px solid var(--line-bright);
+  background: var(--bg-2);
+  flex-shrink: 0;
+  margin-top: 1px;
+  position: relative;
+  transition: all 200ms var(--ease-spring);
+}
+.rep.done .check {
+  background: var(--gold);
+  border-color: var(--gold);
+  transform: scale(1.05);
+}
+.rep.done .check::after {
+  content: '';
+  position: absolute;
+  left: 6px; top: 2px;
+  width: 6px; height: 11px;
+  border: solid var(--bg);
+  border-width: 0 2px 2px 0;
+  transform: rotate(45deg);
+  animation: checkPop 250ms var(--ease-spring);
+}
+@keyframes checkPop {
+  from { opacity: 0; transform: rotate(45deg) scale(0.5); }
+  to { opacity: 1; transform: rotate(45deg) scale(1); }
+}
+.rep-body { flex: 1; min-width: 0; }
+.rep-text {
+  font-size: 14px; line-height: 1.45;
+  color: var(--ink);
+  transition: color 250ms ease;
+}
+.rep-cue {
+  font-family: var(--display);
+  font-style: italic; font-size: 12px;
+  color: var(--ink-3);
+  margin-top: 3px;
+  line-height: 1.4;
+}
+.rep.done .rep-text {
+  color: var(--ink-3);
+  text-decoration: line-through;
+  text-decoration-thickness: 1px;
+  text-decoration-color: var(--ink-4);
+}
+
+/* ========== EVENING CARD ========== */
+.evening-card {
+  background: linear-gradient(180deg, var(--bg-1), var(--bg-2));
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  padding: 22px 20px;
+  margin-bottom: 14px;
+}
+.evening-card.alignment { border-color: rgba(212, 168, 87, 0.25); }
+.ec-head { margin-bottom: 14px; }
+.ec-eyebrow {
+  font-family: var(--mono);
+  font-size: 10px; letter-spacing: 0.2em;
+  color: var(--gold); text-transform: uppercase;
+  margin-bottom: 6px;
+}
+.ec-title {
+  font-family: var(--display);
+  font-size: 18px; font-weight: 500;
+  letter-spacing: -0.01em;
+  line-height: 1.3;
+}
+.scale {
+  display: flex; gap: 4px; margin-bottom: 8px;
+}
+.scale-btn {
+  flex: 1; height: 44px;
+  border: 1px solid var(--line);
+  background: var(--bg-2);
+  border-radius: 10px;
+  color: var(--ink-3);
+  font-family: var(--mono); font-size: 14px;
+  cursor: pointer;
+  transition: all 200ms var(--ease);
+  display: flex; align-items: center; justify-content: center;
+}
+.scale-btn:active { transform: scale(0.96); }
+.scale-btn.selected {
+  background: var(--gold); border-color: var(--gold);
+  color: var(--bg); font-weight: 600;
+  transform: scale(1.04);
+}
+.scale-labels {
+  display: flex; justify-content: space-between;
+  font-family: var(--mono); font-size: 9px;
+  color: var(--ink-4); letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+.filter-card {
+  padding: 16px 18px;
+  background: var(--bg-1);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  margin-bottom: 8px;
+  display: flex; align-items: center; gap: 14px;
+}
+.filter-q {
+  flex: 1; font-size: 13px; line-height: 1.4;
+  color: var(--ink-2);
+}
+.filter-q strong {
+  font-family: var(--display);
+  font-style: italic;
+  color: var(--ink); font-weight: 500;
+  font-size: 14px;
+}
+.yn {
+  display: flex; gap: 4px; flex-shrink: 0;
+}
+.yn-btn {
+  width: 38px; height: 38px;
+  border: 1px solid var(--line-bright);
+  background: var(--bg-2);
+  border-radius: 10px;
+  color: var(--ink-3);
+  font-family: var(--sans);
+  font-size: 13px; font-weight: 500;
+  cursor: pointer;
+  transition: all 200ms var(--ease);
+  display: flex; align-items: center; justify-content: center;
+}
+.yn-btn:active { transform: scale(0.92); }
+.yn-btn.yes.selected { background: var(--green); border-color: var(--green); color: var(--ink); }
+.yn-btn.no.selected { background: var(--red); border-color: var(--red); color: var(--ink); }
+.reflect {
+  background: var(--bg-2);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 14px 16px;
+  margin-top: 8px;
+}
+.reflect textarea, .reflect input {
+  width: 100%;
+  background: transparent;
+  border: none;
+  color: var(--ink);
+  font-family: var(--display);
+  font-size: 16px; line-height: 1.5;
+  outline: none; resize: none;
+  font-style: italic;
+}
+.reflect textarea::placeholder, .reflect input::placeholder { color: var(--ink-4); }
+
+/* Tomorrow */
+.tomorrow {
+  background: linear-gradient(135deg, rgba(212, 168, 87, 0.08), rgba(212, 168, 87, 0.02));
+  border: 1px solid rgba(212, 168, 87, 0.3);
+  border-radius: 16px;
+  padding: 22px 20px;
+  margin: 16px 0 32px;
+  position: relative;
+  overflow: hidden;
+}
+.tomorrow::before {
+  content: '';
+  position: absolute; top: 0; left: 0;
+  width: 3px; height: 100%;
+  background: var(--gold);
+}
+.tomorrow-eyebrow {
+  font-family: var(--mono);
+  font-size: 10px; letter-spacing: 0.25em;
+  color: var(--gold); text-transform: uppercase;
+  margin-bottom: 8px;
+}
+.tomorrow-prompt {
+  font-family: var(--display);
+  font-style: italic; font-size: 14px;
+  color: var(--ink-2); margin-bottom: 12px;
+}
+.tomorrow input {
+  width: 100%; background: transparent; border: none;
+  border-bottom: 1px solid rgba(212, 168, 87, 0.3);
+  color: var(--ink);
+  font-family: var(--display);
+  font-size: 20px; font-weight: 500;
+  padding: 4px 0 8px;
+  outline: none;
+  transition: border-color 200ms ease;
+}
+.tomorrow input:focus { border-color: var(--gold); }
+.tomorrow input::placeholder {
+  color: var(--ink-4);
+  font-style: italic; font-weight: 400;
+}
+
+/* ========== TAB BAR ========== */
+.tabbar {
+  position: fixed;
+  bottom: 0; left: 0; right: 0;
+  z-index: 100;
+  background: rgba(10, 10, 10, 0.92);
+  backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px);
+  border-top: 1px solid var(--line);
+  padding: 8px 8px calc(8px + env(safe-area-inset-bottom));
+  display: flex; justify-content: space-around;
+}
+.tab {
+  flex: 1; max-width: 100px;
+  background: none; border: none;
+  color: var(--ink-3);
+  padding: 10px 4px 6px;
+  cursor: pointer;
+  display: flex; flex-direction: column;
+  align-items: center; gap: 4px;
+  border-radius: 10px;
+  transition: color 200ms ease;
+  position: relative;
+}
+.tab svg {
+  width: 22px; height: 22px;
+  stroke: currentColor; fill: none;
+  stroke-width: 1.5;
+  stroke-linecap: round; stroke-linejoin: round;
+}
+.tab-label {
+  font-family: var(--mono);
+  font-size: 9px; letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+.tab.active { color: var(--gold); }
+.tab.active::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 50%; transform: translateX(-50%);
+  width: 24px; height: 2px;
+  background: var(--gold);
+  border-radius: 0 0 4px 4px;
+}
+
+/* ========== VIEWS ========== */
+.view { display: none; }
+.view.active {
+  display: block;
+  animation: viewIn 350ms var(--ease);
+}
+@keyframes viewIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* ========== LIBRARY ========== */
+.review-banner {
+  background: linear-gradient(135deg, rgba(212, 168, 87, 0.12), rgba(212, 168, 87, 0.04));
+  border: 1px solid rgba(212, 168, 87, 0.3);
+  border-radius: 18px;
+  padding: 22px 22px;
+  margin-bottom: 24px;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+  transition: transform 200ms ease;
+}
+.review-banner:active { transform: scale(0.99); }
+.review-banner::before {
+  content: '';
+  position: absolute; top: 0; left: 0;
+  width: 3px; height: 100%;
+  background: var(--gold);
+}
+.review-eyebrow {
+  font-family: var(--mono);
+  font-size: 10px; letter-spacing: 0.25em;
+  color: var(--gold); text-transform: uppercase;
+  margin-bottom: 8px;
+}
+.review-title {
+  font-family: var(--display);
+  font-size: 22px; font-weight: 500;
+  letter-spacing: -0.01em;
+  margin-bottom: 4px;
+}
+.review-sub { color: var(--ink-2); font-size: 14px; }
+.review-cta {
+  margin-top: 14px;
+  background: var(--gold);
+  color: var(--bg);
+  border: none;
+  padding: 12px 20px;
+  border-radius: 10px;
+  font-family: var(--sans);
+  font-size: 13px; font-weight: 600;
+  letter-spacing: 0.04em;
+  cursor: pointer;
+  transition: transform 150ms ease;
+  display: inline-flex; align-items: center; gap: 8px;
+}
+.review-cta:active { transform: scale(0.97); }
+.review-banner.empty {
+  background: var(--bg-1);
+  border-color: var(--line);
+}
+.review-banner.empty::before { background: var(--line-bright); }
+.review-banner.empty .review-eyebrow { color: var(--ink-3); }
+.review-banner.empty .review-cta {
+  background: var(--bg-2);
+  color: var(--ink-3);
+  border: 1px solid var(--line);
+}
+
+.cat-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(155px, 1fr));
+  gap: 10px;
+}
+.cat-card {
+  background: var(--bg-1);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  padding: 18px 16px;
+  cursor: pointer;
+  transition: all 200ms var(--ease);
+  position: relative;
+  min-height: 130px;
+  display: flex; flex-direction: column;
+  justify-content: space-between;
+}
+.cat-card:active { transform: scale(0.97); }
+@media (hover: hover) {
+  .cat-card:hover { border-color: var(--line-bright); transform: translateY(-2px); }
+}
+.cat-icon { font-size: 24px; margin-bottom: 8px; line-height: 1; }
+.cat-name {
+  font-family: var(--display);
+  font-size: 16px; font-weight: 500;
+  line-height: 1.25; letter-spacing: -0.01em;
+  margin-bottom: 8px; word-break: break-word;
+}
+.cat-stats {
+  display: flex; justify-content: space-between;
+  align-items: flex-end;
+}
+.cat-count {
+  font-family: var(--mono);
+  font-size: 11px; color: var(--ink-3);
+  letter-spacing: 0.05em;
+}
+.cat-count strong {
+  color: var(--ink);
+  font-family: var(--display);
+  font-size: 18px; font-weight: 500;
+}
+.cat-due {
+  background: var(--gold);
+  color: var(--bg);
+  border-radius: 100px;
+  padding: 3px 8px;
+  font-size: 10px;
+  font-family: var(--mono);
+  font-weight: 600; letter-spacing: 0.05em;
+}
+.cat-card.add {
+  background: transparent;
+  border: 1px dashed var(--line-bright);
+  color: var(--ink-3);
+  align-items: center; justify-content: center;
+  text-align: center;
+}
+.cat-card.add:hover { color: var(--gold); border-color: var(--gold-soft); }
+.cat-card.add .cat-icon { font-size: 28px; color: var(--ink-4); margin-bottom: 4px; }
+.cat-card.add:hover .cat-icon { color: var(--gold); }
+
+.book-item {
+  background: var(--bg-1);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  padding: 16px 18px;
+  margin-bottom: 10px;
+  display: flex; gap: 14px;
+  align-items: flex-start;
+  cursor: pointer;
+  transition: all 200ms ease;
+}
+.book-item:active { transform: scale(0.99); }
+.book-cover {
+  width: 44px; height: 60px;
+  background: linear-gradient(135deg, var(--gold-soft), var(--bg-3));
+  border-radius: 4px;
+  flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 20px;
+  box-shadow: 2px 2px 8px rgba(0,0,0,0.3);
+  position: relative; overflow: hidden;
+  color: var(--ink);
+  font-family: var(--display);
+}
+.book-cover::after {
+  content: '';
+  position: absolute; left: 3px; top: 0; bottom: 0;
+  width: 1px; background: rgba(0,0,0,0.3);
+}
+.book-info { flex: 1; min-width: 0; }
+.book-title {
+  font-family: var(--display);
+  font-size: 16px; font-weight: 500;
+  letter-spacing: -0.01em;
+  line-height: 1.3; margin-bottom: 2px;
+  word-break: break-word;
+}
+.book-author { font-size: 12px; color: var(--ink-3); margin-bottom: 6px; }
+.book-status {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+.book-status.reading { color: var(--blue); }
+.book-status.finished { color: var(--green); }
+.book-status.queued { color: var(--ink-3); }
+
+.summary-item {
+  background: var(--bg-1);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  padding: 18px 20px;
+  margin-bottom: 10px;
+  cursor: pointer;
+  transition: all 200ms ease;
+}
+.summary-item:active { transform: scale(0.99); }
+.summary-title {
+  font-family: var(--display);
+  font-size: 17px; font-weight: 500;
+  letter-spacing: -0.01em;
+  margin-bottom: 4px;
+}
+.summary-source { font-size: 12px; color: var(--ink-3); margin-bottom: 10px; }
+.summary-preview {
+  color: var(--ink-2); font-size: 13px; line-height: 1.5;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.empty-state {
+  text-align: center; padding: 32px 20px;
+  color: var(--ink-3);
+}
+.empty-state-icon { font-size: 36px; margin-bottom: 12px; opacity: 0.4; }
+.empty-state-text {
+  font-family: var(--display);
+  font-style: italic; font-size: 16px;
+  color: var(--ink-3); margin-bottom: 4px;
+}
+.empty-state-sub { font-size: 12px; color: var(--ink-4); }
+
+/* Section nav for Today / Mind */
+.section-tabs {
+  display: flex;
+  background: var(--bg-2);
+  border-radius: 12px;
+  padding: 4px;
+  margin-bottom: 20px;
+  gap: 2px;
+}
+.section-tab {
+  flex: 1;
+  background: none; border: none;
+  color: var(--ink-3);
+  padding: 10px 8px;
+  border-radius: 8px;
+  font-family: var(--sans);
+  font-size: 12px; font-weight: 500;
+  cursor: pointer;
+  transition: all 200ms ease;
+  letter-spacing: 0.02em;
+}
+.section-tab.active {
+  background: var(--bg);
+  color: var(--gold);
+}
+.section-pane { display: none; }
+.section-pane.active { display: block; animation: viewIn 250ms var(--ease); }
+
+/* ========== REVIEW OVERLAY ========== */
+.review-overlay {
+  position: fixed; inset: 0;
+  background: var(--bg);
+  z-index: 300;
+  display: none; flex-direction: column;
+  animation: bgIn 250ms ease;
+}
+.review-overlay.show { display: flex; }
+@keyframes bgIn { from { opacity: 0; } to { opacity: 1; } }
+.review-top {
+  padding: 18px 20px;
+  display: flex; align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid var(--line);
+}
+.review-close {
+  background: none;
+  border: 1px solid var(--line);
+  color: var(--ink-2);
+  border-radius: 100px;
+  padding: 8px 14px;
+  font-family: var(--sans);
+  font-size: 13px;
+  cursor: pointer;
+}
+.review-close:active { transform: scale(0.96); }
+.review-progress {
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--ink-3);
+  letter-spacing: 0.1em;
+}
+.review-progress strong {
+  color: var(--gold);
+  font-family: var(--display);
+  font-size: 16px; font-weight: 500;
+}
+.review-cat-pill {
+  font-family: var(--mono);
+  font-size: 10px; letter-spacing: 0.15em;
+  text-transform: uppercase;
+  background: var(--bg-2);
+  border: 1px solid var(--line);
+  padding: 6px 12px;
+  border-radius: 100px;
+  color: var(--ink-2);
+}
+.review-card-wrap {
+  flex: 1;
+  display: flex; align-items: center; justify-content: center;
+  padding: 24px 20px;
+  perspective: 1200px;
+}
+.review-card {
+  width: 100%; max-width: 540px;
+  aspect-ratio: 3 / 4; max-height: 70vh;
+  position: relative;
+  transition: transform 600ms var(--ease);
+  transform-style: preserve-3d;
+  cursor: pointer;
+}
+.review-card.flipped { transform: rotateY(180deg); }
+.review-face {
+  position: absolute; inset: 0;
+  background: linear-gradient(180deg, var(--bg-1), var(--bg-2));
+  border: 1px solid var(--line);
+  border-radius: 24px;
+  padding: 32px 28px;
+  backface-visibility: hidden; -webkit-backface-visibility: hidden;
+  display: flex; flex-direction: column;
+  overflow: hidden;
+}
+.review-face.back {
+  transform: rotateY(180deg);
+  background: linear-gradient(180deg, var(--bg-2), var(--bg-1));
+  border-color: var(--gold-soft);
+}
+.face-eyebrow {
+  font-family: var(--mono);
+  font-size: 10px; letter-spacing: 0.25em;
+  color: var(--ink-3); text-transform: uppercase;
+  margin-bottom: 16px;
+}
+.review-face.back .face-eyebrow { color: var(--gold); }
+.face-content {
+  flex: 1; overflow-y: auto;
+  display: flex; align-items: center; justify-content: center;
+  text-align: center;
+}
+.face-text {
+  font-family: var(--display);
+  font-size: clamp(20px, 4.5vw, 28px);
+  line-height: 1.35; font-weight: 400;
+  letter-spacing: -0.01em;
+  color: var(--ink);
+  white-space: pre-wrap; word-break: break-word;
+}
+.face-hint {
+  text-align: center;
+  font-family: var(--mono);
+  font-size: 10px; color: var(--ink-4);
+  letter-spacing: 0.15em; text-transform: uppercase;
+  padding-top: 16px;
+}
+.grade-row {
+  display: flex; gap: 8px;
+  padding: 18px 20px calc(24px + env(safe-area-inset-bottom));
+  border-top: 1px solid var(--line);
+}
+.grade-btn {
+  flex: 1;
+  background: var(--bg-1);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 14px 8px;
+  cursor: pointer;
+  transition: all 180ms var(--ease);
+  display: flex; flex-direction: column;
+  align-items: center; gap: 4px;
+}
+.grade-btn:active { transform: scale(0.95); }
+.grade-btn.again { border-color: var(--red); }
+.grade-btn.hard { border-color: var(--ink-3); }
+.grade-btn.good { border-color: var(--gold-soft); }
+.grade-btn.easy { border-color: var(--green); }
+.grade-label {
+  font-family: var(--sans);
+  font-size: 12px; font-weight: 600;
+  color: var(--ink); letter-spacing: 0.04em;
+}
+.grade-btn.again .grade-label { color: var(--red); }
+.grade-btn.easy .grade-label { color: var(--green); }
+.grade-btn.good .grade-label { color: var(--gold); }
+.grade-interval {
+  font-family: var(--mono);
+  font-size: 10px; color: var(--ink-3);
+  letter-spacing: 0.05em;
+}
+.review-complete {
+  flex: 1;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  padding: 40px 20px;
+  text-align: center;
+}
+.complete-icon {
+  font-size: 64px; margin-bottom: 16px;
+  filter: drop-shadow(0 0 16px rgba(212, 168, 87, 0.4));
+}
+.complete-title {
+  font-family: var(--display);
+  font-size: 28px; font-weight: 500;
+  letter-spacing: -0.01em;
+  margin-bottom: 8px;
+}
+.complete-title em { color: var(--gold); font-style: italic; }
+.complete-sub {
+  color: var(--ink-3); font-size: 14px;
+  margin-bottom: 24px; max-width: 320px;
+}
+.complete-stats { display: flex; gap: 24px; margin-bottom: 32px; }
+.complete-stat-val {
+  font-family: var(--display);
+  font-size: 32px; font-weight: 500;
+  color: var(--gold); line-height: 1;
+}
+.complete-stat-label {
+  font-family: var(--mono);
+  font-size: 10px; letter-spacing: 0.15em;
+  color: var(--ink-3); text-transform: uppercase;
+  margin-top: 6px;
+}
+
+/* ========== MODALS ========== */
+.modal-bg {
+  position: fixed; inset: 0;
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(8px);
+  z-index: 500;
+  display: none; align-items: flex-end;
+  animation: bgIn 250ms ease;
+}
+.modal-bg.show { display: flex; }
+.modal {
+  background: var(--bg-1);
+  border-top: 1px solid var(--line-bright);
+  border-radius: 24px 24px 0 0;
+  width: 100%;
+  max-height: 90vh;
+  overflow-y: auto;
+  padding: 18px 22px calc(32px + env(safe-area-inset-bottom));
+  animation: modalIn 350ms var(--ease);
+}
+@media (min-width: 600px) {
+  .modal-bg { align-items: center; }
+  .modal {
+    max-width: 500px;
+    margin: 0 auto;
+    border-radius: 20px;
+    border: 1px solid var(--line-bright);
+    max-height: 85vh;
+  }
+}
+@keyframes modalIn {
+  from { transform: translateY(100%); }
+  to { transform: translateY(0); }
+}
+.modal-handle {
+  width: 36px; height: 4px;
+  background: var(--line-bright);
+  border-radius: 2px;
+  margin: 0 auto 16px;
+}
+.modal-eyebrow {
+  font-family: var(--mono);
+  font-size: 10px; letter-spacing: 0.25em;
+  color: var(--gold); text-transform: uppercase;
+  margin-bottom: 8px;
+}
+.modal-title {
+  font-family: var(--display);
+  font-size: 22px; font-weight: 500;
+  letter-spacing: -0.01em;
+  margin-bottom: 20px;
+}
+.modal-body {
+  color: var(--ink-2);
+  font-size: 14px; line-height: 1.6;
+  margin-bottom: 16px;
+}
+.modal-body em {
+  font-family: var(--display);
+  font-style: italic; color: var(--gold);
+}
+.modal-body strong { color: var(--ink); font-weight: 500; }
+.modal-body p { margin-bottom: 12px; }
+.field { margin-bottom: 16px; }
+.field-label {
+  font-family: var(--mono);
+  font-size: 10px; letter-spacing: 0.2em;
+  color: var(--ink-3); text-transform: uppercase;
+  margin-bottom: 6px;
+}
+.field input, .field textarea, .field select {
+  width: 100%;
+  background: var(--bg-2);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 12px 14px;
+  color: var(--ink);
+  font-family: var(--sans);
+  font-size: 15px;
+  outline: none;
+  transition: border-color 200ms ease;
+  resize: vertical;
+  min-height: 44px;
+}
+.field textarea {
+  font-family: var(--display);
+  font-size: 17px; line-height: 1.5;
+  min-height: 80px;
+}
+.field input:focus, .field textarea:focus, .field select:focus { border-color: var(--gold); }
+.field input::placeholder, .field textarea::placeholder { color: var(--ink-4); font-style: italic; }
+.modal-actions { display: flex; gap: 8px; margin-top: 24px; }
+.btn {
+  flex: 1; border: none;
+  border-radius: 12px;
+  padding: 14px;
+  font-family: var(--sans);
+  font-size: 14px; font-weight: 600;
+  letter-spacing: 0.04em;
+  cursor: pointer;
+  transition: transform 150ms ease;
+}
+.btn:active { transform: scale(0.98); }
+.btn-primary { background: var(--gold); color: var(--bg); }
+.btn-ghost {
+  background: var(--bg-2); color: var(--ink-2);
+  border: 1px solid var(--line);
+  flex: 0 0 auto; padding: 14px 18px;
+}
+.btn-danger {
+  background: var(--bg-2); color: var(--red);
+  border: 1px solid var(--red);
+}
+.cat-picker {
+  display: flex; flex-wrap: wrap; gap: 6px;
+  margin-top: 6px;
+}
+.cat-chip {
+  background: var(--bg-2);
+  border: 1px solid var(--line);
+  border-radius: 100px;
+  padding: 8px 12px;
+  font-size: 12px;
+  color: var(--ink-2);
+  cursor: pointer;
+  transition: all 180ms ease;
+  display: flex; align-items: center; gap: 6px;
+}
+.cat-chip:active { transform: scale(0.95); }
+.cat-chip.selected {
+  background: var(--gold); border-color: var(--gold);
+  color: var(--bg); font-weight: 600;
+}
+.cat-chip-new {
+  border-style: dashed; color: var(--ink-3);
+}
+.icon-picker {
+  display: grid;
+  grid-template-columns: repeat(8, 1fr);
+  gap: 4px;
+  margin-top: 4px;
+}
+.icon-opt {
+  aspect-ratio: 1;
+  background: var(--bg-2);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  font-size: 18px;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer;
+  transition: all 180ms ease;
+}
+.icon-opt:active { transform: scale(0.9); }
+.icon-opt.selected {
+  background: rgba(212, 168, 87, 0.15);
+  border-color: var(--gold);
+}
+.detail-view-content {
+  font-family: var(--display);
+  font-size: 16px; line-height: 1.6;
+  color: var(--ink-2);
+  white-space: pre-wrap; word-break: break-word;
+}
+
+/* Category detail */
+.back-btn {
+  background: none;
+  border: 1px solid var(--line);
+  color: var(--ink-2);
+  border-radius: 100px;
+  padding: 8px 14px;
+  font-size: 13px;
+  cursor: pointer;
+  display: inline-flex; align-items: center; gap: 6px;
+  transition: all 200ms ease;
+}
+.back-btn:active { transform: scale(0.96); }
+.category-detail-header {
+  display: flex; align-items: flex-start;
+  justify-content: space-between;
+  margin-top: 16px; margin-bottom: 24px;
+  gap: 12px;
+}
+.cat-detail-info { flex: 1; }
+.cat-detail-icon { font-size: 32px; margin-bottom: 6px; }
+.cat-detail-name {
+  font-family: var(--display);
+  font-size: 26px; font-weight: 500;
+  letter-spacing: -0.01em;
+  line-height: 1.2;
+}
+.cat-detail-meta {
+  font-family: var(--mono);
+  font-size: 11px; color: var(--ink-3);
+  margin-top: 4px;
+  letter-spacing: 0.05em;
+}
+.cat-actions {
+  display: flex; gap: 8px;
+  margin-bottom: 24px;
+}
+.card-list-item {
+  background: var(--bg-1);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 14px 16px;
+  margin-bottom: 8px;
+  cursor: pointer;
+  transition: all 200ms ease;
+}
+.card-list-item:active { transform: scale(0.99); }
+.card-list-front {
+  font-family: var(--display);
+  font-size: 15px; font-weight: 500;
+  color: var(--ink);
+  line-height: 1.4; margin-bottom: 4px;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.card-list-back {
+  font-size: 12px; color: var(--ink-3);
+  line-height: 1.4;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.card-list-meta {
+  display: flex; justify-content: space-between;
+  align-items: center;
+  margin-top: 10px; padding-top: 10px;
+  border-top: 1px solid var(--line);
+  font-family: var(--mono);
+  font-size: 10px; color: var(--ink-4);
+  letter-spacing: 0.05em;
+}
+.card-due-now { color: var(--gold); }
+
+/* Add modal tabs */
+.add-tabs {
+  display: flex;
+  background: var(--bg-2);
+  border-radius: 12px;
+  padding: 4px;
+  margin-bottom: 24px;
+}
+.add-tab {
+  flex: 1;
+  background: none; border: none;
+  color: var(--ink-3);
+  padding: 10px;
+  border-radius: 8px;
+  font-family: var(--sans);
+  font-size: 13px; font-weight: 500;
+  cursor: pointer;
+  transition: all 200ms ease;
+}
+.add-tab.active { background: var(--bg); color: var(--gold); }
+.add-pane { display: none; }
+.add-pane.active { display: block; }
+
+/* ========== MENTOR ========== */
+.mentor-hero { text-align: center; padding: 20px 0 24px; }
+.mentor-mark {
+  width: 56px; height: 56px;
+  margin: 0 auto 16px;
+  background: radial-gradient(circle at 35% 35%, var(--gold), var(--gold-soft) 70%);
+  border-radius: 50%;
+  box-shadow: 0 0 32px rgba(212, 168, 87, 0.4), inset 0 0 16px rgba(0,0,0,0.2);
+  animation: mentorPulse 4s ease-in-out infinite;
+  position: relative;
+}
+.mentor-mark::after {
+  content: '';
+  position: absolute; inset: -8px;
+  border: 1px solid rgba(212, 168, 87, 0.15);
+  border-radius: 50%;
+  animation: mentorRing 4s ease-in-out infinite;
+}
+@keyframes mentorPulse {
+  0%, 100% { box-shadow: 0 0 32px rgba(212, 168, 87, 0.4), inset 0 0 16px rgba(0,0,0,0.2); }
+  50% { box-shadow: 0 0 42px rgba(212, 168, 87, 0.6), inset 0 0 16px rgba(0,0,0,0.2); }
+}
+@keyframes mentorRing {
+  0%, 100% { opacity: 0.3; transform: scale(1); }
+  50% { opacity: 0.6; transform: scale(1.08); }
+}
+
+.prompts-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 8px;
+  margin-bottom: 24px;
+}
+@media (max-width: 480px) {
+  .prompts-grid { grid-template-columns: 1fr; }
+}
+.prompt-tile {
+  background: var(--bg-1);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  padding: 14px 16px;
+  text-align: left;
+  cursor: pointer;
+  transition: all 200ms var(--ease);
+  color: var(--ink);
+  display: flex; align-items: flex-start; gap: 10px;
+}
+.prompt-tile:active { transform: scale(0.98); }
+@media (hover: hover) {
+  .prompt-tile:hover { border-color: var(--gold-soft); background: var(--bg-2); }
+}
+.prompt-icon { font-size: 18px; line-height: 1; flex-shrink: 0; margin-top: 1px; }
+.prompt-text {
+  flex: 1;
+  font-family: var(--display);
+  font-size: 14px; color: var(--ink);
+  font-style: italic;
+}
+
+.context-banner {
+  background: var(--bg-2);
+  border: 1px solid var(--line);
+  border-left: 2px solid var(--gold);
+  border-radius: 10px;
+  padding: 12px 14px;
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 12px;
+  color: var(--ink-3);
+}
+.context-banner-icon {
+  font-size: 14px; color: var(--gold);
+}
+.context-banner strong { color: var(--ink-2); font-weight: 500; }
+
+.chat-scroll { margin-bottom: 16px; min-height: 200px; }
+.msg {
+  margin-bottom: 14px;
+  display: flex; gap: 10px;
+  animation: msgIn 350ms var(--ease);
+}
+@keyframes msgIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.msg-avatar {
+  width: 28px; height: 28px;
+  border-radius: 50%; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 13px;
+  font-family: var(--display); font-weight: 500;
+}
+.msg.user .msg-avatar { background: var(--bg-3); color: var(--ink-2); }
+.msg.mentor .msg-avatar {
+  background: linear-gradient(135deg, var(--gold), var(--gold-soft));
+  color: var(--bg);
+  box-shadow: 0 0 12px rgba(212, 168, 87, 0.25);
+}
+.msg-bubble {
+  flex: 1; min-width: 0;
+  padding: 12px 16px;
+  border-radius: 14px;
+  background: var(--bg-1);
+  border: 1px solid var(--line);
+  font-size: 14px; line-height: 1.6;
+  color: var(--ink);
+  white-space: pre-wrap; word-wrap: break-word;
+}
+.msg.user .msg-bubble { background: var(--bg-2); }
+.msg.mentor .msg-bubble {
+  background: linear-gradient(180deg, var(--bg-1), var(--bg-2));
+  border-color: rgba(212, 168, 87, 0.18);
+}
+.msg-bubble em {
+  font-family: var(--display);
+  font-style: italic; color: var(--gold);
+}
+.msg-bubble strong { color: var(--ink); font-weight: 600; }
+.msg-bubble code {
+  background: var(--bg-3);
+  padding: 1px 6px;
+  border-radius: 4px;
+  font-family: var(--mono); font-size: 12px;
+}
+
+.thinking { display: flex; align-items: center; gap: 6px; padding: 6px 0; }
+.think-dot {
+  width: 6px; height: 6px;
+  background: var(--gold);
+  border-radius: 50%;
+  opacity: 0.4;
+  animation: thinkBounce 1.4s ease-in-out infinite;
+}
+.think-dot:nth-child(2) { animation-delay: 0.2s; }
+.think-dot:nth-child(3) { animation-delay: 0.4s; }
+@keyframes thinkBounce {
+  0%, 80%, 100% { opacity: 0.3; transform: translateY(0); }
+  40% { opacity: 1; transform: translateY(-3px); }
+}
+
+.gen-card-pack {
+  margin-top: 12px;
+  padding: 14px;
+  background: var(--bg-3);
+  border: 1px solid rgba(212, 168, 87, 0.25);
+  border-radius: 12px;
+}
+.gen-pack-head {
+  display: flex; justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px; padding-bottom: 10px;
+  border-bottom: 1px solid var(--line);
+}
+.gen-pack-title {
+  font-family: var(--mono);
+  font-size: 10px; letter-spacing: 0.2em;
+  color: var(--gold); text-transform: uppercase;
+}
+.gen-card-row {
+  background: var(--bg-1);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 10px 12px;
+  margin-bottom: 6px;
+  display: flex; gap: 10px;
+  align-items: flex-start;
+  cursor: pointer;
+}
+.gen-card-row:last-child { margin-bottom: 0; }
+.gen-card-check {
+  width: 18px; height: 18px;
+  border-radius: 5px;
+  border: 1.5px solid var(--line-bright);
+  background: var(--bg-2);
+  flex-shrink: 0; margin-top: 2px;
+  position: relative;
+  transition: all 180ms var(--ease-spring);
+}
+.gen-card-row.selected .gen-card-check {
+  background: var(--gold); border-color: var(--gold);
+}
+.gen-card-row.selected .gen-card-check::after {
+  content: '';
+  position: absolute;
+  left: 5px; top: 2px;
+  width: 4px; height: 8px;
+  border: solid var(--bg);
+  border-width: 0 1.5px 1.5px 0;
+  transform: rotate(45deg);
+}
+.gen-card-body { flex: 1; min-width: 0; }
+.gen-card-front {
+  font-family: var(--display);
+  font-size: 13.5px; font-weight: 500;
+  color: var(--ink); line-height: 1.35;
+  margin-bottom: 2px;
+}
+.gen-card-back { font-size: 12px; color: var(--ink-3); line-height: 1.4; }
+.gen-target-row {
+  display: flex; gap: 6px;
+  margin-top: 10px;
+  flex-wrap: wrap;
+}
+.gen-actions { display: flex; gap: 6px; margin-top: 10px; }
+.gen-action-btn {
+  flex: 1;
+  background: var(--bg-2);
+  border: 1px solid var(--line);
+  color: var(--ink-2);
+  border-radius: 8px;
+  padding: 8px;
+  font-family: var(--sans);
+  font-size: 12px; font-weight: 500;
+  cursor: pointer;
+  transition: all 180ms ease;
+}
+.gen-action-btn:active { transform: scale(0.96); }
+.gen-action-btn.primary {
+  background: var(--gold); color: var(--bg);
+  border-color: var(--gold); font-weight: 600;
+}
+
+.chat-input-wrap {
+  position: sticky;
+  bottom: calc(76px + env(safe-area-inset-bottom));
+  background: rgba(10, 10, 10, 0.85);
+  backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+  padding: 12px 0 8px;
+  margin: 0 -20px;
+  padding-left: 20px; padding-right: 20px;
+  border-top: 1px solid var(--line);
+  z-index: 10;
+}
+.chat-input-row {
+  display: flex; gap: 8px;
+  align-items: flex-end;
+  background: var(--bg-1);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  padding: 8px 8px 8px 14px;
+  transition: border-color 200ms ease;
+}
+.chat-input-row:focus-within { border-color: var(--gold-soft); }
+.chat-input {
+  flex: 1; background: none; border: none;
+  color: var(--ink);
+  font-family: var(--sans);
+  font-size: 15px; line-height: 1.4;
+  outline: none; resize: none;
+  max-height: 120px; min-height: 22px;
+  padding: 4px 0;
+}
+.chat-input::placeholder { color: var(--ink-4); font-style: italic; }
+.chat-send {
+  width: 36px; height: 36px;
+  border-radius: 10px;
+  background: var(--gold);
+  color: var(--bg);
+  border: none;
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: transform 150ms ease, opacity 200ms ease;
+  flex-shrink: 0;
+}
+.chat-send:active { transform: scale(0.92); }
+.chat-send:disabled { opacity: 0.4; cursor: not-allowed; }
+.chat-send svg {
+  width: 18px; height: 18px;
+  stroke: currentColor; fill: none;
+  stroke-width: 2;
+  stroke-linecap: round; stroke-linejoin: round;
+}
+.chat-toolbar {
+  display: flex; gap: 6px;
+  padding: 0 4px 8px;
+  flex-wrap: wrap;
+}
+.tool-chip {
+  background: none;
+  border: 1px solid var(--line);
+  color: var(--ink-3);
+  font-family: var(--mono);
+  font-size: 10px; letter-spacing: 0.1em;
+  padding: 5px 10px;
+  border-radius: 100px;
+  cursor: pointer;
+  text-transform: uppercase;
+  transition: all 200ms ease;
+}
+.tool-chip:active { transform: scale(0.95); }
+.tool-chip.gold { color: var(--gold); border-color: rgba(212, 168, 87, 0.3); }
+.tool-chip.active { background: rgba(212, 168, 87, 0.15); color: var(--gold); border-color: var(--gold); }
+.chat-header {
+  display: flex; justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px; padding-bottom: 16px;
+  border-bottom: 1px solid var(--line);
+}
+.chat-status { display: flex; align-items: center; gap: 8px; }
+.chat-status-dot {
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: var(--green);
+  animation: statusPulse 2s ease-in-out infinite;
+}
+@keyframes statusPulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}
+.chat-status-text {
+  font-family: var(--mono);
+  font-size: 10px; color: var(--ink-3);
+  letter-spacing: 0.15em; text-transform: uppercase;
+}
+.chat-clear {
+  background: none;
+  border: 1px solid var(--line);
+  color: var(--ink-3);
+  border-radius: 100px;
+  padding: 5px 12px;
+  font-family: var(--mono);
+  font-size: 10px; letter-spacing: 0.1em;
+  cursor: pointer;
+  text-transform: uppercase;
+  transition: all 200ms ease;
+}
+.chat-clear:active { transform: scale(0.96); }
+
+/* MORE view */
+.settings-row {
+  background: var(--bg-1);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 16px 18px;
+  margin-bottom: 10px;
+  display: flex; align-items: center;
+  justify-content: space-between;
+  cursor: pointer;
+  transition: background 150ms ease;
+}
+.settings-row:active { background: var(--bg-2); }
+.settings-label { font-size: 14px; color: var(--ink); }
+.settings-sublabel { font-size: 12px; color: var(--ink-3); margin-top: 2px; }
+.settings-val {
+  font-family: var(--mono);
+  font-size: 11px; color: var(--gold);
+  letter-spacing: 0.1em; text-transform: uppercase;
+}
+
+.principle-card {
+  background: var(--bg-1);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  padding: 20px 22px;
+  margin-bottom: 12px;
+}
+.principle-letter {
+  font-family: var(--display);
+  font-size: 48px; line-height: 1;
+  color: var(--gold); font-weight: 400;
+  float: left;
+  margin-right: 16px; margin-top: -4px;
+}
+.principle-name {
+  font-family: var(--display);
+  font-size: 19px; font-weight: 500;
+  margin-bottom: 6px;
+  letter-spacing: -0.01em;
+}
+.principle-body {
+  font-size: 13.5px; line-height: 1.55;
+  color: var(--ink-2);
+}
+.principle-body em {
+  font-family: var(--display);
+  font-style: italic; color: var(--gold);
+  font-size: 14px;
+  display: block; margin-bottom: 6px;
+}
+
+.refusal-chips {
+  display: flex; flex-wrap: wrap;
+  gap: 8px; margin-top: 8px;
+}
+.chip {
+  background: var(--bg-1);
+  border: 1px solid var(--line);
+  border-radius: 100px;
+  padding: 8px 14px;
+  font-size: 12px;
+  color: var(--ink-2);
+  display: flex; align-items: center; gap: 6px;
+}
+.chip::before {
+  content: '✕';
+  color: var(--red);
+  font-size: 10px; opacity: 0.8;
+}
+
+/* Toast */
+.toast {
+  position: fixed;
+  bottom: 100px; left: 50%;
+  transform: translateX(-50%) translateY(20px);
+  background: var(--bg-3);
+  border: 1px solid var(--line-bright);
+  border-radius: 100px;
+  padding: 10px 20px;
+  font-family: var(--mono);
+  font-size: 11px; letter-spacing: 0.1em;
+  color: var(--ink);
+  text-transform: uppercase;
+  opacity: 0;
+  transition: opacity 250ms ease, transform 350ms var(--ease-spring);
+  pointer-events: none;
+  z-index: 600;
+  display: flex; align-items: center; gap: 8px;
+}
+.toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+.toast-dot {
+  width: 6px; height: 6px;
+  border-radius: 50%; background: var(--gold);
+}
+
+/* Onboard help */
+.modal-step {
+  background: var(--bg-2);
+  border-radius: 12px;
+  padding: 14px 16px;
+  margin-bottom: 10px;
+  display: flex; gap: 14px;
+  align-items: flex-start;
+}
+.modal-step-num {
+  width: 28px; height: 28px;
+  background: var(--gold); color: var(--bg);
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-family: var(--display);
+  font-weight: 600; font-size: 14px;
+  flex-shrink: 0;
+}
+.modal-step-text { font-size: 13px; line-height: 1.5; }
+.modal-step-text strong { color: var(--ink); display: block; margin-bottom: 2px; }
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* ========== PRINCIPLE BANNER ========== */
+.principle-banner {
+  background: linear-gradient(135deg, rgba(212,168,87,0.1), rgba(212,168,87,0.03));
+  border: 1px solid rgba(212,168,87,0.35);
+  border-radius: 18px;
+  padding: 18px 20px;
+  margin-bottom: 24px;
+  cursor: pointer;
+  display: flex; align-items: center; gap: 16px;
+  transition: transform 200ms ease;
+  position: relative; overflow: hidden;
+}
+.principle-banner::before {
+  content: ''; position: absolute; top: 0; left: 0;
+  width: 3px; height: 100%; background: var(--gold);
+}
+.principle-banner:active { transform: scale(0.99); }
+.principle-banner-letter {
+  font-family: var(--display);
+  font-size: 52px; font-weight: 400;
+  color: var(--gold); line-height: 1;
+  letter-spacing: -0.04em;
+  flex-shrink: 0; width: 52px;
+}
+.principle-banner-info { flex: 1; min-width: 0; }
+.principle-banner-meta {
+  font-family: var(--mono);
+  font-size: 10px; letter-spacing: 0.2em;
+  color: var(--gold); text-transform: uppercase;
+  margin-bottom: 4px;
+}
+.principle-banner-name {
+  font-family: var(--display);
+  font-size: 17px; font-weight: 500;
+  letter-spacing: -0.01em; margin-bottom: 2px;
+}
+.principle-banner-quote {
+  font-family: var(--display);
+  font-style: italic; font-size: 13px;
+  color: var(--ink-3); line-height: 1.4;
+}
+.principle-banner-chevron {
+  color: var(--gold); font-size: 18px; flex-shrink: 0;
+}
+
+/* ========== RING CENTER UPDATES ========== */
+.ring-state-main {
+  font-family: var(--display);
+  font-style: italic;
+  font-size: 18px; font-weight: 400;
+  color: var(--ink); line-height: 1.2;
+  text-align: center;
+  padding: 0 8px;
+}
+.ring-sub {
+  font-family: var(--mono);
+  font-size: 9px; letter-spacing: 0.2em;
+  color: var(--ink-3); text-transform: uppercase;
+  margin-top: 4px; text-align: center;
+}
+
+/* ========== PILLAR UPDATES ========== */
+.pillar.principle-pillar {
+  border-color: rgba(212,168,87,0.3);
+  background: linear-gradient(180deg, rgba(212,168,87,0.03), transparent);
+}
+.pillar-tag {
+  display: inline-block;
+  font-family: var(--mono); font-size: 9px;
+  letter-spacing: 0.15em; text-transform: uppercase;
+  background: rgba(212,168,87,0.15);
+  color: var(--gold);
+  border: 1px solid rgba(212,168,87,0.3);
+  border-radius: 100px;
+  padding: 2px 8px;
+  margin-left: 6px;
+  vertical-align: middle;
+}
+.rep-why {
+  border-top: 1px dashed var(--line);
+  margin-top: 8px; padding-top: 8px;
+  font-size: 12px; color: var(--ink-3); line-height: 1.45;
+}
+.rep-why strong {
+  color: var(--ink-4);
+  font-size: 9px; letter-spacing: 0.1em;
+  text-transform: uppercase; font-family: var(--mono);
+  display: block; margin-bottom: 3px;
+}
+.pillar-complete-banner {
+  padding: 14px 20px;
+  border-top: 1px solid rgba(212,168,87,0.2);
+  background: rgba(212,168,87,0.05);
+  font-family: var(--display);
+  font-style: italic; font-size: 14px;
+  color: var(--gold); text-align: center; line-height: 1.4;
+}
+
+/* ========== WEEKLY REVIEW PROMPT ========== */
+.review-prompt-card {
+  background: linear-gradient(135deg, rgba(212,168,87,0.12), rgba(212,168,87,0.04));
+  border: 1px solid rgba(212,168,87,0.4);
+  border-radius: 18px;
+  padding: 20px 22px;
+  margin-bottom: 20px;
+  position: relative; overflow: hidden;
+}
+.review-prompt-card::before {
+  content: ''; position: absolute; top: 0; left: 0;
+  width: 3px; height: 100%; background: var(--gold);
+}
+.rpc-eyebrow {
+  font-family: var(--mono); font-size: 10px;
+  letter-spacing: 0.25em; color: var(--gold);
+  text-transform: uppercase; margin-bottom: 6px;
+}
+.rpc-title {
+  font-family: var(--display); font-size: 19px;
+  font-weight: 500; letter-spacing: -0.01em; margin-bottom: 4px;
+}
+.rpc-sub { font-size: 13px; color: var(--ink-2); margin-bottom: 14px; }
+.rpc-btn {
+  background: var(--gold); color: var(--bg);
+  border: none; padding: 11px 18px;
+  border-radius: 10px; font-family: var(--sans);
+  font-size: 13px; font-weight: 600;
+  cursor: pointer; display: inline-flex;
+  align-items: center; gap: 8px;
+  transition: transform 150ms ease;
+}
+.rpc-btn:active { transform: scale(0.97); }
+
+/* ========== WEEKLY OVERLAY ========== */
+.weekly-overlay {
+  position: fixed; inset: 0;
+  background: var(--bg); z-index: 300;
+  display: none; flex-direction: column; overflow: hidden;
+}
+.weekly-overlay.show { display: flex; }
+.weekly-top {
+  padding: 16px 20px;
+  display: flex; align-items: center; justify-content: space-between;
+  border-bottom: 1px solid var(--line); flex-shrink: 0;
+}
+.weekly-top-pill {
+  font-family: var(--mono); font-size: 11px;
+  letter-spacing: 0.12em; text-transform: uppercase;
+  background: var(--bg-2); border: 1px solid var(--line);
+  padding: 6px 12px; border-radius: 100px; color: var(--ink-3);
+}
+.weekly-close {
+  background: none; border: 1px solid var(--line);
+  color: var(--ink-2); border-radius: 100px;
+  padding: 8px 14px; font-family: var(--sans);
+  font-size: 13px; cursor: pointer;
+}
+.weekly-close:active { transform: scale(0.96); }
+.weekly-container {
+  flex: 1; overflow-y: auto;
+  padding: 24px 20px calc(40px + env(safe-area-inset-bottom));
+  max-width: 680px; margin: 0 auto; width: 100%;
+}
+.weekly-hero { text-align: center; margin-bottom: 28px; }
+.weekly-hero-eyebrow {
+  font-family: var(--mono); font-size: 10px;
+  letter-spacing: 0.25em; color: var(--gold);
+  text-transform: uppercase; margin-bottom: 8px;
+}
+.weekly-hero-title {
+  font-family: var(--display); font-size: 26px;
+  font-weight: 500; letter-spacing: -0.02em;
+  line-height: 1.2; margin-bottom: 6px;
+}
+.weekly-hero-title em { color: var(--gold); font-style: italic; }
+.weekly-hero-sub {
+  font-family: var(--display); font-style: italic;
+  font-size: 14px; color: var(--ink-3);
+}
+.weekly-section { margin-bottom: 28px; }
+.weekly-section-title {
+  font-family: var(--mono); font-size: 10px;
+  letter-spacing: 0.2em; text-transform: uppercase;
+  color: var(--ink-3); margin-bottom: 12px;
+}
+.weekly-data-card {
+  background: var(--bg-1); border: 1px solid var(--line);
+  border-radius: 14px; overflow: hidden;
+}
+.weekly-data-row {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 14px 18px; border-bottom: 1px solid var(--line);
+}
+.weekly-data-row:last-child { border-bottom: none; }
+.weekly-data-label { font-size: 13px; color: var(--ink-2); }
+.weekly-data-value {
+  font-family: var(--display); font-size: 18px;
+  font-weight: 500; color: var(--gold);
+}
+.weekly-friction-item {
+  background: var(--bg-1); border: 1px solid var(--line);
+  border-radius: 12px; padding: 14px 18px; margin-bottom: 8px;
+  font-family: var(--display); font-style: italic;
+  font-size: 14px; color: var(--ink-2); line-height: 1.45;
+}
+.weekly-friction-date {
+  font-family: var(--mono); font-size: 10px;
+  color: var(--ink-3); margin-bottom: 4px;
+  font-style: normal; letter-spacing: 0.05em;
+}
+.weekly-field {
+  width: 100%; background: var(--bg-1);
+  border: 1px solid var(--line); border-radius: 12px;
+  padding: 14px 16px; color: var(--ink);
+  font-family: var(--display); font-size: 16px;
+  font-style: italic; line-height: 1.5;
+  outline: none; resize: none;
+  transition: border-color 200ms ease;
+}
+.weekly-field:focus { border-color: var(--gold-soft); }
+.weekly-field::placeholder { color: var(--ink-4); }
+.weekly-next {
+  background: linear-gradient(135deg, rgba(212,168,87,0.08), rgba(212,168,87,0.02));
+  border: 1px solid rgba(212,168,87,0.3);
+  border-radius: 14px; padding: 18px 20px; margin-bottom: 16px;
+}
+.weekly-next-eyebrow {
+  font-family: var(--mono); font-size: 10px;
+  letter-spacing: 0.2em; color: var(--gold);
+  text-transform: uppercase; margin-bottom: 8px;
+}
+.weekly-next-name {
+  font-family: var(--display); font-size: 20px;
+  font-weight: 500; letter-spacing: -0.01em;
+}
+.weekly-next-meta { font-size: 13px; color: var(--ink-2); margin-top: 2px; }
+.principle-select-grid {
+  display: grid; grid-template-columns: repeat(4, 1fr);
+  gap: 8px; margin-top: 12px;
+}
+.principle-select-card {
+  background: var(--bg-1); border: 1px solid var(--line);
+  border-radius: 10px; padding: 10px 8px;
+  text-align: center; cursor: pointer; transition: all 200ms ease;
+}
+.principle-select-card:active { transform: scale(0.96); }
+.principle-select-card.selected {
+  background: rgba(212,168,87,0.15); border-color: var(--gold);
+}
+.principle-select-letter {
+  font-family: var(--display); font-size: 22px;
+  font-weight: 400; color: var(--gold); line-height: 1;
+}
+.principle-select-name {
+  font-family: var(--mono); font-size: 9px;
+  color: var(--ink-3); letter-spacing: 0.05em;
+  margin-top: 4px; line-height: 1.3;
+}
+.weekly-actions { display: flex; flex-direction: column; gap: 10px; margin-top: 24px; }
+.weekly-actions .btn { width: 100%; }
+
+/* ========== PRINCIPLE DETAIL MODAL ========== */
+.principle-detail-letter {
+  font-family: var(--display); font-size: 80px;
+  font-weight: 400; color: var(--gold); line-height: 1;
+  letter-spacing: -0.04em; margin-bottom: 4px;
+}
+.principle-detail-meta {
+  font-family: var(--mono); font-size: 10px;
+  letter-spacing: 0.2em; color: var(--ink-3);
+  text-transform: uppercase; margin-bottom: 12px;
+}
+.principle-detail-name {
+  font-family: var(--display); font-size: 22px;
+  font-weight: 500; letter-spacing: -0.01em; margin-bottom: 8px;
+}
+.principle-detail-quote {
+  font-family: var(--display); font-style: italic;
+  font-size: 16px; color: var(--gold);
+  margin-bottom: 14px; line-height: 1.4;
+}
+.principle-detail-body {
+  font-size: 14px; color: var(--ink-2); line-height: 1.6; margin-bottom: 16px;
+}
+.principle-detail-points {
+  margin: 0 0 20px; padding: 0; list-style: none;
+}
+.principle-detail-points li {
+  font-size: 14px; color: var(--ink-2); line-height: 1.5;
+  padding: 10px 0 10px 16px;
+  border-top: 1px solid var(--line);
+  position: relative;
+}
+.principle-detail-points li::before {
+  content: '—'; position: absolute; left: 0; color: var(--gold-soft);
+}
+.principle-detail-reps-title {
+  font-family: var(--mono); font-size: 10px;
+  letter-spacing: 0.2em; text-transform: uppercase;
+  color: var(--ink-3); margin-bottom: 10px;
+}
+.principle-detail-rep {
+  background: var(--bg-2); border-radius: 10px;
+  padding: 12px 14px; margin-bottom: 8px;
+  font-size: 13px; color: var(--ink);
+}
+.principle-detail-rep em {
+  display: block; font-size: 12px; color: var(--ink-3); margin-top: 4px;
+}
+
+/* ========== CONSTITUTION DYNAMIC ========== */
+.principle-card.current {
+  border-color: rgba(212,168,87,0.5);
+  background: linear-gradient(180deg, rgba(212,168,87,0.06), transparent);
+}
+.principle-card-tag {
+  display: inline-block;
+  font-family: var(--mono); font-size: 9px;
+  letter-spacing: 0.15em; text-transform: uppercase;
+  background: var(--gold); color: var(--bg);
+  border-radius: 100px; padding: 2px 8px;
+  margin-left: 8px; vertical-align: middle; font-weight: 600;
+}
+
+/* ========== MENTOR PROMPT UPDATES ========== */
+.prompt-tile.principle-prompt {
+  background: linear-gradient(135deg, rgba(212,168,87,0.12), rgba(212,168,87,0.04));
+  border-color: rgba(212,168,87,0.3);
+}
+</style>
+</head>
+<body>
+
+<!-- TOPBAR -->
+<div class="topbar">
+  <div class="brand">
+    <div class="brand-mark"></div>
+    <div class="brand-text">The OS</div>
+  </div>
+  <div class="date-pill" id="date-pill">—</div>
+</div>
+
+<div class="container">
+
+  <!-- ============ TODAY VIEW ============ -->
+  <div class="view active" id="view-today">
+
+    <div class="hero">
+      <div class="hero-eyebrow" id="greeting">Good morning</div>
+      <div class="hero-title">Every action a <em>vote</em><br>for who you are becoming.</div>
+
+      <div class="ring-wrap">
+        <svg class="ring-svg" viewBox="0 0 100 100">
+          <defs>
+            <linearGradient id="goldGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stop-color="#8a7240"/>
+              <stop offset="100%" stop-color="#d4a857"/>
+            </linearGradient>
+          </defs>
+          <circle class="ring-track" cx="50" cy="50" r="44"/>
+          <circle class="ring-fill" id="ring-fill" cx="50" cy="50" r="44"
+                  stroke-dasharray="276.46" stroke-dashoffset="276.46"/>
+        </svg>
+        <div class="ring-center">
+          <div class="ring-state-main" id="ring-state-main">Begin.</div>
+          <div class="ring-sub">Today's coherence</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="quick-stats" style="grid-template-columns: repeat(2, 1fr);">
+      <div class="qs">
+        <div class="qs-val" id="qs-reps">0 / 0</div>
+        <div class="qs-label">Reps Today</div>
+      </div>
+      <div class="qs">
+        <div class="qs-val gold" id="qs-foundation">—</div>
+        <div class="qs-label">Foundation (7d)</div>
+      </div>
+    </div>
+
+    <div id="review-prompt-container"></div>
+
+    <div class="principle-banner" id="principle-banner">
+      <div class="principle-banner-letter" id="pb-letter">A</div>
+      <div class="principle-banner-info">
+        <div class="principle-banner-meta" id="pb-meta">Week 1 of 7 · Day 1</div>
+        <div class="principle-banner-name" id="pb-name">Coherence Over Image</div>
+        <div class="principle-banner-quote" id="pb-quote">"He does not perform identity; he embodies it."</div>
+      </div>
+      <div class="principle-banner-chevron">→</div>
+    </div>
+
+    <div class="sect-head">
+      <div class="sect-title">Today's foundation</div>
+      <div class="sect-meta" id="foundation-sect-meta">2 Pillars · 10 Reps</div>
+    </div>
+
+    <div id="pillars-container"></div>
+
+    <!-- Evening -->
+    <div class="sect-head">
+      <div class="sect-title">Evening check-in</div>
+      <div class="sect-meta">2 min</div>
+    </div>
+
+    <div class="evening-card alignment">
+      <div class="ec-head">
+        <div class="ec-eyebrow">Resonance Score</div>
+        <div class="ec-title" id="resonance-title">How aligned was today with the man you're becoming?</div>
+      </div>
+      <div class="scale" id="scale-alignment">
+        <button class="scale-btn" data-val="1">1</button>
+        <button class="scale-btn" data-val="2">2</button>
+        <button class="scale-btn" data-val="3">3</button>
+        <button class="scale-btn" data-val="4">4</button>
+        <button class="scale-btn" data-val="5">5</button>
+        <button class="scale-btn" data-val="6">6</button>
+        <button class="scale-btn" data-val="7">7</button>
+        <button class="scale-btn" data-val="8">8</button>
+        <button class="scale-btn" data-val="9">9</button>
+        <button class="scale-btn" data-val="10">10</button>
+      </div>
+      <div class="scale-labels">
+        <span>Out of frequency</span>
+        <span>In resonance</span>
+      </div>
+    </div>
+
+    <div class="filter-card">
+      <div class="filter-q"><strong>Strengthen</strong> or weaken the foundation?</div>
+      <div class="yn" data-q="f1">
+        <button class="yn-btn yes" data-val="yes">✓</button>
+        <button class="yn-btn no" data-val="no">✕</button>
+      </div>
+    </div>
+    <div class="filter-card">
+      <div class="filter-q"><strong>Capacity</strong> or comfort-seeking?</div>
+      <div class="yn" data-q="f2">
+        <button class="yn-btn yes" data-val="yes">✓</button>
+        <button class="yn-btn no" data-val="no">✕</button>
+      </div>
+    </div>
+    <div class="filter-card">
+      <div class="filter-q">Increased your <strong>self-respect</strong>?</div>
+      <div class="yn" data-q="f3">
+        <button class="yn-btn yes" data-val="yes">✓</button>
+        <button class="yn-btn no" data-val="no">✕</button>
+      </div>
+    </div>
+
+    <div class="evening-card">
+      <div class="ec-head">
+        <div class="ec-eyebrow">Win</div>
+        <div class="ec-title" id="win-title">Where did you show up as him today?</div>
+      </div>
+      <div class="reflect">
+        <textarea id="reflect-win" rows="2" placeholder="One specific moment..."></textarea>
+      </div>
+    </div>
+
+    <div class="evening-card">
+      <div class="ec-head">
+        <div class="ec-eyebrow">Friction</div>
+        <div class="ec-title">Where did the old pattern win?</div>
+      </div>
+      <div class="reflect">
+        <textarea id="reflect-friction" rows="2" placeholder="No softening. Just the truth..."></textarea>
+      </div>
+    </div>
+
+    <div class="tomorrow">
+      <div class="tomorrow-eyebrow">Tomorrow's One Rep</div>
+      <div class="tomorrow-prompt">The single most important act. Write it before bed.</div>
+      <input id="tomorrow-input" placeholder="The one thing..."/>
+    </div>
+
+  </div>
+
+  <!-- ============ MIND VIEW (Library) ============ -->
+  <div class="view" id="view-mind">
+
+    <div id="mind-home">
+      <div class="hero">
+        <div class="hero-eyebrow">Knowledge Library</div>
+        <div class="hero-title">Build your <em>mind</em><br>one card at a time.</div>
+        <div class="hero-sub">Books, summaries, flashcards. Spaced review. Compounding by design.</div>
+      </div>
+
+      <div class="quick-stats">
+        <div class="qs">
+          <div class="qs-val gold" id="stat-due">0</div>
+          <div class="qs-label">Due Today</div>
+        </div>
+        <div class="qs">
+          <div class="qs-val" id="stat-cards">0</div>
+          <div class="qs-label">Total Cards</div>
+        </div>
+        <div class="qs">
+          <div class="qs-val" id="stat-reviewed">0</div>
+          <div class="qs-label">Reviewed All-Time</div>
+        </div>
+      </div>
+
+      <div class="review-banner" id="review-banner">
+        <div class="review-eyebrow" id="rb-eyebrow">Today's Review</div>
+        <div class="review-title" id="rb-title">Nothing due yet.</div>
+        <div class="review-sub" id="rb-sub">Create your first card to begin.</div>
+        <button class="review-cta" id="rb-cta">
+          <span id="rb-cta-text">Add a card</span>
+          <span>→</span>
+        </button>
+      </div>
+
+      <div class="sect-head">
+        <div class="sect-title">Categories</div>
+        <div class="sect-meta" id="cat-meta">0 collections</div>
+      </div>
+
+      <div class="cat-grid" id="cat-grid"></div>
+
+      <div class="sect-head">
+        <div class="sect-title">Books</div>
+        <button class="sect-action" id="add-book-btn">+ Add</button>
+      </div>
+
+      <div id="books-container"></div>
+
+      <div class="sect-head">
+        <div class="sect-title">Summaries</div>
+        <button class="sect-action" id="add-summary-btn">+ Add</button>
+      </div>
+
+      <div id="summaries-container"></div>
+
+      <div class="sect-head">
+        <div class="sect-title">Quick add</div>
+      </div>
+      <button class="btn btn-primary" id="open-add-modal-btn" style="width: 100%;">+ New flashcard</button>
+
+    </div>
+
+    <!-- Category detail (inside Mind) -->
+    <div id="mind-category" style="display: none;">
+      <button class="back-btn" id="cat-back-btn" style="margin-top: 8px;">← Library</button>
+
+      <div class="category-detail-header">
+        <div class="cat-detail-info">
+          <div class="cat-detail-icon" id="cat-d-icon">📚</div>
+          <div class="cat-detail-name" id="cat-d-name">Category</div>
+          <div class="cat-detail-meta" id="cat-d-meta">0 cards · 0 due</div>
+        </div>
+      </div>
+
+      <div class="cat-actions">
+        <button class="btn btn-primary" id="cat-review-btn">Review</button>
+        <button class="btn btn-ghost" id="cat-add-card-btn">+ Card</button>
+        <button class="btn btn-ghost" id="cat-edit-btn">⋯</button>
+      </div>
+
+      <div id="cat-cards-list"></div>
+      <div class="empty-state" id="cat-empty" style="display: none;">
+        <div class="empty-state-icon">🎴</div>
+        <div class="empty-state-text">No cards in this category.</div>
+        <div class="empty-state-sub">Tap "+ Card" to add your first one.</div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ============ MENTOR VIEW ============ -->
+  <div class="view" id="view-mentor">
+
+    <div class="mentor-hero" id="mentor-hero">
+      <div class="mentor-mark"></div>
+      <div class="hero-eyebrow">The Mentor</div>
+      <div class="hero-title">A voice that <em>knows</em><br>who you are becoming.</div>
+      <div class="hero-sub">Trained on your constitution. Sees your reps, your reflections, your friction.</div>
+    </div>
+
+    <div id="mentor-context-banner" class="context-banner" style="display: none;">
+      <span class="context-banner-icon">✦</span>
+      <span><strong id="ctx-label">Context active.</strong> <span id="ctx-detail">Mentor has access to today's data.</span></span>
+    </div>
+
+    <div id="mentor-prompts-section">
+      <div class="sect-head">
+        <div class="sect-title">Quick prompts</div>
+        <div class="sect-meta">Tap to begin</div>
+      </div>
+
+      <div class="prompts-grid">
+        <button class="prompt-tile" data-prompt="avoiding">
+          <span class="prompt-icon">🪞</span>
+          <span class="prompt-text">What am I avoiding right now?</span>
+        </button>
+        <button class="prompt-tile" data-prompt="reactivity">
+          <span class="prompt-icon">🌊</span>
+          <span class="prompt-text">Help me dissect my reactivity today.</span>
+        </button>
+        <button class="prompt-tile" data-prompt="audit">
+          <span class="prompt-icon">📊</span>
+          <span class="prompt-text" id="audit-prompt-text">Audit my week through this principle.</span>
+        </button>
+        <button class="prompt-tile principle-prompt" data-prompt="principle-coach">
+          <span class="prompt-icon">◆</span>
+          <span class="prompt-text" id="principle-prompt-text">Coach me on this week's principle.</span>
+        </button>
+        <button class="prompt-tile" data-prompt="decision">
+          <span class="prompt-icon">🧭</span>
+          <span class="prompt-text">Walk me through a decision.</span>
+        </button>
+        <button class="prompt-tile" data-prompt="cards">
+          <span class="prompt-icon">🎴</span>
+          <span class="prompt-text">Make flashcards from text I'll paste.</span>
+        </button>
+      </div>
+    </div>
+
+    <div class="chat-header" id="chat-header" style="display: none;">
+      <div class="chat-status">
+        <div class="chat-status-dot"></div>
+        <div class="chat-status-text">Mentor listening</div>
+      </div>
+      <button class="chat-clear" id="chat-clear-btn">Clear</button>
+    </div>
+
+    <div class="chat-scroll" id="chat-scroll"></div>
+
+    <div class="chat-input-wrap">
+      <div class="chat-toolbar" id="chat-toolbar">
+        <button class="tool-chip active" id="tool-context" title="Mentor reads your reps, reflections, and library">📎 Context: On</button>
+        <button class="tool-chip gold" id="tool-gen-cards">🎴 Generate Cards</button>
+      </div>
+      <div class="chat-input-row">
+        <textarea class="chat-input" id="chat-input" rows="1" placeholder="Speak with the mentor..."></textarea>
+        <button class="chat-send" id="chat-send" disabled>
+          <svg viewBox="0 0 24 24"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+        </button>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ============ MORE VIEW ============ -->
+  <div class="view" id="view-more">
+
+    <div class="hero" style="padding-top: 24px;">
+      <div class="hero-eyebrow">More</div>
+      <div class="hero-title">The <em>foundation</em>.</div>
+      <div class="hero-sub">Constitution, refusals, data, settings.</div>
+    </div>
+
+    <!-- Sub-tabs -->
+    <div class="section-tabs">
+      <button class="section-tab active" data-pane="constitution">Constitution</button>
+      <button class="section-tab" data-pane="refusals">Refusals</button>
+      <button class="section-tab" data-pane="data">Data</button>
+    </div>
+
+    <div class="section-pane active" id="pane-constitution">
+      <!-- Rendered dynamically by renderConstitution() -->
+    </div>
+
+    <div class="section-pane" id="pane-refusals">
+      <p style="color: var(--ink-3); font-size: 13px; font-style: italic; margin-bottom: 16px; font-family: var(--display); font-size: 15px;">
+        Refusals are as important as goals. These define the negative space of the man.
+      </p>
+      <div class="refusal-chips">
+        <div class="chip">Pretending</div>
+        <div class="chip">Living for validation</div>
+        <div class="chip">Procrastination</div>
+        <div class="chip">Excuse-making</div>
+        <div class="chip">Emotional dumping</div>
+        <div class="chip">Addictive coping</div>
+        <div class="chip">"Busy" as identity</div>
+        <div class="chip">Over-explaining</div>
+        <div class="chip">Pleading</div>
+        <div class="chip">Weak boundaries</div>
+        <div class="chip">Uncontrolled lust</div>
+        <div class="chip">Lifestyle inflation</div>
+        <div class="chip">Self-betrayal in love</div>
+        <div class="chip">Spiritual bypassing</div>
+        <div class="chip">Isolation as "focus"</div>
+        <div class="chip">Arrogance as confidence</div>
+        <div class="chip">Chasing validation</div>
+        <div class="chip">Accepting disrespect</div>
+        <div class="chip">Negotiating self-respect</div>
+        <div class="chip">Victim language</div>
+        <div class="chip">Performing identity</div>
+      </div>
+    </div>
+
+    <div class="section-pane" id="pane-data">
+      <div class="settings-row" style="flex-direction: column; align-items: flex-start; gap: 10px; cursor: default;">
+        <div>
+          <div class="settings-label">Anthropic API key</div>
+          <div class="settings-sublabel">Required for the Mentor. Stored locally, never transmitted anywhere else.</div>
+        </div>
+        <input id="api-key-input" type="password" placeholder="sk-ant-..."
+          style="width: 100%; background: var(--bg-2); border: 1px solid var(--line); border-radius: 8px; padding: 10px 12px; color: var(--ink); font-family: var(--mono); font-size: 12px; outline: none; letter-spacing: 0.05em;"/>
+      </div>
+      <div class="settings-row" id="open-weekly-review-btn">
+        <div>
+          <div class="settings-label">Open weekly review</div>
+          <div class="settings-sublabel">Close this principle and begin the next</div>
+        </div>
+        <div class="settings-val" style="color: var(--gold);">→</div>
+      </div>
+      <div class="settings-row" id="open-help-btn">
+        <div>
+          <div class="settings-label">How to use the OS</div>
+          <div class="settings-sublabel">Re-read the onboarding guide</div>
+        </div>
+        <div class="settings-val">→</div>
+      </div>
+      <div class="settings-row" id="export-btn">
+        <div>
+          <div class="settings-label">Export all data</div>
+          <div class="settings-sublabel">Download everything as JSON</div>
+        </div>
+        <div class="settings-val">↓</div>
+      </div>
+      <div class="settings-row" id="import-btn">
+        <div>
+          <div class="settings-label">Import data</div>
+          <div class="settings-sublabel">Restore from a previous export</div>
+        </div>
+        <div class="settings-val">↑</div>
+      </div>
+      <input type="file" id="import-file" accept="application/json" style="display: none;"/>
+      <div class="settings-row" id="reset-today-btn">
+        <div>
+          <div class="settings-label">Reset today</div>
+          <div class="settings-sublabel">Clear today's reps and reflections</div>
+        </div>
+        <div class="settings-val">↺</div>
+      </div>
+      <div class="settings-row" id="reset-all-btn">
+        <div>
+          <div class="settings-label">Reset everything</div>
+          <div class="settings-sublabel">Wipe all data. Permanent.</div>
+        </div>
+        <div class="settings-val" style="color: var(--red);">⚠</div>
+      </div>
+
+      <div class="principle-card" style="margin-top: 32px;">
+        <div class="principle-body" style="font-style: italic;">
+          He is not trying to be impressive.<br>
+          He is trying to be true, capable, and durable.
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+</div>
+
+<!-- TAB BAR -->
+<nav class="tabbar">
+  <button class="tab active" data-view="today">
+    <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="3" fill="currentColor"/></svg>
+    <span class="tab-label">Today</span>
+  </button>
+  <button class="tab" data-view="mind">
+    <svg viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+    <span class="tab-label">Mind</span>
+  </button>
+  <button class="tab" data-view="mentor">
+    <svg viewBox="0 0 24 24"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
+    <span class="tab-label">Mentor</span>
+  </button>
+  <button class="tab" data-view="more">
+    <svg viewBox="0 0 24 24"><circle cx="12" cy="5" r="1.5"/><circle cx="12" cy="12" r="1.5"/><circle cx="12" cy="19" r="1.5"/></svg>
+    <span class="tab-label">More</span>
+  </button>
+</nav>
+
+<!-- REVIEW OVERLAY -->
+<div class="review-overlay" id="review-overlay">
+  <div class="review-top">
+    <button class="review-close" id="review-close-btn">Close</button>
+    <div class="review-cat-pill" id="review-cat-pill">All</div>
+    <div class="review-progress"><strong id="rp-current">0</strong> / <span id="rp-total">0</span></div>
+  </div>
+
+  <div class="review-card-wrap" id="card-wrap">
+    <div class="review-card" id="review-card">
+      <div class="review-face front">
+        <div class="face-eyebrow">Question</div>
+        <div class="face-content"><div class="face-text" id="face-front">—</div></div>
+        <div class="face-hint">Tap to flip</div>
+      </div>
+      <div class="review-face back">
+        <div class="face-eyebrow">Answer</div>
+        <div class="face-content"><div class="face-text" id="face-back">—</div></div>
+        <div class="face-hint">Grade your recall</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="grade-row" id="grade-row" style="display: none;">
+    <button class="grade-btn again" data-grade="0">
+      <div class="grade-label">Again</div>
+      <div class="grade-interval" id="int-again">&lt;1m</div>
+    </button>
+    <button class="grade-btn hard" data-grade="3">
+      <div class="grade-label">Hard</div>
+      <div class="grade-interval" id="int-hard">—</div>
+    </button>
+    <button class="grade-btn good" data-grade="4">
+      <div class="grade-label">Good</div>
+      <div class="grade-interval" id="int-good">—</div>
+    </button>
+    <button class="grade-btn easy" data-grade="5">
+      <div class="grade-label">Easy</div>
+      <div class="grade-interval" id="int-easy">—</div>
+    </button>
+  </div>
+
+  <div class="review-complete" id="review-complete" style="display: none;">
+    <div class="complete-icon">✦</div>
+    <div class="complete-title">Session <em>complete</em>.</div>
+    <div class="complete-sub">The neurons fired. The trace deepens. Tomorrow they return — slightly easier.</div>
+    <div class="complete-stats">
+      <div>
+        <div class="complete-stat-val" id="comp-reviewed">0</div>
+        <div class="complete-stat-label">Reviewed</div>
+      </div>
+      <div>
+        <div class="complete-stat-val" id="comp-correct">0%</div>
+        <div class="complete-stat-label">Recalled</div>
+      </div>
+    </div>
+    <button class="btn btn-primary" id="finish-review-btn" style="max-width: 200px;">Done</button>
+  </div>
+</div>
+
+<!-- ADD MODAL -->
+<div class="modal-bg" id="add-modal">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-eyebrow">Capture</div>
+    <div class="modal-title">Add to the library.</div>
+
+    <div class="add-tabs">
+      <button class="add-tab active" data-pane="card">Flashcard</button>
+      <button class="add-tab" data-pane="book">Book</button>
+      <button class="add-tab" data-pane="summary">Summary</button>
+    </div>
+
+    <div class="add-pane active" id="pane-card">
+      <div class="field">
+        <div class="field-label">Front (Question)</div>
+        <textarea id="card-front-input" rows="3" placeholder="What do you want to remember?"></textarea>
+      </div>
+      <div class="field">
+        <div class="field-label">Back (Answer)</div>
+        <textarea id="card-back-input" rows="4" placeholder="The answer, definition, or insight..."></textarea>
+      </div>
+      <div class="field">
+        <div class="field-label">Category</div>
+        <div class="cat-picker" id="card-cat-picker"></div>
+      </div>
+      <div class="modal-actions">
+        <button class="btn btn-ghost" id="add-modal-close">Close</button>
+        <button class="btn btn-primary" id="save-card-btn">Save Card</button>
+      </div>
+    </div>
+
+    <div class="add-pane" id="pane-book">
+      <div class="field">
+        <div class="field-label">Title</div>
+        <input id="book-title-input" placeholder="Book title"/>
+      </div>
+      <div class="field">
+        <div class="field-label">Author</div>
+        <input id="book-author-input" placeholder="Author name"/>
+      </div>
+      <div class="field">
+        <div class="field-label">Status</div>
+        <select id="book-status-input">
+          <option value="queued">Queued — to read</option>
+          <option value="reading">Currently reading</option>
+          <option value="finished">Finished</option>
+        </select>
+      </div>
+      <div class="field">
+        <div class="field-label">Notes (optional)</div>
+        <textarea id="book-notes-input" rows="3" placeholder="Why this book, what you're hoping to take away..."></textarea>
+      </div>
+      <div class="modal-actions">
+        <button class="btn btn-ghost" id="add-modal-close-2">Close</button>
+        <button class="btn btn-primary" id="save-book-btn">Save Book</button>
+      </div>
+    </div>
+
+    <div class="add-pane" id="pane-summary">
+      <div class="field">
+        <div class="field-label">Title</div>
+        <input id="summary-title-input" placeholder="What's this about?"/>
+      </div>
+      <div class="field">
+        <div class="field-label">Source (optional)</div>
+        <input id="summary-source-input" placeholder="Book, article, podcast, person..."/>
+      </div>
+      <div class="field">
+        <div class="field-label">Summary</div>
+        <textarea id="summary-content-input" rows="8" placeholder="The distilled idea. The key takeaways..."></textarea>
+      </div>
+      <div class="modal-actions">
+        <button class="btn btn-ghost" id="add-modal-close-3">Close</button>
+        <button class="btn btn-primary" id="save-summary-btn">Save Summary</button>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- CATEGORY MODAL -->
+<div class="modal-bg" id="cat-modal">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-eyebrow" id="cat-modal-eyebrow">New category</div>
+    <div class="modal-title" id="cat-modal-title">Create a category.</div>
+    <div class="field">
+      <div class="field-label">Name</div>
+      <input id="cat-name-input" placeholder="e.g. Philosophy, Spanish, Psychology..."/>
+    </div>
+    <div class="field">
+      <div class="field-label">Icon</div>
+      <div class="icon-picker" id="icon-picker"></div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" id="cat-cancel-btn">Cancel</button>
+      <button class="btn btn-primary" id="cat-save-btn">Create</button>
+    </div>
+    <div class="modal-actions" id="cat-delete-row" style="display: none;">
+      <button class="btn btn-danger" id="cat-delete-btn">Delete category & cards</button>
+    </div>
+  </div>
+</div>
+
+<!-- DETAIL MODAL -->
+<div class="modal-bg" id="detail-modal">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-eyebrow" id="detail-eyebrow">Card</div>
+    <div class="modal-title" id="detail-title">—</div>
+    <div class="detail-view-content" id="detail-content">—</div>
+    <div class="modal-actions" style="margin-top: 24px;">
+      <button class="btn btn-ghost" id="detail-edit-btn">Edit</button>
+      <button class="btn btn-danger" id="detail-delete-btn">Delete</button>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-primary" id="detail-close-btn">Close</button>
+    </div>
+  </div>
+</div>
+
+<!-- EDIT MODAL -->
+<div class="modal-bg" id="edit-modal">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-eyebrow">Edit</div>
+    <div class="modal-title" id="edit-title">Edit</div>
+    <div id="edit-fields"></div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" id="edit-cancel-btn">Cancel</button>
+      <button class="btn btn-primary" id="edit-save-btn">Save</button>
+    </div>
+  </div>
+</div>
+
+<!-- WEEKLY REVIEW OVERLAY -->
+<div class="weekly-overlay" id="weekly-overlay">
+  <div class="weekly-top">
+    <div class="weekly-top-pill" id="wr-week-pill">Week 1 of 7</div>
+    <button class="weekly-close" id="weekly-close-btn">Close</button>
+  </div>
+  <div class="weekly-container">
+    <div class="weekly-hero">
+      <div class="weekly-hero-eyebrow">Weekly Review</div>
+      <div class="weekly-hero-title" id="wr-hero-title">Closing Principle <em id="wr-hero-letter">A</em>: <span id="wr-hero-name">Coherence Over Image</span>.</div>
+      <div class="weekly-hero-sub" id="wr-hero-sub">"He does not perform identity; he embodies it."</div>
+    </div>
+
+    <div class="weekly-section">
+      <div class="weekly-section-title">This week, in numbers</div>
+      <div class="weekly-data-card">
+        <div class="weekly-data-row">
+          <div class="weekly-data-label">Reps completed</div>
+          <div class="weekly-data-value" id="wr-reps">—</div>
+        </div>
+        <div class="weekly-data-row">
+          <div class="weekly-data-label">Days with reps</div>
+          <div class="weekly-data-value" id="wr-days">—</div>
+        </div>
+        <div class="weekly-data-row">
+          <div class="weekly-data-label">Avg resonance score</div>
+          <div class="weekly-data-value" id="wr-avg">—</div>
+        </div>
+        <div class="weekly-data-row">
+          <div class="weekly-data-label">Foundation strength</div>
+          <div class="weekly-data-value" id="wr-strength">—</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="weekly-section" id="wr-friction-section">
+      <div class="weekly-section-title">Where the old pattern won</div>
+      <div id="wr-friction-list"></div>
+    </div>
+
+    <div class="weekly-section" id="wr-wins-section">
+      <div class="weekly-section-title">Where you embodied it</div>
+      <div id="wr-wins-list"></div>
+    </div>
+
+    <div class="weekly-section">
+      <div class="weekly-section-title">What did this principle teach you?</div>
+      <textarea class="weekly-field" id="wr-lesson" rows="4" placeholder="The thing you understand now that you didn't before..."></textarea>
+    </div>
+
+    <div class="weekly-section">
+      <div class="weekly-section-title">Where did it break?</div>
+      <textarea class="weekly-field" id="wr-broke" rows="3" placeholder="The honest answer. No softening."></textarea>
+    </div>
+
+    <div class="weekly-section">
+      <div class="weekly-section-title">One carry-forward into the next cycle</div>
+      <textarea class="weekly-field" id="wr-carry" rows="2" placeholder="The one thing this principle taught you to keep..."></textarea>
+    </div>
+
+    <div class="weekly-section">
+      <div class="weekly-section-title">Next principle</div>
+      <div class="weekly-next">
+        <div class="weekly-next-eyebrow">Suggested</div>
+        <div class="weekly-next-name" id="wr-next-name">Capacity Over Comfort</div>
+        <div class="weekly-next-meta" id="wr-next-meta">Principle B · Week 2 of 7</div>
+      </div>
+      <div class="weekly-section-title" style="margin-top: 16px;">Override</div>
+      <div class="principle-select-grid" id="wr-principle-grid"></div>
+    </div>
+
+    <div class="weekly-actions">
+      <button class="btn btn-primary" id="wr-complete-btn">Complete &amp; begin next principle →</button>
+      <button class="btn btn-ghost" id="wr-draft-btn">Save draft</button>
+    </div>
+  </div>
+</div>
+
+<!-- PRINCIPLE DETAIL MODAL -->
+<div class="modal-bg" id="principle-modal">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="principle-detail-letter" id="pd-letter">A</div>
+    <div class="principle-detail-meta" id="pd-meta">Week 1 of 7 · Day 1 · This week's principle</div>
+    <div class="principle-detail-name" id="pd-name">Coherence Over Image</div>
+    <div class="principle-detail-quote" id="pd-quote">"He does not perform identity; he embodies it."</div>
+    <div class="principle-detail-body" id="pd-body"></div>
+    <ul class="principle-detail-points" id="pd-points"></ul>
+    <div class="principle-detail-reps-title">This week's reps</div>
+    <div id="pd-reps"></div>
+    <div class="modal-actions" style="margin-top: 8px;">
+      <button class="btn btn-primary" onclick="document.getElementById('principle-modal').classList.remove('show')">Close</button>
+    </div>
+  </div>
+</div>
+
+<!-- HELP MODAL -->
+<div class="modal-bg" id="help-modal">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title">How to use The OS.</div>
+
+    <div class="modal-body">
+      <p><em>"Every action is a vote for who you are becoming."</em></p>
+      <p>Four tabs at the bottom. One principle per week. The Mentor sees everything.</p>
+    </div>
+
+    <div class="modal-step">
+      <div class="modal-step-num">1</div>
+      <div class="modal-step-text">
+        <strong>One principle per week.</strong>
+        Each week the OS surfaces one of the seven principles. Your pillars and reps reframe around it. You don't just read it — you live it.
+      </div>
+    </div>
+
+    <div class="modal-step">
+      <div class="modal-step-num">2</div>
+      <div class="modal-step-text">
+        <strong>Two pillars, ten reps.</strong>
+        Emotional Governance is constant — it's upstream of everything. The second pillar is whatever the week's principle requires. Tap reps as you live them.
+      </div>
+    </div>
+
+    <div class="modal-step">
+      <div class="modal-step-num">3</div>
+      <div class="modal-step-text">
+        <strong>The weekly review unlocks the next principle.</strong>
+        Sunday or whenever you're ready — the review is the gate. Close one principle to begin the next. No skipping.
+      </div>
+    </div>
+
+    <div class="modal-step">
+      <div class="modal-step-num">4</div>
+      <div class="modal-step-text">
+        <strong>The mentor sees everything.</strong>
+        This week's principle, your reps, your reflections, your library. Speak to it as you would a steady older brother who knows you.
+      </div>
+    </div>
+
+    <button class="btn btn-primary" id="close-help-btn" style="margin-top: 16px; width: 100%;">Begin</button>
+  </div>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"><span class="toast-dot"></span><span id="toast-text">Saved</span></div>
+
+<script>
+window.storage = {
+  get: async (key) => {
+    const v = localStorage.getItem(key);
+    return v != null ? { value: v } : null;
+  },
+  set: async (key, value) => {
+    localStorage.setItem(key, value);
+  }
+};
+</script>
+
+<script>
+// ============ SHARED STATE ============
+const TODAY = new Date().toISOString().split('T')[0];
+const NOW = Date.now();
+const DAY_MS = 86400000;
+
+// ============ PRINCIPLES ============
+const PRINCIPLES = [
+  {
+    letter: 'A', name: 'Coherence Over Image',
+    quote: '"He does not perform identity; he embodies it."',
+    body: 'Private actions match public standards. Self-respect built on behavior, not approval. The unwatched moment is the real test.',
+    points: ['Coherence is built when no one is watching.','Self-respect is built on behavior, not approval.','Every gap between your public standard and private behavior compounds — in the wrong direction.'],
+    pillar: { key: 'coherence', name: 'Coherence', emoji: '◆', quote: '"He embodies who he claims to be."',
+      reps: [
+        { id: 'co1', text: 'Catch one moment of performing for image. Do the unwatched action instead.', cue: 'The room is empty. Be the same man.', why: 'Coherence is built when no one is watching. Performance erodes the foundation.' },
+        { id: 'co2', text: 'Match one private behavior to a public standard you hold.', cue: 'Where do you let the standard slip?', why: 'Hypocrisy is the slow-acting poison. Close the gap deliberately.' },
+        { id: 'co3', text: 'Refuse one small image-protecting lie or half-truth.', cue: 'The accurate thing, not the flattering one.', why: 'Each unsaid truth compounds. Each spoken one builds self-trust.' }
+      ]
+    }
+  },
+  {
+    letter: 'B', name: 'Capacity Over Comfort',
+    quote: '"Comfort is a tool, not a lifestyle."',
+    body: 'Choose what increases long-term capacity. Tolerate discomfort without drama. Comfort is a tool, not a goal.',
+    points: ['Capacity is built by repeatedly choosing what comfort refuses.','The five minutes past wanting to quit is where capacity grows.','What you tolerate, you reinforce.'],
+    pillar: { key: 'capacity', name: 'Capacity', emoji: '⚡', quote: '"He chooses what increases his long-term capacity."',
+      reps: [
+        { id: 'cp1', text: 'Choose the harder option once today where comfort was the default.', cue: 'The path you wanted to skip. Take it.', why: 'Capacity is built by repeatedly choosing what comfort refuses.' },
+        { id: 'cp2', text: 'Stay with one uncomfortable task five minutes past wanting to quit.', cue: "The edge is the lesson. Don't bail.", why: 'The five minutes past wanting to quit is where capacity grows. Everything before is maintenance.' },
+        { id: 'cp3', text: 'Name one comfort that is quietly costing you. Reduce it today.', cue: 'Comfort masquerading as need.', why: 'What you tolerate, you reinforce. The comfort is teaching you to need it.' }
+      ]
+    }
+  },
+  {
+    letter: 'C', name: 'Truth Over Ego',
+    quote: '"He can be wrong without collapsing."',
+    body: 'Prefer accurate self-assessment over flattering narratives. Learn faster by not defending identity.',
+    points: ['The ability to admit error without collapse is the foundation of learning.','You cannot fix what you refuse to see.','Stories protect identity. Truth builds capacity.'],
+    pillar: { key: 'truth', name: 'Truth', emoji: '⊙', quote: '"Accurate self-assessment over flattering narratives."',
+      reps: [
+        { id: 'tr1', text: 'Admit one thing you were wrong about. No softening.', cue: 'Just say it. Without context. Without justification.', why: 'The ability to admit error without collapse is the foundation of learning.' },
+        { id: 'tr2', text: "Ask one person for honest feedback you've been avoiding.", cue: 'The feedback you fear is the feedback you need.', why: 'You cannot fix what you refuse to see. Others see it.' },
+        { id: 'tr3', text: 'Name one flattering story you tell yourself. Then tell yourself the truer one.', cue: 'The narrative is comfortable. The truth is useful.', why: 'Stories protect identity. Truth builds capacity.' }
+      ]
+    }
+  },
+  {
+    letter: 'D', name: 'Responsibility Over Blame',
+    quote: '"He does not speak like a victim."',
+    body: 'Assume agency even when outcomes were unfair. Never outsource accountability.',
+    points: ['Language shapes posture. Victim language locks the body into helplessness.','Ownership is the only door agency walks through.',"Responsibility isn't felt — it's built into the structure of your days."],
+    pillar: { key: 'agency', name: 'Agency', emoji: '◈', quote: '"He assumes agency even when outcomes were unfair."',
+      reps: [
+        { id: 'ag1', text: 'Catch one piece of victim language. Reframe it in agency.', cue: '"They made me…" → "I chose to…"', why: 'Language shapes posture. Victim language locks the body into helplessness.' },
+        { id: 'ag2', text: "Take ownership of one thing you've been blaming on circumstances.", cue: 'Even if 90% was outside your control, own the 10% that was yours.', why: 'Ownership is the only door agency walks through.' },
+        { id: 'ag3', text: 'Make one structural choice that gives your future self options.', cue: 'Set up the path. Then walk it.', why: "Responsibility isn't felt — it's built into the structure of your days." }
+      ]
+    }
+  },
+  {
+    letter: 'E', name: 'Discipline Is Freedom',
+    quote: '"He treats self-control as liberation."',
+    body: 'Structure now means options later. Routines reduce daily negotiation.',
+    points: ['Self-respect lives in kept promises to yourself. Nowhere else.','Every saved negotiation is willpower banked for what matters.',"Discipline shows up when motivation doesn't. That's the whole point."],
+    pillar: { key: 'structure', name: 'Structure', emoji: '◇', quote: '"Routines reduce negotiation."',
+      reps: [
+        { id: 'st1', text: 'Keep one small promise to yourself that you usually negotiate around.', cue: "The thing you've been talking yourself out of.", why: 'Self-respect lives in kept promises to yourself. Nowhere else.' },
+        { id: 'st2', text: 'Build one piece of structure that removes a daily choice.', cue: 'Pre-decide. Future you will thank present you.', why: 'Every saved negotiation is willpower banked for what matters.' },
+        { id: 'st3', text: "Show up to one thing on time, prepared. Especially if you don't feel like it.", cue: "Reliability is built in the moments you don't want to.", why: "Discipline shows up when motivation doesn't. That's the whole point." }
+      ]
+    }
+  },
+  {
+    letter: 'F', name: 'Love Requires Strength',
+    quote: '"He does not chase; he chooses."',
+    body: "Tenderness as choice, not dependency. Don't confuse neediness with intimacy.",
+    points: ['Love is steady attention. Distraction is the opposite of love.',"The man who can't say no can't truly say yes.",'Neediness empties love. Steadiness fills it.'],
+    pillar: { key: 'steadiness', name: 'Steadiness', emoji: '◉', quote: '"He does not chase; he chooses."',
+      reps: [
+        { id: 'sd1', text: 'One conversation with full presence — phone away, no agenda.', cue: 'Presence is the most expensive thing you can give.', why: 'Love is steady attention. Distraction is the opposite of love.' },
+        { id: 'sd2', text: "Hold one boundary you'd normally negotiate to keep peace.", cue: 'Boundaries are kindness with consequences.', why: "The man who can't say no can't truly say yes." },
+        { id: 'sd3', text: 'No chasing, pleading, or over-explaining today.', cue: "Invite. Don't beg. Choose. Don't chase.", why: 'Neediness empties love. Steadiness fills it.' }
+      ]
+    }
+  },
+  {
+    letter: 'G', name: 'God Over Self-Worship',
+    quote: '"Pride is the enemy in disguise."',
+    body: 'Faith as alignment, not bypass. Pride is the enemy in disguise. Humility before something larger keeps the ego in scale.',
+    points: ['Humility before something larger keeps the ego in scale.','Pride blinds. Humility sees.','Service realigns you to something bigger than yourself.'],
+    pillar: { key: 'humility', name: 'Humility', emoji: '◎', quote: '"Pride is the enemy in disguise."',
+      reps: [
+        { id: 'hu1', text: 'Take one moment of prayer, silence, or reflection. No phone, no input.', cue: 'Be small for a moment. Then choose well.', why: 'Humility before something larger keeps the ego in scale.' },
+        { id: 'hu2', text: 'Catch one moment of pride. Name it. Choose service instead.', cue: 'Pride disguises itself as confidence. Watch for it.', why: "Pride blinds. Humility sees. You can't fix what pride won't let you see." },
+        { id: 'hu3', text: 'Give value to one person today expecting nothing back.', cue: 'Service from strength, not for show.', why: 'Service realigns you to something bigger than yourself.' }
+      ]
+    }
+  }
+];
+
+const EMOTIONAL_PILLAR = {
+  key: 'emotional', name: 'Emotional Governance', emoji: '⚖️',
+  quote: '"Feelings are data, not directives."',
+  reps: [
+    { id: 'e1', text: 'Notice and name one emotion before reacting to it.', cue: 'Pause. Name accurately. Then choose.', why: 'You cannot govern what you have not named. Naming is the first act of self-mastery.' },
+    { id: 'e2', text: 'Audit your inner monologue — no victim language, no self-insult.', cue: 'Catch one negative loop. Reframe in clean truth.', why: 'How you speak to yourself sets the ceiling for how you act. Self-talk is self-architecture.' },
+    { id: 'e3', text: 'One moment of restraint where reaction was easy.', cue: 'Unsent message. Withheld retort. Chosen silence.', why: 'The reactive man is governed by impulse. The chosen pause is where you reclaim authorship.' },
+    { id: 'e4', text: 'Keep one small promise to yourself, on time.', cue: 'Self-respect is built here. Nowhere else.', why: 'Every kept promise is evidence to yourself that your word means something — including to you.' },
+    { id: 'e5', text: 'Sit with one uncomfortable emotion for 60 seconds without distraction.', cue: 'No phone. No food. No escape. Just feel it.', why: 'The emotions you flee from run your life. The ones you stay with become information.' },
+    { id: 'e6', text: 'Take one breath before responding to something charged.', cue: 'One breath. The reactive man does not have it. You do.', why: 'The space between trigger and response is where freedom lives. Make it wider on purpose.' },
+    { id: 'e7', text: "Choose one feeling you're acting from. Decide if you trust it as direction.", cue: 'Feelings are data, not directives.', why: 'Some feelings are signal. Some are static. Distinguishing them is half the work.' }
+  ]
+};
+
+const state = {
+  reps: {}, alignment: {}, filters: {}, reflections: {}, tomorrow: {},
+  categories: [], cards: [], books: [], summaries: [],
+  reviewStats: { total: 0 }, chat: [],
+  week: { cycleIndex: 0, principleLetter: 'A', startedDate: TODAY, emotionalRepIds: null, pillarRepIds: null },
+  weeklyReviews: [],
+  meta: { firstVisit: true, contextOn: true }
+};
+
+const ICONS = ['📚','🧠','💡','📖','🎯','⚖️','🔬','🎨','💼','🌍','🧘','💪','💰','❤️','🛠️','🗣️','🎵','✍️','🏛️','⚔️','🌱','🔥','✦','♟️'];
+const KEYS = ['reps','alignment','filters','reflections','tomorrow','categories','cards','books','summaries','reviewStats','chat','week','weeklyReviews','meta'];
+
+// ============ WEEK HELPERS ============
+function getCurrentPrinciple() {
+  return PRINCIPLES.find(p => p.letter === state.week.principleLetter) || PRINCIPLES[0];
+}
+function getNextPrincipleLetter(current) {
+  const c = current || state.week.principleLetter;
+  const idx = PRINCIPLES.findIndex(p => p.letter === c);
+  return PRINCIPLES[(idx + 1) % PRINCIPLES.length].letter;
+}
+function pickWeekReps() {
+  const shuffled = [...EMOTIONAL_PILLAR.reps].sort(() => Math.random() - 0.5);
+  state.week.emotionalRepIds = shuffled.slice(0, 4).map(r => r.id);
+  state.week.pillarRepIds = getCurrentPrinciple().pillar.reps.map(r => r.id);
+}
+function getActiveRepStructure() {
+  const principle = getCurrentPrinciple();
+  const ids = state.week.emotionalRepIds || EMOTIONAL_PILLAR.reps.slice(0, 4).map(r => r.id);
+  const emotionalReps = ids.map(id => EMOTIONAL_PILLAR.reps.find(r => r.id === id)).filter(Boolean);
+  return { emotional: emotionalReps, pillar: principle.pillar.reps, principle };
+}
+function daysSinceWeekStart() {
+  const startDate = state.week.startedDate || TODAY;
+  const start = new Date(startDate);
+  const today = new Date(TODAY);
+  const diff = Math.floor((today - start) / DAY_MS);
+  return Math.max(0, diff);
+}
+function weeklyReviewDue() { return daysSinceWeekStart() >= 7; }
+function totalRepsToday() {
+  const s = getActiveRepStructure();
+  return s.emotional.length + s.pillar.length;
+}
+function repsDoneToday() { return Object.keys(state.reps[TODAY] || {}).length; }
+function foundationStrength7d() {
+  const s = getActiveRepStructure();
+  const maxPerDay = s.emotional.length + s.pillar.length;
+  let total = 0;
+  for (let i = 0; i < 7; i++) {
+    const d = new Date(); d.setDate(d.getDate() - i);
+    const ds = d.toISOString().split('T')[0];
+    total += state.reps[ds] ? Object.keys(state.reps[ds]).length : 0;
+  }
+  const ratio = total / (7 * maxPerDay);
+  if (ratio >= 0.75) return 'Strong';
+  if (ratio >= 0.5) return 'Steady';
+  if (ratio >= 0.25) return 'Wavering';
+  if (ratio > 0) return 'Breaking';
+  return 'Settling';
+}
+
+async function loadState() {
+  for (const k of KEYS) {
+    try {
+      const r = await window.storage.get('os:' + k);
+      if (r && r.value) state[k] = JSON.parse(r.value);
+    } catch (e) {}
+  }
+  if (state.categories.length === 0) {
+    state.categories = [
+      { id: 'general', name: 'General', icon: '🧠', created: NOW },
+      { id: 'philosophy', name: 'Philosophy', icon: '🏛️', created: NOW },
+      { id: 'language', name: 'Language', icon: '🗣️', created: NOW },
+    ];
+    save('categories');
+  }
+  if (!state.week.emotionalRepIds || state.week.emotionalRepIds.length === 0) {
+    pickWeekReps(); save('week');
+  }
+  if (state.meta.firstVisit) {
+    setTimeout(() => document.getElementById('help-modal').classList.add('show'), 400);
+  }
+  renderAll();
+}
+
+async function save(key) {
+  try {
+    await window.storage.set('os:' + key, JSON.stringify(state[key]));
+    toast('Saved');
+  } catch (e) { console.error(e); }
+}
+
+// ============ TOAST ============
+let toastTimer;
+function toast(text) {
+  const el = document.getElementById('toast');
+  document.getElementById('toast-text').textContent = text;
+  el.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => el.classList.remove('show'), 1400);
+}
+
+// ============ UTILS ============
+function uid() { return Math.random().toString(36).slice(2) + Date.now().toString(36); }
+function escapeHtml(s) {
+  if (s === null || s === undefined) return '';
+  return String(s).replace(/[&<>"']/g, m => ({
+    '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+  })[m]);
+}
+function dueCount(categoryId = null) {
+  return state.cards.filter(c =>
+    (categoryId === null || c.categoryId === categoryId) && c.due <= Date.now()
+  ).length;
+}
+function categoryCardCount(categoryId) {
+  return state.cards.filter(c => c.categoryId === categoryId).length;
+}
+function getCategoryById(id) { return state.categories.find(c => c.id === id); }
+
+// ============ GREETING / DATE ============
+function setDateGreeting() {
+  const now = new Date();
+  document.getElementById('date-pill').textContent =
+    now.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
+  const hour = now.getHours();
+  let g = 'Good morning';
+  if (hour >= 12 && hour < 17) g = 'Good afternoon';
+  else if (hour >= 17) g = 'Good evening';
+  document.getElementById('greeting').textContent = g;
+}
+
+// ============ NAV ============
+let currentView = 'today';
+let currentCategoryId = null;
+let mindMode = 'home';
+
+document.querySelectorAll('.tab').forEach(tab => {
+  tab.addEventListener('click', () => {
+    const view = tab.dataset.view;
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+    tab.classList.add('active');
+    document.getElementById('view-' + view).classList.add('active');
+    currentView = view;
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  });
+});
+
+// ============ PRINCIPLE BANNER ============
+document.getElementById('principle-banner').addEventListener('click', openPrincipalDetailModal);
+
+function renderPrincipleBanner() {
+  const p = getCurrentPrinciple();
+  const day = daysSinceWeekStart() + 1;
+  const weekNum = state.week.cycleIndex + 1;
+  document.getElementById('pb-letter').textContent = p.letter;
+  document.getElementById('pb-meta').textContent = `Week ${weekNum} of 7 · Day ${day}`;
+  document.getElementById('pb-name').textContent = p.name;
+  document.getElementById('pb-quote').textContent = p.quote;
+}
+
+function openPrincipalDetailModal() {
+  const p = getCurrentPrinciple();
+  const day = daysSinceWeekStart() + 1;
+  const weekNum = state.week.cycleIndex + 1;
+  document.getElementById('pd-letter').textContent = p.letter;
+  document.getElementById('pd-meta').textContent = `Week ${weekNum} of 7 · Day ${day} · This week's principle`;
+  document.getElementById('pd-name').textContent = p.name;
+  document.getElementById('pd-quote').textContent = p.quote;
+  document.getElementById('pd-body').textContent = p.body;
+  const pointsEl = document.getElementById('pd-points');
+  pointsEl.innerHTML = '';
+  (p.points || []).forEach(pt => {
+    const li = document.createElement('li'); li.textContent = pt; pointsEl.appendChild(li);
+  });
+  const repsEl = document.getElementById('pd-reps');
+  repsEl.innerHTML = '';
+  p.pillar.reps.forEach(rep => {
+    const el = document.createElement('div');
+    el.className = 'principle-detail-rep';
+    el.innerHTML = `${escapeHtml(rep.text)}<em>${escapeHtml(rep.cue)}</em>`;
+    repsEl.appendChild(el);
+  });
+  document.getElementById('principle-modal').classList.add('show');
+}
+document.getElementById('principle-modal').addEventListener('click', (e) => {
+  if (e.target.id === 'principle-modal') document.getElementById('principle-modal').classList.remove('show');
+});
+
+// Tracks which pillar keys the user has manually collapsed
+const collapsedPillars = new Set();
+
+// ============ TODAY RENDER ============
+const RING_CIRC = 276.46;
+
+function renderRing() {
+  const done = repsDoneToday();
+  const total = totalRepsToday();
+  const pct = total > 0 ? Math.round((done / total) * 100) : 0;
+  document.getElementById('ring-fill').style.strokeDashoffset = RING_CIRC - (RING_CIRC * pct / 100);
+  const states = ['Begin.', 'In motion.', 'Building.', 'Stacking evidence.', 'Aligning.', 'Coherent.', 'In tune.'];
+  const idx = Math.min(Math.floor((pct / 100) * (states.length - 1)), states.length - 1);
+  document.getElementById('ring-state-main').textContent = states[idx];
+}
+
+function renderQuickStats() {
+  document.getElementById('qs-reps').textContent = `${repsDoneToday()} / ${totalRepsToday()}`;
+  document.getElementById('qs-foundation').textContent = foundationStrength7d();
+}
+
+function renderResonanceTitle() {
+  const p = getCurrentPrinciple();
+  document.getElementById('resonance-title').textContent = `How well did you live inside ${p.name} today?`;
+  document.getElementById('win-title').textContent = `Where did you embody ${p.name} today?`;
+}
+
+function renderPillars() {
+  const container = document.getElementById('pillars-container');
+  container.innerHTML = '';
+  const { emotional, pillar, principle } = getActiveRepStructure();
+  const todayReps = state.reps[TODAY] || {};
+
+  function buildPillar(pillarObj, reps, extraClass, tagLabel) {
+    const done = reps.filter(r => todayReps[r.id]).length;
+    const total = reps.length;
+    const complete = done === total;
+    const isOpen = !collapsedPillars.has(pillarObj.key);
+    const div = document.createElement('div');
+    div.className = `pillar${isOpen ? ' open' : ''}${extraClass ? ' ' + extraClass : ''}${complete ? ' complete' : ''}`;
+    const tagHtml = tagLabel ? `<span class="pillar-tag">${escapeHtml(tagLabel)}</span>` : '';
+    div.innerHTML = `
+      <div class="pillar-head">
+        <div class="pillar-info">
+          <div class="pillar-name"><span class="pillar-emoji">${pillarObj.emoji}</span> ${escapeHtml(pillarObj.name)}${tagHtml}</div>
+          <div class="pillar-quote">${escapeHtml(pillarObj.quote)}</div>
+        </div>
+        <div class="pillar-progress">
+          <div class="pillar-count"><strong><span class="p-done">${done}</span></strong>/<span class="p-total">${total}</span></div>
+          <div class="pillar-bar"><div class="pillar-bar-fill" style="width:${total > 0 ? Math.round(done/total*100) : 0}%"></div></div>
+          <svg class="chevron" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
+        </div>
+      </div>
+      <div class="reps-inner"></div>
+      ${complete ? `<div class="pillar-complete-banner">${escapeHtml(pillarObj.quote)}</div>` : ''}
+    `;
+    const repsInner = div.querySelector('.reps-inner');
+    repsInner.className = 'reps';
+    reps.forEach(rep => {
+      const isDone = !!todayReps[rep.id];
+      const repEl = document.createElement('div');
+      repEl.className = `rep${isDone ? ' done' : ''}`;
+      repEl.dataset.id = rep.id;
+      repEl.innerHTML = `
+        <div class="check"></div>
+        <div class="rep-body">
+          <div class="rep-text">${escapeHtml(rep.text)}</div>
+          <div class="rep-cue">${escapeHtml(rep.cue)}</div>
+          <div class="rep-why"><strong>Why</strong>${escapeHtml(rep.why)}</div>
+        </div>
+      `;
+      repsInner.appendChild(repEl);
+    });
+    div.querySelector('.pillar-head').addEventListener('click', () => {
+      div.classList.toggle('open');
+      if (div.classList.contains('open')) collapsedPillars.delete(pillarObj.key);
+      else collapsedPillars.add(pillarObj.key);
+    });
+    container.appendChild(div);
+  }
+
+  buildPillar(EMOTIONAL_PILLAR, emotional, '', null);
+  buildPillar(principle.pillar, pillar, 'principle-pillar', `Principle ${principle.letter}`);
+  document.getElementById('foundation-sect-meta').textContent = `2 Pillars · ${emotional.length + pillar.length} Reps`;
+}
+
+function renderWeeklyPrompt() {
+  const container = document.getElementById('review-prompt-container');
+  if (weeklyReviewDue()) {
+    const p = getCurrentPrinciple();
+    container.innerHTML = `
+      <div class="review-prompt-card">
+        <div class="rpc-eyebrow">Week's End</div>
+        <div class="rpc-title">The principle awaits closing.</div>
+        <div class="rpc-sub">Complete the weekly review to reflect on Principle ${escapeHtml(p.letter)}: ${escapeHtml(p.name)} and unlock the next.</div>
+        <button class="rpc-btn" id="rpc-open-btn">Begin weekly review →</button>
+      </div>`;
+    document.getElementById('rpc-open-btn').onclick = openWeeklyReview;
+  } else {
+    container.innerHTML = '';
+  }
+}
+
+function renderToday() {
+  renderRing();
+  renderPillars();
+  renderQuickStats();
+  renderAlignment();
+  renderFilters();
+  renderReflections();
+  renderPrincipleBanner();
+  renderResonanceTitle();
+  renderWeeklyPrompt();
+}
+
+// ============ REP CLICK (event delegation) ============
+document.getElementById('pillars-container').addEventListener('click', (e) => {
+  const rep = e.target.closest('.rep');
+  if (!rep || !rep.dataset.id) return;
+  const id = rep.dataset.id;
+  if (!state.reps[TODAY]) state.reps[TODAY] = {};
+  if (state.reps[TODAY][id]) delete state.reps[TODAY][id];
+  else state.reps[TODAY][id] = true;
+  renderToday();
+  save('reps');
+});
+
+document.querySelectorAll('#scale-alignment .scale-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    state.alignment[TODAY] = parseInt(btn.dataset.val);
+    renderAlignment();
+    save('alignment');
+  });
+});
+
+document.querySelectorAll('.yn').forEach(yn => {
+  const q = yn.dataset.q;
+  yn.querySelectorAll('.yn-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      if (!state.filters[TODAY]) state.filters[TODAY] = {};
+      const val = btn.dataset.val;
+      if (state.filters[TODAY][q] === val) delete state.filters[TODAY][q];
+      else state.filters[TODAY][q] = val;
+      renderFilters();
+      save('filters');
+    });
+  });
+});
+
+function bindReflect(elId, key) {
+  const el = document.getElementById(elId);
+  el.addEventListener('input', () => {
+    if (!state.reflections[TODAY]) state.reflections[TODAY] = {};
+    state.reflections[TODAY][key] = el.value;
+  });
+  el.addEventListener('blur', () => save('reflections'));
+}
+bindReflect('reflect-win', 'win');
+bindReflect('reflect-friction', 'friction');
+
+const tomEl = document.getElementById('tomorrow-input');
+tomEl.addEventListener('input', () => { state.tomorrow[TODAY] = tomEl.value; });
+tomEl.addEventListener('blur', () => save('tomorrow'));
+
+function renderAlignment() {
+  const val = state.alignment[TODAY];
+  document.querySelectorAll('#scale-alignment .scale-btn').forEach(btn => {
+    btn.classList.toggle('selected', parseInt(btn.dataset.val) === val);
+  });
+}
+
+function renderFilters() {
+  document.querySelectorAll('.yn').forEach(yn => {
+    const q = yn.dataset.q;
+    const val = state.filters[TODAY] ? state.filters[TODAY][q] : null;
+    yn.querySelectorAll('.yn-btn').forEach(btn => {
+      btn.classList.toggle('selected', btn.dataset.val === val);
+    });
+  });
+}
+
+function renderReflections() {
+  const r = state.reflections[TODAY] || {};
+  document.getElementById('reflect-win').value = r.win || '';
+  document.getElementById('reflect-friction').value = r.friction || '';
+  document.getElementById('tomorrow-input').value = state.tomorrow[TODAY] || '';
+}
+
+// ============ MIND VIEW ============
+function showMindHome() {
+  document.getElementById('mind-home').style.display = 'block';
+  document.getElementById('mind-category').style.display = 'none';
+  mindMode = 'home';
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function showMindCategory(catId) {
+  currentCategoryId = catId;
+  document.getElementById('mind-home').style.display = 'none';
+  document.getElementById('mind-category').style.display = 'block';
+  mindMode = 'category';
+  renderCategoryDetail();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+document.getElementById('cat-back-btn').onclick = showMindHome;
+
+function renderLibraryStats() {
+  document.getElementById('stat-due').textContent = dueCount();
+  document.getElementById('stat-cards').textContent = state.cards.length;
+  document.getElementById('stat-reviewed').textContent = state.reviewStats.total || 0;
+}
+
+function renderReviewBanner() {
+  const banner = document.getElementById('review-banner');
+  const due = dueCount();
+  if (state.cards.length === 0) {
+    banner.classList.add('empty');
+    document.getElementById('rb-eyebrow').textContent = "Start the practice";
+    document.getElementById('rb-title').textContent = "Your library is empty.";
+    document.getElementById('rb-sub').textContent = "Create your first flashcard to begin.";
+    document.getElementById('rb-cta-text').textContent = "Add a card";
+    banner.onclick = () => openAddModal('card');
+  } else if (due === 0) {
+    banner.classList.add('empty');
+    document.getElementById('rb-eyebrow').textContent = "All clear";
+    document.getElementById('rb-title').textContent = "Nothing due today.";
+    document.getElementById('rb-sub').textContent = "Come back tomorrow, or add more cards.";
+    document.getElementById('rb-cta-text').textContent = "Add a card";
+    banner.onclick = () => openAddModal('card');
+  } else {
+    banner.classList.remove('empty');
+    document.getElementById('rb-eyebrow').textContent = "Today's review";
+    document.getElementById('rb-title').textContent = `${due} card${due === 1 ? '' : 's'} due.`;
+    document.getElementById('rb-sub').textContent = "Each review deepens the trace. Compounding by design.";
+    document.getElementById('rb-cta-text').textContent = "Begin review";
+    banner.onclick = () => startReview(null);
+  }
+}
+
+function renderCategories() {
+  const grid = document.getElementById('cat-grid');
+  grid.innerHTML = '';
+  state.categories.forEach(cat => {
+    const count = categoryCardCount(cat.id);
+    const due = dueCount(cat.id);
+    const el = document.createElement('div');
+    el.className = 'cat-card';
+    el.innerHTML = `
+      <div>
+        <div class="cat-icon">${cat.icon}</div>
+        <div class="cat-name">${escapeHtml(cat.name)}</div>
+      </div>
+      <div class="cat-stats">
+        <div class="cat-count"><strong>${count}</strong> ${count === 1 ? 'card' : 'cards'}</div>
+        ${due > 0 ? `<div class="cat-due">${due}</div>` : ''}
+      </div>
+    `;
+    el.onclick = () => showMindCategory(cat.id);
+    grid.appendChild(el);
+  });
+  const addCard = document.createElement('div');
+  addCard.className = 'cat-card add';
+  addCard.innerHTML = `<div class="cat-icon">+</div><div style="font-size: 12px;">New category</div>`;
+  addCard.onclick = () => openCategoryModal();
+  grid.appendChild(addCard);
+  document.getElementById('cat-meta').textContent =
+    state.categories.length + ' collection' + (state.categories.length === 1 ? '' : 's');
+}
+
+function renderBooks() {
+  const container = document.getElementById('books-container');
+  if (state.books.length === 0) {
+    container.innerHTML = `
+      <div class="empty-state">
+        <div class="empty-state-icon">📚</div>
+        <div class="empty-state-text">No books yet.</div>
+        <div class="empty-state-sub">Track what you're reading, queueing, or finished.</div>
+      </div>`;
+    return;
+  }
+  container.innerHTML = '';
+  const sorted = [...state.books].sort((a, b) => {
+    const order = { reading: 0, queued: 1, finished: 2 };
+    return (order[a.status] || 3) - (order[b.status] || 3);
+  });
+  sorted.forEach(book => {
+    const el = document.createElement('div');
+    el.className = 'book-item';
+    const firstChar = (book.title || '?').charAt(0).toUpperCase();
+    el.innerHTML = `
+      <div class="book-cover">${firstChar}</div>
+      <div class="book-info">
+        <div class="book-title">${escapeHtml(book.title)}</div>
+        <div class="book-author">${escapeHtml(book.author || '—')}</div>
+        <div class="book-status ${book.status}">${book.status}</div>
+      </div>
+    `;
+    el.onclick = () => openDetail('book', book.id);
+    container.appendChild(el);
+  });
+}
+
+function renderSummaries() {
+  const container = document.getElementById('summaries-container');
+  if (state.summaries.length === 0) {
+    container.innerHTML = `
+      <div class="empty-state">
+        <div class="empty-state-icon">📝</div>
+        <div class="empty-state-text">No summaries yet.</div>
+        <div class="empty-state-sub">Distill key ideas from anything you read.</div>
+      </div>`;
+    return;
+  }
+  container.innerHTML = '';
+  [...state.summaries].reverse().forEach(s => {
+    const el = document.createElement('div');
+    el.className = 'summary-item';
+    el.innerHTML = `
+      <div class="summary-title">${escapeHtml(s.title)}</div>
+      ${s.source ? `<div class="summary-source">${escapeHtml(s.source)}</div>` : ''}
+      <div class="summary-preview">${escapeHtml(s.content)}</div>
+    `;
+    el.onclick = () => openDetail('summary', s.id);
+    container.appendChild(el);
+  });
+}
+
+function renderCategoryDetail() {
+  const cat = getCategoryById(currentCategoryId);
+  if (!cat) { showMindHome(); return; }
+  document.getElementById('cat-d-icon').textContent = cat.icon;
+  document.getElementById('cat-d-name').textContent = cat.name;
+  const cards = state.cards.filter(c => c.categoryId === cat.id);
+  const due = cards.filter(c => c.due <= Date.now()).length;
+  document.getElementById('cat-d-meta').textContent =
+    `${cards.length} ${cards.length === 1 ? 'card' : 'cards'} · ${due} due`;
+  const list = document.getElementById('cat-cards-list');
+  list.innerHTML = '';
+  if (cards.length === 0) {
+    document.getElementById('cat-empty').style.display = 'block';
+  } else {
+    document.getElementById('cat-empty').style.display = 'none';
+    cards.forEach(card => {
+      const el = document.createElement('div');
+      el.className = 'card-list-item';
+      const isDue = card.due <= Date.now();
+      const dueText = isDue ? 'Due now' : `Due in ${Math.ceil((card.due - Date.now()) / DAY_MS)}d`;
+      el.innerHTML = `
+        <div class="card-list-front">${escapeHtml(card.front)}</div>
+        <div class="card-list-back">${escapeHtml(card.back)}</div>
+        <div class="card-list-meta">
+          <span class="${isDue ? 'card-due-now' : ''}">${dueText}</span>
+          <span>Reviewed ${card.repetitions || 0}×</span>
+        </div>
+      `;
+      el.onclick = () => openDetail('card', card.id);
+      list.appendChild(el);
+    });
+  }
+}
+
+document.getElementById('cat-review-btn').onclick = () => {
+  if (categoryCardCount(currentCategoryId) === 0) { toast('No cards yet'); return; }
+  startReview(currentCategoryId);
+};
+document.getElementById('cat-add-card-btn').onclick = () => {
+  selectedCardCategory = currentCategoryId;
+  openAddModal('card');
+};
+document.getElementById('cat-edit-btn').onclick = () => openCategoryModal(currentCategoryId);
+document.getElementById('add-book-btn').onclick = () => openAddModal('book');
+document.getElementById('add-summary-btn').onclick = () => openAddModal('summary');
+document.getElementById('open-add-modal-btn').onclick = () => openAddModal('card');
+
+// ============ ADD MODAL ============
+let selectedCardCategory = null;
+
+function openAddModal(pane) {
+  // Switch pane
+  document.querySelectorAll('.add-tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.add-pane').forEach(p => p.classList.remove('active'));
+  document.querySelector(`.add-tab[data-pane="${pane}"]`).classList.add('active');
+  document.getElementById(`pane-${pane}`).classList.add('active');
+
+  if (pane === 'card') renderCardCategoryPicker();
+  document.getElementById('add-modal').classList.add('show');
+
+  setTimeout(() => {
+    if (pane === 'card') document.getElementById('card-front-input').focus();
+    else if (pane === 'book') document.getElementById('book-title-input').focus();
+    else if (pane === 'summary') document.getElementById('summary-title-input').focus();
+  }, 200);
+}
+
+function closeAddModal() {
+  document.getElementById('add-modal').classList.remove('show');
+}
+
+document.querySelectorAll('.add-tab').forEach(t => {
+  t.onclick = () => {
+    document.querySelectorAll('.add-tab').forEach(x => x.classList.remove('active'));
+    document.querySelectorAll('.add-pane').forEach(p => p.classList.remove('active'));
+    t.classList.add('active');
+    document.getElementById('pane-' + t.dataset.pane).classList.add('active');
+    if (t.dataset.pane === 'card') renderCardCategoryPicker();
+  };
+});
+
+document.getElementById('add-modal-close').onclick = closeAddModal;
+document.getElementById('add-modal-close-2').onclick = closeAddModal;
+document.getElementById('add-modal-close-3').onclick = closeAddModal;
+document.getElementById('add-modal').onclick = (e) => {
+  if (e.target.id === 'add-modal') closeAddModal();
+};
+
+function renderCardCategoryPicker() {
+  const picker = document.getElementById('card-cat-picker');
+  picker.innerHTML = '';
+  state.categories.forEach(cat => {
+    const chip = document.createElement('div');
+    chip.className = 'cat-chip';
+    chip.dataset.catId = cat.id;
+    if (cat.id === selectedCardCategory) chip.classList.add('selected');
+    chip.innerHTML = `<span>${cat.icon}</span> ${escapeHtml(cat.name)}`;
+    chip.onclick = () => {
+      picker.querySelectorAll('.cat-chip').forEach(c => c.classList.remove('selected'));
+      chip.classList.add('selected');
+      selectedCardCategory = cat.id;
+    };
+    picker.appendChild(chip);
+  });
+  const newChip = document.createElement('div');
+  newChip.className = 'cat-chip cat-chip-new';
+  newChip.innerHTML = '<span>+</span> New';
+  newChip.onclick = () => {
+    closeAddModal();
+    openCategoryModal();
+  };
+  picker.appendChild(newChip);
+  if (!selectedCardCategory && state.categories.length > 0) {
+    selectedCardCategory = state.categories[0].id;
+    const first = picker.querySelector('.cat-chip');
+    if (first) first.classList.add('selected');
+  }
+}
+
+document.getElementById('save-card-btn').onclick = () => {
+  const front = document.getElementById('card-front-input').value.trim();
+  const back = document.getElementById('card-back-input').value.trim();
+  if (!front || !back) { toast('Front & back required'); return; }
+  if (!selectedCardCategory) { toast('Pick a category'); return; }
+  state.cards.push({
+    id: uid(), front, back,
+    categoryId: selectedCardCategory,
+    due: Date.now(), interval: 0, ease: 2.5,
+    repetitions: 0, lapses: 0, created: Date.now()
+  });
+  save('cards');
+  document.getElementById('card-front-input').value = '';
+  document.getElementById('card-back-input').value = '';
+  toast('Card saved');
+  document.getElementById('card-front-input').focus();
+  renderAll();
+};
+
+document.getElementById('save-book-btn').onclick = () => {
+  const title = document.getElementById('book-title-input').value.trim();
+  if (!title) { toast('Title required'); return; }
+  state.books.push({
+    id: uid(), title,
+    author: document.getElementById('book-author-input').value.trim(),
+    status: document.getElementById('book-status-input').value,
+    notes: document.getElementById('book-notes-input').value.trim(),
+    created: Date.now()
+  });
+  save('books');
+  document.getElementById('book-title-input').value = '';
+  document.getElementById('book-author-input').value = '';
+  document.getElementById('book-notes-input').value = '';
+  toast('Book added');
+  renderAll();
+  closeAddModal();
+};
+
+document.getElementById('save-summary-btn').onclick = () => {
+  const title = document.getElementById('summary-title-input').value.trim();
+  const content = document.getElementById('summary-content-input').value.trim();
+  if (!title || !content) { toast('Title & content required'); return; }
+  state.summaries.push({
+    id: uid(), title,
+    source: document.getElementById('summary-source-input').value.trim(),
+    content, created: Date.now()
+  });
+  save('summaries');
+  document.getElementById('summary-title-input').value = '';
+  document.getElementById('summary-source-input').value = '';
+  document.getElementById('summary-content-input').value = '';
+  toast('Summary saved');
+  renderAll();
+  closeAddModal();
+};
+
+// ============ CATEGORY MODAL ============
+let editingCategoryId = null;
+let selectedIcon = '🧠';
+
+function renderIconPicker() {
+  const picker = document.getElementById('icon-picker');
+  picker.innerHTML = '';
+  ICONS.forEach(ic => {
+    const el = document.createElement('div');
+    el.className = 'icon-opt';
+    if (ic === selectedIcon) el.classList.add('selected');
+    el.textContent = ic;
+    el.onclick = () => {
+      selectedIcon = ic;
+      picker.querySelectorAll('.icon-opt').forEach(o => o.classList.remove('selected'));
+      el.classList.add('selected');
+    };
+    picker.appendChild(el);
+  });
+}
+
+function openCategoryModal(catId = null) {
+  editingCategoryId = catId;
+  if (catId) {
+    const cat = getCategoryById(catId);
+    document.getElementById('cat-modal-eyebrow').textContent = 'Edit category';
+    document.getElementById('cat-modal-title').textContent = 'Edit ' + cat.name;
+    document.getElementById('cat-name-input').value = cat.name;
+    selectedIcon = cat.icon;
+    document.getElementById('cat-save-btn').textContent = 'Save';
+    document.getElementById('cat-delete-row').style.display = 'flex';
+  } else {
+    document.getElementById('cat-modal-eyebrow').textContent = 'New category';
+    document.getElementById('cat-modal-title').textContent = 'Create a category.';
+    document.getElementById('cat-name-input').value = '';
+    selectedIcon = '🧠';
+    document.getElementById('cat-save-btn').textContent = 'Create';
+    document.getElementById('cat-delete-row').style.display = 'none';
+  }
+  renderIconPicker();
+  document.getElementById('cat-modal').classList.add('show');
+  setTimeout(() => document.getElementById('cat-name-input').focus(), 200);
+}
+
+document.getElementById('cat-cancel-btn').onclick = () => {
+  document.getElementById('cat-modal').classList.remove('show');
+};
+document.getElementById('cat-save-btn').onclick = () => {
+  const name = document.getElementById('cat-name-input').value.trim();
+  if (!name) { toast('Name required'); return; }
+  if (editingCategoryId) {
+    const cat = getCategoryById(editingCategoryId);
+    cat.name = name; cat.icon = selectedIcon;
+  } else {
+    state.categories.push({
+      id: uid(), name, icon: selectedIcon, created: Date.now()
+    });
+  }
+  save('categories');
+  document.getElementById('cat-modal').classList.remove('show');
+  renderAll();
+  if (mindMode === 'category' && editingCategoryId === currentCategoryId) renderCategoryDetail();
+};
+document.getElementById('cat-delete-btn').onclick = () => {
+  if (!editingCategoryId) return;
+  const cat = getCategoryById(editingCategoryId);
+  const count = categoryCardCount(editingCategoryId);
+  if (!confirm(`Delete "${cat.name}" and all ${count} card${count === 1 ? '' : 's'}?\n\nThis cannot be undone.`)) return;
+  state.cards = state.cards.filter(c => c.categoryId !== editingCategoryId);
+  state.categories = state.categories.filter(c => c.id !== editingCategoryId);
+  save('categories'); save('cards');
+  document.getElementById('cat-modal').classList.remove('show');
+  showMindHome();
+};
+document.getElementById('cat-modal').onclick = (e) => {
+  if (e.target.id === 'cat-modal') document.getElementById('cat-modal').classList.remove('show');
+};
+
+// ============ DETAIL & EDIT ============
+let detailType, detailId, editingType, editingId;
+
+function openDetail(type, id) {
+  detailType = type; detailId = id;
+  let title = '', content = '', eyebrow = '';
+  if (type === 'card') {
+    const c = state.cards.find(x => x.id === id);
+    if (!c) return;
+    eyebrow = 'Card · ' + (getCategoryById(c.categoryId)?.name || 'Uncategorized');
+    title = c.front; content = c.back;
+  } else if (type === 'book') {
+    const b = state.books.find(x => x.id === id);
+    if (!b) return;
+    eyebrow = 'Book · ' + b.status;
+    title = b.title;
+    content = (b.author ? `by ${b.author}\n\n` : '') + (b.notes || '');
+  } else if (type === 'summary') {
+    const s = state.summaries.find(x => x.id === id);
+    if (!s) return;
+    eyebrow = s.source ? 'Summary · ' + s.source : 'Summary';
+    title = s.title; content = s.content;
+  }
+  document.getElementById('detail-eyebrow').textContent = eyebrow;
+  document.getElementById('detail-title').textContent = title;
+  document.getElementById('detail-content').textContent = content;
+  document.getElementById('detail-modal').classList.add('show');
+}
+
+document.getElementById('detail-close-btn').onclick = () =>
+  document.getElementById('detail-modal').classList.remove('show');
+document.getElementById('detail-modal').onclick = (e) => {
+  if (e.target.id === 'detail-modal') document.getElementById('detail-modal').classList.remove('show');
+};
+document.getElementById('detail-delete-btn').onclick = () => {
+  if (!confirm('Delete this? Cannot be undone.')) return;
+  if (detailType === 'card') state.cards = state.cards.filter(c => c.id !== detailId);
+  if (detailType === 'book') state.books = state.books.filter(c => c.id !== detailId);
+  if (detailType === 'summary') state.summaries = state.summaries.filter(c => c.id !== detailId);
+  save(detailType === 'card' ? 'cards' : detailType === 'book' ? 'books' : 'summaries');
+  document.getElementById('detail-modal').classList.remove('show');
+  renderAll();
+  if (mindMode === 'category') renderCategoryDetail();
+};
+document.getElementById('detail-edit-btn').onclick = () => {
+  document.getElementById('detail-modal').classList.remove('show');
+  openEdit(detailType, detailId);
+};
+
+function openEdit(type, id) {
+  editingType = type; editingId = id;
+  const fieldsEl = document.getElementById('edit-fields');
+  let html = '';
+  if (type === 'card') {
+    const c = state.cards.find(x => x.id === id);
+    if (!c) return;
+    document.getElementById('edit-title').textContent = 'Edit card';
+    html = `
+      <div class="field"><div class="field-label">Front</div><textarea id="edit-card-front" rows="3">${escapeHtml(c.front)}</textarea></div>
+      <div class="field"><div class="field-label">Back</div><textarea id="edit-card-back" rows="4">${escapeHtml(c.back)}</textarea></div>
+      <div class="field"><div class="field-label">Category</div>
+        <select id="edit-card-cat">
+          ${state.categories.map(cat => `<option value="${cat.id}" ${cat.id === c.categoryId ? 'selected' : ''}>${cat.icon} ${escapeHtml(cat.name)}</option>`).join('')}
+        </select>
+      </div>`;
+  } else if (type === 'book') {
+    const b = state.books.find(x => x.id === id);
+    if (!b) return;
+    document.getElementById('edit-title').textContent = 'Edit book';
+    html = `
+      <div class="field"><div class="field-label">Title</div><input id="edit-book-title" value="${escapeHtml(b.title)}"/></div>
+      <div class="field"><div class="field-label">Author</div><input id="edit-book-author" value="${escapeHtml(b.author || '')}"/></div>
+      <div class="field"><div class="field-label">Status</div>
+        <select id="edit-book-status">
+          <option value="queued" ${b.status === 'queued' ? 'selected' : ''}>Queued</option>
+          <option value="reading" ${b.status === 'reading' ? 'selected' : ''}>Reading</option>
+          <option value="finished" ${b.status === 'finished' ? 'selected' : ''}>Finished</option>
+        </select>
+      </div>
+      <div class="field"><div class="field-label">Notes</div><textarea id="edit-book-notes" rows="3">${escapeHtml(b.notes || '')}</textarea></div>`;
+  } else if (type === 'summary') {
+    const s = state.summaries.find(x => x.id === id);
+    if (!s) return;
+    document.getElementById('edit-title').textContent = 'Edit summary';
+    html = `
+      <div class="field"><div class="field-label">Title</div><input id="edit-summary-title" value="${escapeHtml(s.title)}"/></div>
+      <div class="field"><div class="field-label">Source</div><input id="edit-summary-source" value="${escapeHtml(s.source || '')}"/></div>
+      <div class="field"><div class="field-label">Content</div><textarea id="edit-summary-content" rows="8">${escapeHtml(s.content)}</textarea></div>`;
+  }
+  fieldsEl.innerHTML = html;
+  document.getElementById('edit-modal').classList.add('show');
+}
+
+document.getElementById('edit-cancel-btn').onclick = () =>
+  document.getElementById('edit-modal').classList.remove('show');
+document.getElementById('edit-modal').onclick = (e) => {
+  if (e.target.id === 'edit-modal') document.getElementById('edit-modal').classList.remove('show');
+};
+document.getElementById('edit-save-btn').onclick = () => {
+  if (editingType === 'card') {
+    const c = state.cards.find(x => x.id === editingId);
+    c.front = document.getElementById('edit-card-front').value.trim();
+    c.back = document.getElementById('edit-card-back').value.trim();
+    c.categoryId = document.getElementById('edit-card-cat').value;
+    save('cards');
+  } else if (editingType === 'book') {
+    const b = state.books.find(x => x.id === editingId);
+    b.title = document.getElementById('edit-book-title').value.trim();
+    b.author = document.getElementById('edit-book-author').value.trim();
+    b.status = document.getElementById('edit-book-status').value;
+    b.notes = document.getElementById('edit-book-notes').value.trim();
+    save('books');
+  } else if (editingType === 'summary') {
+    const s = state.summaries.find(x => x.id === editingId);
+    s.title = document.getElementById('edit-summary-title').value.trim();
+    s.source = document.getElementById('edit-summary-source').value.trim();
+    s.content = document.getElementById('edit-summary-content').value.trim();
+    save('summaries');
+  }
+  document.getElementById('edit-modal').classList.remove('show');
+  renderAll();
+  if (mindMode === 'category') renderCategoryDetail();
+  toast('Updated');
+};
+
+// ============ SPACED REPETITION ============
+function gradeCard(card, grade) {
+  card.repetitions = (card.repetitions || 0) + 1;
+  if (grade === 0) {
+    card.lapses = (card.lapses || 0) + 1;
+    card.interval = 0;
+    card.ease = Math.max(1.3, (card.ease || 2.5) - 0.2);
+    card.due = Date.now() + 60 * 1000;
+  } else {
+    if (card.repetitions === 1) card.interval = grade === 5 ? 4 : grade === 4 ? 1 : 0.5;
+    else if (card.repetitions === 2) card.interval = grade === 5 ? 7 : grade === 4 ? 3 : 1;
+    else {
+      const factor = grade === 5 ? 1.3 : grade === 4 ? 1 : 0.7;
+      card.interval = Math.max(1, Math.round((card.interval || 1) * (card.ease || 2.5) * factor));
+    }
+    card.ease = Math.max(1.3, Math.min(3.0, (card.ease || 2.5) + (grade === 5 ? 0.15 : grade === 4 ? 0 : -0.15)));
+    card.due = Date.now() + card.interval * DAY_MS;
+  }
+}
+
+function predictInterval(card, grade) {
+  const reps = (card.repetitions || 0) + 1;
+  if (grade === 0) return '<1m';
+  let d = 0;
+  if (reps === 1) d = grade === 5 ? 4 : grade === 4 ? 1 : 0.5;
+  else if (reps === 2) d = grade === 5 ? 7 : grade === 4 ? 3 : 1;
+  else {
+    const f = grade === 5 ? 1.3 : grade === 4 ? 1 : 0.7;
+    d = Math.max(1, Math.round((card.interval || 1) * (card.ease || 2.5) * f));
+  }
+  if (d < 1) return Math.round(d * 24) + 'h';
+  if (d < 30) return Math.round(d) + 'd';
+  if (d < 365) return Math.round(d / 30) + 'mo';
+  return Math.round(d / 365) + 'y';
+}
+
+// ============ REVIEW SESSION ============
+let reviewQueue = [], reviewIdx = 0, reviewCorrect = 0;
+
+function startReview(categoryId) {
+  let pool = state.cards.filter(c => c.due <= Date.now());
+  if (categoryId !== null) pool = pool.filter(c => c.categoryId === categoryId);
+  if (pool.length === 0) { toast('No cards due'); return; }
+  reviewQueue = pool.sort(() => Math.random() - 0.5);
+  reviewIdx = 0; reviewCorrect = 0;
+  const catName = categoryId ? getCategoryById(categoryId)?.name : 'All categories';
+  document.getElementById('review-cat-pill').textContent = catName;
+  document.getElementById('rp-total').textContent = reviewQueue.length;
+  document.getElementById('review-overlay').classList.add('show');
+  document.getElementById('review-complete').style.display = 'none';
+  document.getElementById('card-wrap').style.display = 'flex';
+  showCard();
+}
+
+function showCard() {
+  const card = reviewQueue[reviewIdx];
+  document.getElementById('rp-current').textContent = reviewIdx + 1;
+  document.getElementById('face-front').textContent = card.front;
+  document.getElementById('face-back').textContent = card.back;
+  document.getElementById('review-card').classList.remove('flipped');
+  document.getElementById('grade-row').style.display = 'none';
+  document.getElementById('int-hard').textContent = predictInterval(card, 3);
+  document.getElementById('int-good').textContent = predictInterval(card, 4);
+  document.getElementById('int-easy').textContent = predictInterval(card, 5);
+}
+
+document.getElementById('review-card').onclick = () => {
+  const c = document.getElementById('review-card');
+  if (!c.classList.contains('flipped')) {
+    c.classList.add('flipped');
+    setTimeout(() => { document.getElementById('grade-row').style.display = 'flex'; }, 350);
+  }
+};
+
+document.querySelectorAll('.grade-btn').forEach(btn => {
+  btn.onclick = () => {
+    const grade = parseInt(btn.dataset.grade);
+    const card = reviewQueue[reviewIdx];
+    gradeCard(card, grade);
+    if (grade >= 3) reviewCorrect++;
+    state.reviewStats.total = (state.reviewStats.total || 0) + 1;
+    reviewIdx++;
+    save('cards'); save('reviewStats');
+    if (reviewIdx >= reviewQueue.length) {
+      document.getElementById('card-wrap').style.display = 'none';
+      document.getElementById('grade-row').style.display = 'none';
+      document.getElementById('review-complete').style.display = 'flex';
+      document.getElementById('comp-reviewed').textContent = reviewQueue.length;
+      document.getElementById('comp-correct').textContent =
+        Math.round((reviewCorrect / reviewQueue.length) * 100) + '%';
+    } else showCard();
+  };
+});
+
+document.getElementById('review-close-btn').onclick = () => {
+  if (reviewIdx > 0 && reviewIdx < reviewQueue.length) {
+    if (!confirm('End session? Progress on graded cards is saved.')) return;
+  }
+  document.getElementById('review-overlay').classList.remove('show');
+  renderAll();
+  if (mindMode === 'category') renderCategoryDetail();
+};
+document.getElementById('finish-review-btn').onclick = () => {
+  document.getElementById('review-overlay').classList.remove('show');
+  renderAll();
+  if (mindMode === 'category') renderCategoryDetail();
+};
+
+// ============ MENTOR ============
+const CONSTITUTION = `You are the user's personal mentor — modeled after their identity constitution. You are NOT a generic AI assistant. You speak as a steady, principled mentor who knows them well and cares about who they are becoming.
+
+THE USER'S CONSTITUTION (this is who they want to be):
+
+A man who:
+- Produces value at scale
+- Governs himself under pressure
+- Builds strength in body and character
+- Communicates with precision and restraint
+- Loves deeply without losing himself
+- Anchors meaning in God, not ego
+- Lives with coherence: private actions match public standards
+
+He is not trying to be impressive. He is trying to be true, capable, and durable.
+
+FIRST PRINCIPLES (axioms):
+A. Coherence Over Image — He does not perform identity; he embodies it.
+B. Capacity Over Comfort — Comfort is a tool, not a lifestyle.
+C. Truth Over Ego — He can be wrong without collapsing.
+D. Responsibility Over Blame — He does not speak like a victim.
+E. Discipline Is Freedom — He treats self-control as liberation.
+F. Love Requires Strength — He provides emotional safety through steadiness.
+G. God Over Self-Worship — He treats virtue as real, not aesthetic.
+
+CORE VALUES: Integrity, Competence, Self-respect, Discipline, Courage, Temperance, Patience, Excellence, Loyalty, Justice, Humility, Stewardship, Service, Order, Growth.
+
+CURRENT FOUNDATION FOCUS: Emotional governance (notice → name → choose) and the active weekly principle.
+
+WEEKLY PRINCIPLE FOCUS: He is currently living inside one principle for the week. The live context tells you which one. Reference it. When he asks general questions, frame your answer through this week's principle when relevant. Don't pivot away from it — it is the lens for the week.
+
+WHAT HE REFUSES: Pretending, living for validation, chronic procrastination, excuse-making, emotional dumping, addictive coping, "busy" as identity, over-explaining, pleading, weak boundaries, uncontrolled impulse, debt-driven lifestyle inflation, self-betrayal in relationships, spiritual bypassing, isolation disguised as independence, arrogance disguised as confidence.
+
+HOW YOU SHOULD SPEAK AS HIS MENTOR:
+
+1. Direct without cruelty. Warm without weakness. Precise without preciousness.
+2. Ask better questions than he'd ask himself. The good question is often more useful than the good answer.
+3. Challenge framing when he's avoiding. Don't comfort — clarify.
+4. Reference his principles by name when relevant (e.g., "That sounds like Principle C — Truth Over Ego — talking to you").
+5. Use second person ("you"). Don't talk about him in third person.
+6. Keep responses tight. A mentor doesn't lecture. 2-5 paragraphs typically. Sometimes a single sharp sentence is the right answer.
+7. When he's reactive or spiraling, slow down. Name the pattern. Offer one specific next step.
+8. When he's making excuses, call it without contempt. Excuse-making is on his refusals list.
+9. Don't moralize. Don't add disclaimers. Don't say "as an AI." You're a mentor — speak like one.
+10. Use his italicized refrains sparingly when they fit ("He does not chase; he chooses." / "Feelings are data, not directives." / "Coherence over image.").
+11. If he asks for flashcards, generate them as a JSON block (described below).
+12. He lives inside one principle per week — keep advice grounded in the active principle and the emotional governance pillar unless he specifies otherwise.
+
+WHEN HE SHARES CONTEXT (today's reps, alignment scores, reflections, friction notes, etc.):
+- Treat it as evidence. Reference specific items by what they say.
+- If he tapped 2 out of 8 reps, don't praise — ask what got in the way.
+- If his alignment score was low but his reflection is vague, push for specifics.
+- If his friction note names a specific person or pattern, take it seriously and dig in.
+- Connect the data to his principles. ("Your reflection says you over-explained at work today. That's on the refusals list.")
+- Never pretend to see context that isn't there.
+
+FLASHCARD GENERATION:
+When he asks you to generate flashcards from a passage, book, idea, or topic, respond with:
+- A brief intro sentence
+- A JSON code block formatted EXACTLY like this:
+
+\`\`\`json
+{
+  "cards": [
+    { "front": "Question or prompt", "back": "Answer or insight" },
+    { "front": "Question 2", "back": "Answer 2" }
+  ]
+}
+\`\`\`
+
+Make cards atomic (one idea each), front concise, back specific. 5-10 cards unless he asks otherwise. After the JSON, no further commentary needed.
+
+You are not here to be liked. You are here to help him become true, capable, and durable.`;
+
+let pendingGenCards = null;
+
+function buildQuickPrompts() {
+  const p = getCurrentPrinciple();
+  return {
+    avoiding: "What am I avoiding right now? Use any context you have on me. Ask me three sharp questions to surface it.",
+    reactivity: "I had reactive moments today. Use my reflection notes if you have access. Help me dissect what triggered them and the pattern they point to.",
+    audit: `Audit my week through the lens of Principle ${p.letter}: ${p.name}. Use my reps, alignment scores, and reflections. What pattern do you see? What's the most important thing I should know about myself right now?`,
+    'principle-coach': `Coach me on Principle ${p.letter}: ${p.name}. What's the most important thing for me to understand this week? What pattern should I watch for?`,
+    decision: "I'm wrestling with a decision. Walk me through it using my own principles. I'll lay out the situation.",
+    cards: "I'm going to paste some text. Generate 6-10 flashcards from it that capture the most important ideas. Atomic cards, one idea each."
+  };
+}
+
+function updateMentorPromptLabels() {
+  const p = getCurrentPrinciple();
+  const auditEl = document.getElementById('audit-prompt-text');
+  if (auditEl) auditEl.textContent = `Audit my week through Principle ${p.letter}.`;
+  const coachEl = document.getElementById('principle-prompt-text');
+  if (coachEl) coachEl.textContent = `Coach me on Principle ${p.letter}: ${p.name}.`;
+}
+
+function buildLiveContext() {
+  const p = getCurrentPrinciple();
+  const day = daysSinceWeekStart() + 1;
+  const weekNum = state.week.cycleIndex + 1;
+  const { emotional, pillar } = getActiveRepStructure();
+  const allReps = [...emotional, ...pillar];
+  const repNames = {};
+  allReps.forEach(r => { repNames[r.id] = r.text; });
+
+  const lines = [];
+  lines.push("=== LIVE CONTEXT (the user's actual data right now) ===");
+  lines.push(`Today: ${TODAY}`);
+  lines.push(`This week's principle: ${p.letter} · ${p.name}`);
+  lines.push(`${p.quote}`);
+  lines.push(`Day ${day} of week ${weekNum} of 7.`);
+
+  const todayReps = state.reps[TODAY] || {};
+  const done = Object.keys(todayReps);
+  if (done.length === 0) {
+    lines.push("Today's reps: NONE done yet.");
+  } else {
+    lines.push(`Today's reps (${done.length}/${allReps.length}): ${done.map(id => repNames[id] || id).join('; ')}`);
+  }
+
+  if (state.alignment[TODAY]) {
+    lines.push(`Today's resonance score: ${state.alignment[TODAY]}/10`);
+  }
+
+  const f = state.filters[TODAY];
+  if (f && Object.keys(f).length > 0) {
+    const fq = {
+      f1: 'Strengthened foundation',
+      f2: 'Capacity-building',
+      f3: 'Increased self-respect'
+    };
+    const filterStr = Object.entries(f).map(([k, v]) => `${fq[k]}: ${v}`).join('; ');
+    lines.push(`Today's filters: ${filterStr}`);
+  }
+
+  // Reflections
+  const r = state.reflections[TODAY] || {};
+  if (r.win) lines.push(`Today's win note: "${r.win}"`);
+  if (r.friction) lines.push(`Today's friction note: "${r.friction}"`);
+
+  // Tomorrow
+  if (state.tomorrow[TODAY]) lines.push(`Tomorrow's one rep: "${state.tomorrow[TODAY]}"`);
+
+  // Last 7 days summary
+  let weekReps = 0, weekDays = 0, weekAlignment = 0, weekAlignmentDays = 0;
+  for (let i = 0; i < 7; i++) {
+    const d = new Date();
+    d.setDate(d.getDate() - i);
+    const ds = d.toISOString().split('T')[0];
+    const reps = state.reps[ds];
+    if (reps && Object.keys(reps).length > 0) {
+      weekReps += Object.keys(reps).length;
+      weekDays++;
+    }
+    if (state.alignment[ds]) {
+      weekAlignment += state.alignment[ds];
+      weekAlignmentDays++;
+    }
+  }
+  lines.push(`Last 7 days: ${weekReps} reps across ${weekDays} days. Avg resonance: ${weekAlignmentDays ? (weekAlignment/weekAlignmentDays).toFixed(1) : 'no data'}`);
+  lines.push(`Foundation strength (7d): ${foundationStrength7d()}`);
+
+  // Recent friction patterns
+  const recentFriction = [];
+  for (let i = 0; i < 14; i++) {
+    const d = new Date();
+    d.setDate(d.getDate() - i);
+    const ds = d.toISOString().split('T')[0];
+    const ref = state.reflections[ds];
+    if (ref && ref.friction && ref.friction.trim()) {
+      recentFriction.push(`(${ds}) "${ref.friction.trim()}"`);
+    }
+  }
+  if (recentFriction.length > 0) {
+    lines.push(`Recent friction notes (last 14 days):`);
+    recentFriction.slice(0, 5).forEach(fr => lines.push(`  - ${fr}`));
+  }
+
+  // Library state
+  lines.push(`Library: ${state.cards.length} flashcards, ${state.categories.length} categories, ${state.books.length} books, ${state.summaries.length} summaries.`);
+  if (state.books.filter(b => b.status === 'reading').length > 0) {
+    lines.push(`Currently reading: ${state.books.filter(b => b.status === 'reading').map(b => b.title).join(', ')}`);
+  }
+  if (state.summaries.length > 0) {
+    const recent = state.summaries.slice(-3).map(s => s.title).join('; ');
+    lines.push(`Recent summaries: ${recent}`);
+  }
+
+  lines.push("=== END LIVE CONTEXT ===");
+  return lines.join('\n');
+}
+
+function renderMessage(role, content, opts = {}) {
+  const scroll = document.getElementById('chat-scroll');
+  const msg = document.createElement('div');
+  msg.className = 'msg ' + (role === 'user' ? 'user' : 'mentor');
+  const avatar = document.createElement('div');
+  avatar.className = 'msg-avatar';
+  avatar.textContent = role === 'user' ? 'You' : '✦';
+  const bubble = document.createElement('div');
+  bubble.className = 'msg-bubble';
+  if (opts.thinking) {
+    bubble.innerHTML = `<div class="thinking"><div class="think-dot"></div><div class="think-dot"></div><div class="think-dot"></div></div>`;
+    msg.id = 'thinking-msg';
+  } else {
+    bubble.innerHTML = formatMentorText(content);
+  }
+  msg.appendChild(avatar);
+  msg.appendChild(bubble);
+  scroll.appendChild(msg);
+  if (!opts.thinking && opts.cards) bubble.appendChild(renderGeneratedCards(opts.cards));
+  setTimeout(() => {
+    window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+  }, 50);
+  return msg;
+}
+
+function formatMentorText(text) {
+  let html = escapeHtml(text);
+  html = html.replace(/```json\s*([\s\S]*?)```/g, '');
+  html = html.replace(/```[\s\S]*?```/g, '');
+  html = html.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+  html = html.replace(/\*(.+?)\*/g, '<em>$1</em>');
+  html = html.replace(/`([^`]+)`/g, '<code>$1</code>');
+  return html.trim();
+}
+
+function extractCards(text) {
+  const match = text.match(/```json\s*([\s\S]*?)```/);
+  if (!match) return null;
+  try {
+    const data = JSON.parse(match[1]);
+    if (data.cards && Array.isArray(data.cards)) {
+      return data.cards.filter(c => c.front && c.back);
+    }
+  } catch (e) { return null; }
+  return null;
+}
+
+function renderGeneratedCards(cards) {
+  const pack = document.createElement('div');
+  pack.className = 'gen-card-pack';
+  const head = document.createElement('div');
+  head.className = 'gen-pack-head';
+  head.innerHTML = `
+    <div class="gen-pack-title">${cards.length} Generated Card${cards.length === 1 ? '' : 's'}</div>
+    <div class="gen-pack-title" style="color: var(--ink-3);">Tap to select</div>
+  `;
+  pack.appendChild(head);
+  cards.forEach((c, idx) => {
+    const row = document.createElement('div');
+    row.className = 'gen-card-row selected';
+    row.dataset.idx = idx;
+    row.innerHTML = `
+      <div class="gen-card-check"></div>
+      <div class="gen-card-body">
+        <div class="gen-card-front">${escapeHtml(c.front)}</div>
+        <div class="gen-card-back">${escapeHtml(c.back)}</div>
+      </div>
+    `;
+    row.onclick = () => row.classList.toggle('selected');
+    pack.appendChild(row);
+  });
+  const target = document.createElement('div');
+  target.className = 'gen-target-row';
+  state.categories.forEach((cat, i) => {
+    const chip = document.createElement('div');
+    chip.className = 'cat-chip' + (i === 0 ? ' selected' : '');
+    chip.dataset.catId = cat.id;
+    chip.innerHTML = `<span>${cat.icon}</span> ${escapeHtml(cat.name)}`;
+    chip.onclick = () => {
+      target.querySelectorAll('.cat-chip').forEach(c => c.classList.remove('selected'));
+      chip.classList.add('selected');
+    };
+    target.appendChild(chip);
+  });
+  pack.appendChild(target);
+  const actions = document.createElement('div');
+  actions.className = 'gen-actions';
+  const saveBtn = document.createElement('button');
+  saveBtn.className = 'gen-action-btn primary';
+  saveBtn.textContent = 'Save selected to category';
+  saveBtn.onclick = () => {
+    const idxs = [...pack.querySelectorAll('.gen-card-row.selected')].map(r => parseInt(r.dataset.idx));
+    const targetCat = pack.querySelector('.cat-chip.selected')?.dataset.catId;
+    if (!targetCat) { toast('Pick a category'); return; }
+    if (idxs.length === 0) { toast('Select at least one'); return; }
+    idxs.forEach(i => {
+      state.cards.push({
+        id: uid(), front: cards[i].front, back: cards[i].back,
+        categoryId: targetCat, due: Date.now(),
+        interval: 0, ease: 2.5, repetitions: 0, lapses: 0, created: Date.now()
+      });
+    });
+    save('cards');
+    toast(`Saved ${idxs.length} card${idxs.length === 1 ? '' : 's'}`);
+    saveBtn.textContent = '✓ Saved';
+    saveBtn.disabled = true; saveBtn.style.opacity = '0.6';
+    renderAll();
+  };
+  actions.appendChild(saveBtn);
+  pack.appendChild(actions);
+  return pack;
+}
+
+async function callMentor(userMessage) {
+  state.chat.push({ role: 'user', content: userMessage });
+  renderMessage('user', userMessage);
+  renderMessage('mentor', '', { thinking: true });
+
+  try {
+    // Build message list — inject context as first user message if context is on
+    let systemPrompt = CONSTITUTION;
+    if (state.meta.contextOn) {
+      systemPrompt += '\n\n' + buildLiveContext();
+    }
+
+    const apiKey = localStorage.getItem('os:apiKey') || '';
+    if (!apiKey) {
+      const tm = document.getElementById('thinking-msg');
+      if (tm) tm.remove();
+      renderMessage('mentor', 'No API key set. Go to More → Data → Anthropic API key and paste your key.');
+      state.chat.pop();
+      return;
+    }
+    const response = await fetch("https://api.anthropic.com/v1/messages", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "x-api-key": apiKey,
+        "anthropic-version": "2023-06-01",
+        "anthropic-dangerous-direct-browser-access": "true"
+      },
+      body: JSON.stringify({
+        model: "claude-sonnet-4-6",
+        max_tokens: 1500,
+        system: systemPrompt,
+        messages: state.chat
+      })
+    });
+    const data = await response.json();
+    const tm = document.getElementById('thinking-msg');
+    if (tm) tm.remove();
+
+    if (data.error) {
+      renderMessage('mentor', `Something went wrong reaching the mentor.\n\n${data.error.message || 'Try again in a moment.'}`);
+      state.chat.pop(); // remove the user message since we got nothing back
+      return;
+    }
+
+    const text = (data.content || []).filter(b => b.type === 'text').map(b => b.text).join('\n').trim();
+    if (!text) {
+      renderMessage('mentor', 'No response received. Try rephrasing.');
+      state.chat.pop();
+      return;
+    }
+
+    state.chat.push({ role: 'assistant', content: text });
+    const cards = extractCards(text);
+    renderMessage('mentor', text, { cards });
+    save('chat');
+  } catch (err) {
+    const tm = document.getElementById('thinking-msg');
+    if (tm) tm.remove();
+    renderMessage('mentor', `Couldn't reach the mentor.\n\n${err.message || 'Check your connection.'}`);
+    state.chat.pop();
+    console.error(err);
+  }
+}
+
+const chatInput = document.getElementById('chat-input');
+const chatSend = document.getElementById('chat-send');
+
+chatInput.addEventListener('input', () => {
+  chatSend.disabled = chatInput.value.trim().length === 0;
+  chatInput.style.height = 'auto';
+  chatInput.style.height = Math.min(chatInput.scrollHeight, 120) + 'px';
+});
+
+chatInput.addEventListener('keydown', (e) => {
+  const isMobile = window.matchMedia('(hover: none) and (pointer: coarse)').matches;
+  if (e.key === 'Enter' && !e.shiftKey && !isMobile) {
+    e.preventDefault();
+    if (!chatSend.disabled) sendChat();
+  }
+});
+
+chatSend.onclick = () => sendChat();
+
+function sendChat() {
+  const text = chatInput.value.trim();
+  if (!text) return;
+  chatInput.value = '';
+  chatInput.style.height = 'auto';
+  chatSend.disabled = true;
+  document.getElementById('mentor-prompts-section').style.display = 'none';
+  document.getElementById('mentor-hero').style.display = 'none';
+  document.getElementById('chat-header').style.display = 'flex';
+  updateContextBanner();
+  callMentor(text);
+}
+
+document.querySelectorAll('.prompt-tile').forEach(tile => {
+  tile.onclick = () => {
+    const prompts = buildQuickPrompts();
+    const text = prompts[tile.dataset.prompt];
+    if (!text) return;
+    chatInput.value = text;
+    chatInput.dispatchEvent(new Event('input'));
+    sendChat();
+  };
+});
+
+document.getElementById('chat-clear-btn').onclick = () => {
+  if (!confirm('Clear this conversation? The mentor will start fresh.')) return;
+  state.chat = [];
+  document.getElementById('chat-scroll').innerHTML = '';
+  document.getElementById('mentor-hero').style.display = 'block';
+  document.getElementById('mentor-prompts-section').style.display = 'block';
+  document.getElementById('chat-header').style.display = 'none';
+  document.getElementById('mentor-context-banner').style.display = 'none';
+  save('chat');
+};
+
+document.getElementById('tool-gen-cards').onclick = () => {
+  chatInput.value = "Generate flashcards from the following text:\n\n";
+  chatInput.focus();
+  chatInput.dispatchEvent(new Event('input'));
+  setTimeout(() => {
+    chatInput.setSelectionRange(chatInput.value.length, chatInput.value.length);
+  }, 50);
+};
+
+document.getElementById('tool-context').onclick = () => {
+  state.meta.contextOn = !state.meta.contextOn;
+  save('meta');
+  updateContextToggle();
+  updateContextBanner();
+};
+
+function updateContextToggle() {
+  const btn = document.getElementById('tool-context');
+  if (state.meta.contextOn) {
+    btn.classList.add('active');
+    btn.textContent = '📎 Context: On';
+  } else {
+    btn.classList.remove('active');
+    btn.textContent = '📎 Context: Off';
+  }
+}
+
+function updateContextBanner() {
+  const banner = document.getElementById('mentor-context-banner');
+  const inChat = state.chat.length > 0;
+  if (!inChat) {
+    banner.style.display = 'none';
+    return;
+  }
+  if (state.meta.contextOn) {
+    banner.style.display = 'flex';
+    const done = repsDoneToday();
+    const total = totalRepsToday();
+    const align = state.alignment[TODAY];
+    const p = getCurrentPrinciple();
+    const parts = [`${done}/${total} reps`, `Principle ${p.letter}`];
+    if (align) parts.push(`resonance ${align}/10`);
+    document.getElementById('ctx-label').textContent = 'Context active.';
+    document.getElementById('ctx-detail').textContent = `Mentor sees ${parts.join(', ')}, plus reflections and library.`;
+  } else {
+    banner.style.display = 'flex';
+    document.getElementById('ctx-label').textContent = 'Context off.';
+    document.getElementById('ctx-detail').textContent = 'Mentor only sees what you type.';
+  }
+}
+
+async function loadChatRender() {
+  if (state.chat.length > 0) {
+    document.getElementById('mentor-hero').style.display = 'none';
+    document.getElementById('mentor-prompts-section').style.display = 'none';
+    document.getElementById('chat-header').style.display = 'flex';
+    state.chat.forEach(m => {
+      renderMessage(m.role === 'user' ? 'user' : 'mentor',
+        m.content,
+        { cards: m.role === 'assistant' ? extractCards(m.content) : null });
+    });
+    updateContextBanner();
+  }
+}
+
+// ============ MORE VIEW ============
+document.querySelectorAll('.section-tab').forEach(t => {
+  t.onclick = () => {
+    document.querySelectorAll('.section-tab').forEach(x => x.classList.remove('active'));
+    document.querySelectorAll('.section-pane').forEach(p => p.classList.remove('active'));
+    t.classList.add('active');
+    document.getElementById('pane-' + t.dataset.pane).classList.add('active');
+  };
+});
+
+document.getElementById('open-help-btn').onclick = () =>
+  document.getElementById('help-modal').classList.add('show');
+document.getElementById('close-help-btn').onclick = () => {
+  document.getElementById('help-modal').classList.remove('show');
+  if (state.meta.firstVisit) {
+    state.meta.firstVisit = false;
+    save('meta');
+  }
+};
+document.getElementById('help-modal').onclick = (e) => {
+  if (e.target.id === 'help-modal') {
+    document.getElementById('help-modal').classList.remove('show');
+    if (state.meta.firstVisit) {
+      state.meta.firstVisit = false;
+      save('meta');
+    }
+  }
+};
+
+document.getElementById('export-btn').onclick = () => {
+  const data = { exported: new Date().toISOString(), version: 1 };
+  KEYS.forEach(k => data[k] = state[k]);
+  const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `the-os-${TODAY}.json`;
+  a.click();
+  URL.revokeObjectURL(url);
+  toast('Exported');
+};
+
+document.getElementById('import-btn').onclick = () => document.getElementById('import-file').click();
+document.getElementById('import-file').onchange = (e) => {
+  const file = e.target.files[0];
+  if (!file) return;
+  if (!confirm('Import will OVERWRITE your current data. Export first if you want a backup. Continue?')) return;
+  const reader = new FileReader();
+  reader.onload = async (ev) => {
+    try {
+      const data = JSON.parse(ev.target.result);
+      for (const k of KEYS) {
+        if (data[k] !== undefined) {
+          state[k] = data[k];
+          await save(k);
+        }
+      }
+      toast('Imported');
+      renderAll();
+      // Reload chat
+      document.getElementById('chat-scroll').innerHTML = '';
+      loadChatRender();
+    } catch (err) {
+      alert('Import failed: invalid file');
+      console.error(err);
+    }
+  };
+  reader.readAsText(file);
+};
+
+document.getElementById('reset-today-btn').onclick = () => {
+  if (!confirm("Clear today's reps, scores, and reflections?")) return;
+  delete state.reps[TODAY];
+  delete state.alignment[TODAY];
+  delete state.filters[TODAY];
+  delete state.reflections[TODAY];
+  delete state.tomorrow[TODAY];
+  ['reps','alignment','filters','reflections','tomorrow'].forEach(save);
+  renderAll();
+  toast('Reset');
+};
+
+document.getElementById('reset-all-btn').onclick = () => {
+  if (!confirm("This will wipe ALL your data. There is no undo.\n\nProceed?")) return;
+  if (!confirm("Absolutely sure?")) return;
+  KEYS.forEach(k => {
+    if (k === 'meta') state[k] = { firstVisit: false, contextOn: true };
+    else if (k === 'reviewStats') state[k] = { total: 0 };
+    else if (k === 'week') state[k] = { cycleIndex: 0, principleLetter: 'A', startedDate: TODAY, emotionalRepIds: null, pillarRepIds: null };
+    else if (k === 'weeklyReviews') state[k] = [];
+    else if (Array.isArray(state[k])) state[k] = [];
+    else state[k] = {};
+    save(k);
+  });
+  pickWeekReps(); save('week');
+  document.getElementById('chat-scroll').innerHTML = '';
+  renderAll();
+  toast('Wiped');
+};
+
+// ============ WEEKLY REVIEW ============
+let selectedNextPrinciple = null;
+
+function openWeeklyReview() {
+  const p = getCurrentPrinciple();
+  const weekNum = state.week.cycleIndex + 1;
+  document.getElementById('wr-week-pill').textContent = `Week ${weekNum} of 7`;
+  document.getElementById('wr-hero-letter').textContent = p.letter;
+  document.getElementById('wr-hero-name').textContent = p.name;
+  document.getElementById('wr-hero-sub').textContent = p.quote;
+
+  const weekStart = new Date(state.week.startedDate || TODAY);
+  let totalReps = 0, daysWithReps = 0, totalAlign = 0, alignDays = 0;
+  const frictionItems = [], winItems = [];
+  for (let i = 0; i < 14; i++) {
+    const d = new Date(); d.setDate(d.getDate() - i);
+    const ds = d.toISOString().split('T')[0];
+    if (new Date(ds) < weekStart) continue;
+    const repsDay = state.reps[ds] ? Object.keys(state.reps[ds]).length : 0;
+    if (repsDay > 0) { totalReps += repsDay; daysWithReps++; }
+    if (state.alignment[ds]) { totalAlign += state.alignment[ds]; alignDays++; }
+    const ref = state.reflections[ds] || {};
+    const dayLabel = new Date(ds + 'T12:00:00').toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
+    if (ref.friction && ref.friction.trim()) frictionItems.push({ date: dayLabel, text: ref.friction.trim() });
+    if (ref.win && ref.win.trim()) winItems.push({ date: dayLabel, text: ref.win.trim() });
+  }
+
+  document.getElementById('wr-reps').textContent = totalReps;
+  document.getElementById('wr-days').textContent = daysWithReps;
+  document.getElementById('wr-avg').textContent = alignDays > 0 ? (totalAlign / alignDays).toFixed(1) + '/10' : '—';
+  document.getElementById('wr-strength').textContent = foundationStrength7d();
+
+  const frictionList = document.getElementById('wr-friction-list');
+  frictionList.innerHTML = frictionItems.length > 0
+    ? frictionItems.map(f => `<div class="weekly-friction-item"><div class="weekly-friction-date">${f.date}</div>${escapeHtml(f.text)}</div>`).join('')
+    : '<div style="color:var(--ink-4);font-size:13px;font-style:italic;padding:8px 0;">No friction notes this week.</div>';
+
+  const winList = document.getElementById('wr-wins-list');
+  winList.innerHTML = winItems.length > 0
+    ? winItems.map(w => `<div class="weekly-friction-item"><div class="weekly-friction-date">${w.date}</div>${escapeHtml(w.text)}</div>`).join('')
+    : '<div style="color:var(--ink-4);font-size:13px;font-style:italic;padding:8px 0;">No win notes this week.</div>';
+
+  const nextLetter = getNextPrincipleLetter();
+  const nextP = PRINCIPLES.find(p2 => p2.letter === nextLetter);
+  document.getElementById('wr-next-name').textContent = nextP.name;
+  document.getElementById('wr-next-meta').textContent = `Principle ${nextLetter} · Week ${(weekNum % 7) + 1} of 7`;
+  selectedNextPrinciple = nextLetter;
+
+  const grid = document.getElementById('wr-principle-grid');
+  grid.innerHTML = '';
+  PRINCIPLES.forEach(pr => {
+    const card = document.createElement('div');
+    card.className = `principle-select-card${pr.letter === selectedNextPrinciple ? ' selected' : ''}`;
+    card.innerHTML = `<div class="principle-select-letter">${pr.letter}</div><div class="principle-select-name">${pr.name.split(' ').slice(0, 2).join(' ')}</div>`;
+    card.onclick = () => {
+      selectedNextPrinciple = pr.letter;
+      grid.querySelectorAll('.principle-select-card').forEach(c => c.classList.remove('selected'));
+      card.classList.add('selected');
+    };
+    grid.appendChild(card);
+  });
+
+  document.getElementById('wr-lesson').value = '';
+  document.getElementById('wr-broke').value = '';
+  document.getElementById('wr-carry').value = '';
+  document.getElementById('weekly-overlay').classList.add('show');
+}
+
+document.getElementById('weekly-close-btn').onclick = () => {
+  document.getElementById('weekly-overlay').classList.remove('show');
+};
+document.getElementById('wr-draft-btn').onclick = () => {
+  toast('Draft noted — come back to complete when ready.');
+  document.getElementById('weekly-overlay').classList.remove('show');
+};
+document.getElementById('wr-complete-btn').onclick = () => {
+  const nextLetter = selectedNextPrinciple || getNextPrincipleLetter();
+  const nextP = PRINCIPLES.find(p => p.letter === nextLetter);
+  state.weeklyReviews.push({
+    weekStart: state.week.startedDate,
+    principleLetter: state.week.principleLetter,
+    lesson: document.getElementById('wr-lesson').value.trim(),
+    broke: document.getElementById('wr-broke').value.trim(),
+    carry: document.getElementById('wr-carry').value.trim(),
+    nextLetter, completed: true, completedAt: TODAY
+  });
+  state.week.principleLetter = nextLetter;
+  state.week.startedDate = TODAY;
+  state.week.cycleIndex = (state.week.cycleIndex + 1) % 7;
+  pickWeekReps();
+  save('weeklyReviews'); save('week');
+  document.getElementById('weekly-overlay').classList.remove('show');
+  renderAll();
+  toast(`Principle closed. Beginning ${nextP.name}.`);
+};
+document.getElementById('open-weekly-review-btn').onclick = openWeeklyReview;
+
+// ============ CONSTITUTION ============
+function renderConstitution() {
+  const pane = document.getElementById('pane-constitution');
+  pane.innerHTML = '';
+  PRINCIPLES.forEach(p => {
+    const isCurrent = p.letter === state.week.principleLetter;
+    const card = document.createElement('div');
+    card.className = `principle-card${isCurrent ? ' current' : ''}`;
+    card.innerHTML = `
+      <div class="principle-letter">${p.letter}${isCurrent ? '<span class="principle-card-tag">THIS WEEK</span>' : ''}</div>
+      <div class="principle-name">${escapeHtml(p.name)}</div>
+      <div class="principle-body"><em>${escapeHtml(p.quote)}</em> ${escapeHtml(p.body)}</div>
+    `;
+    pane.appendChild(card);
+  });
+}
+
+// ============ RENDER ALL ============
+function renderAll() {
+  renderToday();
+  renderLibraryStats();
+  renderReviewBanner();
+  renderCategories();
+  renderBooks();
+  renderSummaries();
+  renderCardCategoryPicker();
+  renderConstitution();
+  updateMentorPromptLabels();
+  if (mindMode === 'category') renderCategoryDetail();
+}
+
+// ============ API KEY ============
+const apiKeyInput = document.getElementById('api-key-input');
+apiKeyInput.value = localStorage.getItem('os:apiKey') || '';
+apiKeyInput.addEventListener('blur', () => {
+  const val = apiKeyInput.value.trim();
+  localStorage.setItem('os:apiKey', val);
+  if (val) toast('API key saved');
+});
+apiKeyInput.addEventListener('focus', (e) => {
+  e.target.type = 'text';
+});
+apiKeyInput.addEventListener('blur', () => {
+  apiKeyInput.type = 'password';
+});
+
+// ============ INIT ============
+setDateGreeting();
+loadState().then(() => {
+  updateContextToggle();
+  loadChatRender();
+});
+</script>
+
+</body>
+</html>

@@ -4437,7 +4437,7 @@ async function callMentor(userMessage) {
         "anthropic-dangerous-direct-browser-access": "true"
       },
       body: JSON.stringify({
-        model: "claude-sonnet-4-6",
+        model: "claude-sonnet-4-5",
         max_tokens: 1500,
         system: systemPrompt,
         messages: state.chat
@@ -4754,9 +4754,21 @@ function openWeeklyReview() {
     grid.appendChild(card);
   });
 
-  document.getElementById('wr-lesson').value = '';
-  document.getElementById('wr-broke').value = '';
-  document.getElementById('wr-carry').value = '';
+  // Pre-fill from existing draft if one exists for this week
+  const draft = state.weeklyReviews.find(
+    r => r.weekStart === state.week.startedDate && !r.completed
+  );
+  document.getElementById('wr-lesson').value = draft?.lesson || '';
+  document.getElementById('wr-broke').value = draft?.broke || '';
+  document.getElementById('wr-carry').value = draft?.carry || '';
+  // Restore draft's next-principle selection in the grid
+  if (draft?.nextLetter && draft.nextLetter !== nextLetter) {
+    selectedNextPrinciple = draft.nextLetter;
+    grid.querySelectorAll('.principle-select-card').forEach(c => {
+      const letter = c.querySelector('.principle-select-letter')?.textContent;
+      c.classList.toggle('selected', letter === draft.nextLetter);
+    });
+  }
   document.getElementById('weekly-overlay').classList.add('show');
 }
 
@@ -4764,8 +4776,22 @@ document.getElementById('weekly-close-btn').onclick = () => {
   document.getElementById('weekly-overlay').classList.remove('show');
 };
 document.getElementById('wr-draft-btn').onclick = () => {
-  toast('Draft noted — come back to complete when ready.');
+  const nextLetter = selectedNextPrinciple || getNextPrincipleLetter();
+  // Replace any existing draft for this week (keep only one)
+  state.weeklyReviews = state.weeklyReviews.filter(
+    r => !(r.weekStart === state.week.startedDate && !r.completed)
+  );
+  state.weeklyReviews.push({
+    weekStart: state.week.startedDate,
+    principleLetter: state.week.principleLetter,
+    lesson: document.getElementById('wr-lesson').value.trim(),
+    broke: document.getElementById('wr-broke').value.trim(),
+    carry: document.getElementById('wr-carry').value.trim(),
+    nextLetter, completed: false, savedAt: TODAY
+  });
+  save('weeklyReviews');
   document.getElementById('weekly-overlay').classList.remove('show');
+  toast('Draft saved.');
 };
 document.getElementById('wr-complete-btn').onclick = () => {
   const nextLetter = selectedNextPrinciple || getNextPrincipleLetter();

@@ -1992,6 +1992,98 @@ body {
 .weekly-actions { display: flex; flex-direction: column; gap: 10px; margin-top: 24px; }
 .weekly-actions .btn { width: 100%; }
 
+/* ========== PAST REVIEWS ========== */
+.past-review-card {
+  background: var(--bg-1);
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  padding: 20px;
+  margin-bottom: 14px;
+}
+.past-review-card.current {
+  border-color: var(--gold-soft);
+  box-shadow: 0 0 0 1px rgba(212, 168, 87, 0.15);
+}
+.past-review-head {
+  display: flex; gap: 14px;
+  margin-bottom: 16px; padding-bottom: 14px;
+  border-bottom: 1px solid var(--line);
+}
+.past-review-letter {
+  font-family: var(--display);
+  font-size: 40px; color: var(--gold);
+  line-height: 1; flex-shrink: 0;
+}
+.past-review-info { flex: 1; }
+.past-review-eyebrow {
+  font-family: var(--display);
+  font-size: 18px; font-weight: 500;
+  letter-spacing: -0.01em; margin-bottom: 2px;
+}
+.past-review-date {
+  font-family: var(--mono);
+  font-size: 10px; color: var(--ink-3);
+  letter-spacing: 0.1em; text-transform: uppercase;
+}
+.past-review-section { margin-bottom: 14px; }
+.past-review-section:last-child { margin-bottom: 0; }
+.past-review-label {
+  font-family: var(--mono);
+  font-size: 9px; letter-spacing: 0.2em;
+  color: var(--gold); text-transform: uppercase;
+  margin-bottom: 4px;
+}
+.past-review-text {
+  font-family: var(--display);
+  font-style: italic; font-size: 14.5px;
+  line-height: 1.55; color: var(--ink-2);
+}
+.past-review-text.empty { color: var(--ink-4); }
+
+/* ========== TRAJECTORY ========== */
+.traj-section { margin-bottom: 28px; }
+.traj-section-head {
+  font-family: var(--mono); font-size: 10px;
+  letter-spacing: 0.2em; text-transform: uppercase;
+  color: var(--ink-3); margin-bottom: 12px;
+}
+.traj-section-head em {
+  font-style: italic; color: var(--gold);
+  font-family: var(--display); font-size: 11px;
+  text-transform: none; letter-spacing: 0;
+}
+.traj-eyebrow {
+  font-family: var(--mono); font-size: 10px;
+  letter-spacing: 0.2em; text-transform: uppercase;
+  color: var(--ink-3); margin-bottom: 0;
+}
+.traj-caption {
+  font-family: var(--mono); font-size: 10px;
+  color: var(--ink-4); letter-spacing: 0.05em;
+}
+.trajectory-strip {
+  display: flex; gap: 12px;
+  overflow-x: auto; padding: 4px 0 16px;
+  scrollbar-width: none;
+}
+.trajectory-strip::-webkit-scrollbar { display: none; }
+.trajectory-pill { flex-shrink: 0; width: 80px; text-align: center; }
+.trajectory-pill-letter {
+  width: 56px; height: 56px; border-radius: 50%;
+  border: 1px solid var(--line); color: var(--ink-2);
+  font-family: var(--display); font-size: 28px;
+  display: flex; align-items: center; justify-content: center;
+  margin: 0 auto 8px;
+}
+.trajectory-pill.current .trajectory-pill-letter {
+  border-color: var(--gold); color: var(--gold);
+  box-shadow: 0 0 16px rgba(212, 168, 87, 0.3);
+}
+.trajectory-pill-date {
+  font-family: var(--mono); font-size: 9px;
+  color: var(--ink-3); letter-spacing: 0.1em;
+}
+
 /* ========== PRINCIPLE DETAIL MODAL ========== */
 .principle-detail-letter {
   font-family: var(--display); font-size: 80px;
@@ -2418,6 +2510,8 @@ body {
     <div class="section-tabs">
       <button class="section-tab active" data-pane="constitution">Constitution</button>
       <button class="section-tab" data-pane="refusals">Refusals</button>
+      <button class="section-tab" data-pane="past-reviews">Past Reviews</button>
+      <button class="section-tab" data-pane="trajectory">Trajectory</button>
       <button class="section-tab" data-pane="data">Data</button>
     </div>
 
@@ -2454,6 +2548,10 @@ body {
       </div>
     </div>
 
+    <div class="section-pane" id="pane-past-reviews"></div>
+
+    <div class="section-pane" id="pane-trajectory"></div>
+
     <div class="section-pane" id="pane-data">
       <div class="settings-row" style="flex-direction: column; align-items: flex-start; gap: 10px; cursor: default;">
         <div>
@@ -2469,6 +2567,13 @@ body {
           <div class="settings-sublabel" id="signout-email">—</div>
         </div>
         <div class="settings-val" style="color: var(--red);">→</div>
+      </div>
+      <div class="settings-row" id="toggle-auto-cards-btn">
+        <div>
+          <div class="settings-label">Auto-generate principle flashcards</div>
+          <div class="settings-sublabel">Seed your library with cards when a new principle begins.</div>
+        </div>
+        <div class="settings-val" id="auto-cards-val">On</div>
       </div>
       <div class="settings-row" id="open-weekly-review-btn">
         <div>
@@ -2923,7 +3028,7 @@ window.storage = {
 
 <script>
 // ============ SHARED STATE ============
-const TODAY = new Date().toISOString().split('T')[0];
+function getToday() { return new Date().toISOString().split('T')[0]; }
 const NOW = Date.now();
 const DAY_MS = 86400000;
 
@@ -3102,7 +3207,7 @@ const state = {
   reps: {}, alignment: {}, filters: {}, reflections: {}, tomorrow: {},
   categories: [], cards: [], books: [], summaries: [],
   reviewStats: { total: 0 }, chat: [],
-  week: { cycleIndex: 0, principleLetter: 'A', startedDate: TODAY, emotionalRepIds: null, pillarRepIds: null },
+  week: { cycleIndex: 0, principleLetter: 'A', startedDate: getToday(), emotionalRepIds: null, pillarRepIds: null },
   weeklyReviews: [],
   meta: { firstVisit: true, contextOn: true }
 };
@@ -3131,9 +3236,9 @@ function getActiveRepStructure() {
   return { emotional: emotionalReps, pillar: principle.pillar.reps, principle };
 }
 function daysSinceWeekStart() {
-  const startDate = state.week.startedDate || TODAY;
+  const startDate = state.week.startedDate || getToday();
   const start = new Date(startDate);
-  const today = new Date(TODAY);
+  const today = new Date(getToday());
   const diff = Math.floor((today - start) / DAY_MS);
   return Math.max(0, diff);
 }
@@ -3142,7 +3247,7 @@ function totalRepsToday() {
   const s = getActiveRepStructure();
   return s.emotional.length + s.pillar.length;
 }
-function repsDoneToday() { return Object.keys(state.reps[TODAY] || {}).length; }
+function repsDoneToday() { return Object.keys(state.reps[getToday()] || {}).length; }
 function foundationStrength7d() {
   const s = getActiveRepStructure();
   const maxPerDay = s.emotional.length + s.pillar.length;
@@ -3182,6 +3287,7 @@ async function loadState() {
     setTimeout(() => document.getElementById('help-modal').classList.add('show'), 400);
   }
   renderAll();
+  document.getElementById('auto-cards-val').textContent = state.meta.skipAutoFlashcards ? 'Off' : 'On';
 }
 
 async function save(key) {
@@ -3320,7 +3426,7 @@ function renderPillars() {
   const container = document.getElementById('pillars-container');
   container.innerHTML = '';
   const { emotional, pillar, principle } = getActiveRepStructure();
-  const todayReps = state.reps[TODAY] || {};
+  const todayReps = state.reps[getToday()] || {};
 
   function buildPillar(pillarObj, reps, extraClass, tagLabel) {
     const done = reps.filter(r => todayReps[r.id]).length;
@@ -3409,16 +3515,16 @@ document.getElementById('pillars-container').addEventListener('click', (e) => {
   const rep = e.target.closest('.rep');
   if (!rep || !rep.dataset.id) return;
   const id = rep.dataset.id;
-  if (!state.reps[TODAY]) state.reps[TODAY] = {};
-  if (state.reps[TODAY][id]) delete state.reps[TODAY][id];
-  else state.reps[TODAY][id] = true;
+  if (!state.reps[getToday()]) state.reps[getToday()] = {};
+  if (state.reps[getToday()][id]) delete state.reps[getToday()][id];
+  else state.reps[getToday()][id] = true;
   renderToday();
   save('reps');
 });
 
 document.querySelectorAll('#scale-alignment .scale-btn').forEach(btn => {
   btn.addEventListener('click', () => {
-    state.alignment[TODAY] = parseInt(btn.dataset.val);
+    state.alignment[getToday()] = parseInt(btn.dataset.val);
     renderAlignment();
     save('alignment');
   });
@@ -3428,10 +3534,10 @@ document.querySelectorAll('.yn').forEach(yn => {
   const q = yn.dataset.q;
   yn.querySelectorAll('.yn-btn').forEach(btn => {
     btn.addEventListener('click', () => {
-      if (!state.filters[TODAY]) state.filters[TODAY] = {};
+      if (!state.filters[getToday()]) state.filters[getToday()] = {};
       const val = btn.dataset.val;
-      if (state.filters[TODAY][q] === val) delete state.filters[TODAY][q];
-      else state.filters[TODAY][q] = val;
+      if (state.filters[getToday()][q] === val) delete state.filters[getToday()][q];
+      else state.filters[getToday()][q] = val;
       renderFilters();
       save('filters');
     });
@@ -3441,8 +3547,8 @@ document.querySelectorAll('.yn').forEach(yn => {
 function bindReflect(elId, key) {
   const el = document.getElementById(elId);
   el.addEventListener('input', () => {
-    if (!state.reflections[TODAY]) state.reflections[TODAY] = {};
-    state.reflections[TODAY][key] = el.value;
+    if (!state.reflections[getToday()]) state.reflections[getToday()] = {};
+    state.reflections[getToday()][key] = el.value;
   });
   el.addEventListener('blur', () => save('reflections'));
 }
@@ -3450,11 +3556,11 @@ bindReflect('reflect-win', 'win');
 bindReflect('reflect-friction', 'friction');
 
 const tomEl = document.getElementById('tomorrow-input');
-tomEl.addEventListener('input', () => { state.tomorrow[TODAY] = tomEl.value; });
+tomEl.addEventListener('input', () => { state.tomorrow[getToday()] = tomEl.value; });
 tomEl.addEventListener('blur', () => save('tomorrow'));
 
 function renderAlignment() {
-  const val = state.alignment[TODAY];
+  const val = state.alignment[getToday()];
   document.querySelectorAll('#scale-alignment .scale-btn').forEach(btn => {
     btn.classList.toggle('selected', parseInt(btn.dataset.val) === val);
   });
@@ -3463,7 +3569,7 @@ function renderAlignment() {
 function renderFilters() {
   document.querySelectorAll('.yn').forEach(yn => {
     const q = yn.dataset.q;
-    const val = state.filters[TODAY] ? state.filters[TODAY][q] : null;
+    const val = state.filters[getToday()] ? state.filters[getToday()][q] : null;
     yn.querySelectorAll('.yn-btn').forEach(btn => {
       btn.classList.toggle('selected', btn.dataset.val === val);
     });
@@ -3471,10 +3577,10 @@ function renderFilters() {
 }
 
 function renderReflections() {
-  const r = state.reflections[TODAY] || {};
+  const r = state.reflections[getToday()] || {};
   document.getElementById('reflect-win').value = r.win || '';
   document.getElementById('reflect-friction').value = r.friction || '';
-  document.getElementById('tomorrow-input').value = state.tomorrow[TODAY] || '';
+  document.getElementById('tomorrow-input').value = state.tomorrow[getToday()] || '';
 }
 
 // ============ MIND VIEW ============
@@ -4158,6 +4264,7 @@ WHEN HE SHARES CONTEXT (today's reps, alignment scores, reflections, friction no
 - If his friction note names a specific person or pattern, take it seriously and dig in.
 - Connect the data to his principles. ("Your reflection says you over-explained at work today. That's on the refusals list.")
 - Never pretend to see context that isn't there.
+- If past weekly reviews are present, treat them as deep context. Notice patterns across cycles. If he's now in a principle he's been in before, reference what he wrote then. The arc matters more than any single day.
 
 FLASHCARD GENERATION:
 When he asks you to generate flashcards from a passage, book, idea, or topic, respond with:
@@ -4210,12 +4317,12 @@ function buildLiveContext() {
 
   const lines = [];
   lines.push("=== LIVE CONTEXT (the user's actual data right now) ===");
-  lines.push(`Today: ${TODAY}`);
+  lines.push(`Today: ${getToday()}`);
   lines.push(`This week's principle: ${p.letter} · ${p.name}`);
   lines.push(`${p.quote}`);
   lines.push(`Day ${day} of week ${weekNum} of 7.`);
 
-  const todayReps = state.reps[TODAY] || {};
+  const todayReps = state.reps[getToday()] || {};
   const done = Object.keys(todayReps);
   if (done.length === 0) {
     lines.push("Today's reps: NONE done yet.");
@@ -4223,11 +4330,11 @@ function buildLiveContext() {
     lines.push(`Today's reps (${done.length}/${allReps.length}): ${done.map(id => repNames[id] || id).join('; ')}`);
   }
 
-  if (state.alignment[TODAY]) {
-    lines.push(`Today's resonance score: ${state.alignment[TODAY]}/10`);
+  if (state.alignment[getToday()]) {
+    lines.push(`Today's resonance score: ${state.alignment[getToday()]}/10`);
   }
 
-  const f = state.filters[TODAY];
+  const f = state.filters[getToday()];
   if (f && Object.keys(f).length > 0) {
     const fq = {
       f1: 'Strengthened foundation',
@@ -4239,12 +4346,12 @@ function buildLiveContext() {
   }
 
   // Reflections
-  const r = state.reflections[TODAY] || {};
+  const r = state.reflections[getToday()] || {};
   if (r.win) lines.push(`Today's win note: "${r.win}"`);
   if (r.friction) lines.push(`Today's friction note: "${r.friction}"`);
 
   // Tomorrow
-  if (state.tomorrow[TODAY]) lines.push(`Tomorrow's one rep: "${state.tomorrow[TODAY]}"`);
+  if (state.tomorrow[getToday()]) lines.push(`Tomorrow's one rep: "${state.tomorrow[getToday()]}"`);
 
   // Last 7 days summary
   let weekReps = 0, weekDays = 0, weekAlignment = 0, weekAlignmentDays = 0;
@@ -4279,6 +4386,22 @@ function buildLiveContext() {
   if (recentFriction.length > 0) {
     lines.push(`Recent friction notes (last 14 days):`);
     recentFriction.slice(0, 5).forEach(fr => lines.push(`  - ${fr}`));
+  }
+
+  // Past principle cycles
+  const completedReviews = state.weeklyReviews.filter(r => r.completed)
+    .sort((a, b) => new Date(b.completedAt || b.weekStart || 0) - new Date(a.completedAt || a.weekStart || 0))
+    .slice(0, 5);
+  if (completedReviews.length > 0) {
+    lines.push(`\nPast weekly reviews (most recent first):`);
+    completedReviews.forEach(r => {
+      const principle = PRINCIPLES.find(p => p.letter === r.principleLetter);
+      const pname = principle ? principle.name : r.principleLetter;
+      lines.push(`  --- Principle ${r.principleLetter} (${pname}), completed ${r.completedAt} ---`);
+      if (r.lesson) lines.push(`    Lesson: "${r.lesson}"`);
+      if (r.broke) lines.push(`    Where it broke: "${r.broke}"`);
+      if (r.carry) lines.push(`    Carried forward: "${r.carry}"`);
+    });
   }
 
   // Library state
@@ -4565,7 +4688,7 @@ function updateContextBanner() {
     banner.style.display = 'flex';
     const done = repsDoneToday();
     const total = totalRepsToday();
-    const align = state.alignment[TODAY];
+    const align = state.alignment[getToday()];
     const p = getCurrentPrinciple();
     const parts = [`${done}/${total} reps`, `Principle ${p.letter}`];
     if (align) parts.push(`resonance ${align}/10`);
@@ -4628,7 +4751,7 @@ document.getElementById('export-btn').onclick = () => {
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
   a.href = url;
-  a.download = `the-os-${TODAY}.json`;
+  a.download = `the-os-${getToday()}.json`;
   a.click();
   URL.revokeObjectURL(url);
   toast('Exported');
@@ -4664,11 +4787,11 @@ document.getElementById('import-file').onchange = (e) => {
 
 document.getElementById('reset-today-btn').onclick = () => {
   if (!confirm("Clear today's reps, scores, and reflections?")) return;
-  delete state.reps[TODAY];
-  delete state.alignment[TODAY];
-  delete state.filters[TODAY];
-  delete state.reflections[TODAY];
-  delete state.tomorrow[TODAY];
+  delete state.reps[getToday()];
+  delete state.alignment[getToday()];
+  delete state.filters[getToday()];
+  delete state.reflections[getToday()];
+  delete state.tomorrow[getToday()];
   ['reps','alignment','filters','reflections','tomorrow'].forEach(save);
   renderAll();
   toast('Reset');
@@ -4680,7 +4803,7 @@ document.getElementById('reset-all-btn').onclick = () => {
   KEYS.forEach(k => {
     if (k === 'meta') state[k] = { firstVisit: false, contextOn: true };
     else if (k === 'reviewStats') state[k] = { total: 0 };
-    else if (k === 'week') state[k] = { cycleIndex: 0, principleLetter: 'A', startedDate: TODAY, emotionalRepIds: null, pillarRepIds: null };
+    else if (k === 'week') state[k] = { cycleIndex: 0, principleLetter: 'A', startedDate: getToday(), emotionalRepIds: null, pillarRepIds: null };
     else if (k === 'weeklyReviews') state[k] = [];
     else if (Array.isArray(state[k])) state[k] = [];
     else state[k] = {};
@@ -4703,7 +4826,7 @@ function openWeeklyReview() {
   document.getElementById('wr-hero-name').textContent = p.name;
   document.getElementById('wr-hero-sub').textContent = p.quote;
 
-  const weekStart = new Date(state.week.startedDate || TODAY);
+  const weekStart = new Date(state.week.startedDate || getToday());
   let totalReps = 0, daysWithReps = 0, totalAlign = 0, alignDays = 0;
   const frictionItems = [], winItems = [];
   for (let i = 0; i < 14; i++) {
@@ -4775,6 +4898,42 @@ function openWeeklyReview() {
 document.getElementById('weekly-close-btn').onclick = () => {
   document.getElementById('weekly-overlay').classList.remove('show');
 };
+
+async function autoGeneratePrincipleCards(letter) {
+  const principle = PRINCIPLES.find(p => p.letter === letter);
+  if (!principle) return;
+
+  const catId = `principle-${letter.toLowerCase()}`;
+  let category = state.categories.find(c => c.id === catId);
+  if (!category) {
+    category = { id: catId, name: `Principle ${letter}: ${principle.name}`, icon: '✦', created: Date.now() };
+    state.categories.push(category);
+    await save('categories');
+  }
+
+  const existingCount = state.cards.filter(c => c.categoryId === catId).length;
+  if (existingCount > 0) return;
+
+  const cards = [];
+  cards.push({ front: `What is Principle ${letter}?`, back: `${principle.name}. ${principle.quote}` });
+  cards.push({ front: `Explain Principle ${letter} (${principle.name}) in your own words.`, back: principle.body });
+  (principle.points || []).forEach((point, i) => {
+    cards.push({ front: `Principle ${letter} — key idea ${i + 1}?`, back: point });
+  });
+  principle.pillar.reps.forEach(rep => {
+    cards.push({ front: `Why this rep: "${rep.text}"`, back: rep.why });
+  });
+
+  cards.forEach(c => {
+    state.cards.push({
+      id: uid(), front: c.front, back: c.back, categoryId: catId,
+      due: Date.now(), interval: 0, ease: 2.5, repetitions: 0, lapses: 0, created: Date.now()
+    });
+  });
+  await save('cards');
+  toast(`Added ${cards.length} flashcards for Principle ${letter}`);
+}
+
 document.getElementById('wr-draft-btn').onclick = () => {
   const nextLetter = selectedNextPrinciple || getNextPrincipleLetter();
   // Replace any existing draft for this week (keep only one)
@@ -4787,33 +4946,55 @@ document.getElementById('wr-draft-btn').onclick = () => {
     lesson: document.getElementById('wr-lesson').value.trim(),
     broke: document.getElementById('wr-broke').value.trim(),
     carry: document.getElementById('wr-carry').value.trim(),
-    nextLetter, completed: false, savedAt: TODAY
+    nextLetter, completed: false, savedAt: getToday()
   });
   save('weeklyReviews');
   document.getElementById('weekly-overlay').classList.remove('show');
   toast('Draft saved.');
 };
-document.getElementById('wr-complete-btn').onclick = () => {
+document.getElementById('wr-complete-btn').onclick = async () => {
   const nextLetter = selectedNextPrinciple || getNextPrincipleLetter();
   const nextP = PRINCIPLES.find(p => p.letter === nextLetter);
+  const prevLetter = state.week.principleLetter;
+  state.weeklyReviews = state.weeklyReviews.filter(
+    r => !(r.weekStart === state.week.startedDate && !r.completed)
+  );
   state.weeklyReviews.push({
     weekStart: state.week.startedDate,
-    principleLetter: state.week.principleLetter,
+    principleLetter: prevLetter,
     lesson: document.getElementById('wr-lesson').value.trim(),
     broke: document.getElementById('wr-broke').value.trim(),
     carry: document.getElementById('wr-carry').value.trim(),
-    nextLetter, completed: true, completedAt: TODAY
+    nextLetter, completed: true, completedAt: getToday()
   });
   state.week.principleLetter = nextLetter;
-  state.week.startedDate = TODAY;
+  state.week.startedDate = getToday();
   state.week.cycleIndex = (state.week.cycleIndex + 1) % 7;
   pickWeekReps();
-  save('weeklyReviews'); save('week');
+  await save('weeklyReviews'); await save('week');
+  if (!state.meta.skipAutoFlashcards) {
+    if (state.weeklyReviews.filter(r => r.completed).length === 1) {
+      await autoGeneratePrincipleCards(prevLetter);
+    }
+    await autoGeneratePrincipleCards(nextLetter);
+  }
   document.getElementById('weekly-overlay').classList.remove('show');
   renderAll();
   toast(`Principle closed. Beginning ${nextP.name}.`);
+  const prevForNext = state.weeklyReviews
+    .filter(r => r.completed && r.principleLetter === nextLetter)
+    .sort((a, b) => (b.completedAt || b.weekStart || '') > (a.completedAt || a.weekStart || '') ? 1 : -1)[0];
+  if (prevForNext?.carry) {
+    setTimeout(() => toast(`Last time in Principle ${nextLetter}: "${prevForNext.carry}"`), 1800);
+  }
 };
 document.getElementById('open-weekly-review-btn').onclick = openWeeklyReview;
+document.getElementById('toggle-auto-cards-btn').onclick = () => {
+  state.meta.skipAutoFlashcards = !state.meta.skipAutoFlashcards;
+  document.getElementById('auto-cards-val').textContent = state.meta.skipAutoFlashcards ? 'Off' : 'On';
+  save('meta');
+  toast(state.meta.skipAutoFlashcards ? 'Auto-cards off' : 'Auto-cards on');
+};
 
 // ============ CONSTITUTION ============
 function renderConstitution() {
@@ -4832,6 +5013,171 @@ function renderConstitution() {
   });
 }
 
+// ============ PAST REVIEWS ============
+function renderPastReviews() {
+  const pane = document.getElementById('pane-past-reviews');
+  const completed = state.weeklyReviews
+    .filter(r => r.completed)
+    .slice()
+    .sort((a, b) => (b.completedAt || b.weekStart || '') > (a.completedAt || a.weekStart || '') ? 1 : -1);
+
+  if (completed.length === 0) {
+    pane.innerHTML = `
+      <div class="empty-state">
+        <div class="empty-state-icon">📜</div>
+        <div class="empty-state-text">No weekly reviews yet.</div>
+        <div class="empty-state-sub">Complete your first weekly review to begin your journey.</div>
+      </div>`;
+    return;
+  }
+
+  const fmtDate = ds => ds
+    ? new Date(ds + 'T12:00:00').toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })
+    : '—';
+  const field = t => t
+    ? `<div class="past-review-text">${escapeHtml(t)}</div>`
+    : `<div class="past-review-text empty">—</div>`;
+
+  pane.innerHTML = completed.map(r => {
+    const p = PRINCIPLES.find(pr => pr.letter === r.principleLetter);
+    const isCurrent = r.principleLetter === state.week.principleLetter;
+    return `
+      <div class="past-review-card${isCurrent ? ' current' : ''}">
+        <div class="past-review-head">
+          <div class="past-review-letter">${escapeHtml(r.principleLetter)}</div>
+          <div class="past-review-info">
+            <div class="past-review-eyebrow">${escapeHtml(p?.name || r.principleLetter)}</div>
+            <div class="past-review-date">${fmtDate(r.weekStart)} → ${fmtDate(r.completedAt)}</div>
+          </div>
+        </div>
+        <div class="past-review-body">
+          <div class="past-review-section">
+            <div class="past-review-label">It taught me</div>
+            ${field(r.lesson)}
+          </div>
+          <div class="past-review-section">
+            <div class="past-review-label">Where it broke</div>
+            ${field(r.broke)}
+          </div>
+          <div class="past-review-section">
+            <div class="past-review-label">Carry forward</div>
+            ${field(r.carry)}
+          </div>
+        </div>
+      </div>`;
+  }).join('');
+}
+
+// ============ TRAJECTORY ============
+function renderTrajectory() {
+  const pane = document.getElementById('pane-trajectory');
+
+  // ---- Part A: Resonance line chart ----
+  const cutoff = new Date();
+  cutoff.setDate(cutoff.getDate() - 59);
+  const cutoffStr = cutoff.toISOString().split('T')[0];
+
+  const points = Object.entries(state.alignment)
+    .filter(([ds]) => ds >= cutoffStr)
+    .map(([ds, score]) => ({ ds, score: Number(score) }))
+    .filter(p => !isNaN(p.score) && p.score >= 1 && p.score <= 10)
+    .sort((a, b) => a.ds > b.ds ? 1 : -1);
+
+  let resonanceHtml;
+  if (points.length < 3) {
+    resonanceHtml = `<div style="background:var(--bg-1);border:1px solid var(--line);border-radius:12px;padding:20px;">
+      <div class="traj-eyebrow">Resonance, last 60 days</div>
+      <div style="padding:20px 0 12px;text-align:center;">
+        <div class="empty-state-text" style="font-style:italic;">Not enough data yet.</div>
+        <div class="empty-state-sub">Score your days to see the line emerge.</div>
+      </div>
+    </div>`;
+  } else {
+    const vw = 600, vh = 100;
+    const pad = { t: 10, r: 10, b: 10, l: 10 };
+    const iw = vw - pad.l - pad.r, ih = vh - pad.t - pad.b;
+    const t0 = new Date(points[0].ds + 'T12:00:00').getTime();
+    const t1 = new Date(points[points.length - 1].ds + 'T12:00:00').getTime();
+    const tRange = t1 - t0 || DAY_MS;
+    const xOf = ds => (pad.l + ((new Date(ds + 'T12:00:00').getTime() - t0) / tRange) * iw).toFixed(2);
+    const yOf = v => (pad.t + ih - ((v - 1) / 9) * ih).toFixed(2);
+    const midY = yOf(5);
+
+    // Build segments, breaking at non-consecutive dates
+    const segments = [[]];
+    for (let i = 0; i < points.length; i++) {
+      if (i > 0) {
+        const gap = Math.round(
+          (new Date(points[i].ds + 'T12:00:00') - new Date(points[i-1].ds + 'T12:00:00')) / DAY_MS
+        );
+        if (gap > 1) segments.push([]);
+      }
+      segments[segments.length - 1].push(i);
+    }
+
+    const paths = segments.filter(s => s.length).map(seg => {
+      const pts = seg.map(i => `${xOf(points[i].ds)},${yOf(points[i].score)}`).join(' ');
+      return `<polyline points="${pts}" fill="none" stroke="var(--gold)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>`;
+    }).join('');
+
+    const dots = points.map(p =>
+      `<circle cx="${xOf(p.ds)}" cy="${yOf(p.score)}" r="2" fill="var(--gold)"/>`
+    ).join('');
+
+    const avg = (points.reduce((s, p) => s + p.score, 0) / points.length).toFixed(1);
+
+    resonanceHtml = `
+      <div style="background:var(--bg-1);border:1px solid var(--line);border-radius:12px;padding:20px;">
+        <div class="traj-eyebrow">Resonance, last 60 days</div>
+        <svg viewBox="0 0 ${vw} ${vh}" width="100%" height="140" preserveAspectRatio="none"
+             style="display:block;overflow:visible;margin:12px 0 8px;">
+          <line x1="${pad.l}" y1="${midY}" x2="${vw - pad.r}" y2="${midY}"
+                stroke="var(--line)" stroke-width="1" stroke-dasharray="3,4"/>
+          ${paths}${dots}
+        </svg>
+        <div class="traj-caption">Avg: ${avg}/10 · ${points.length} days logged</div>
+      </div>`;
+  }
+
+  // ---- Part B: Principle sequence ----
+  const completed = state.weeklyReviews
+    .filter(r => r.completed)
+    .slice()
+    .sort((a, b) => (a.completedAt || a.weekStart || '') > (b.completedAt || b.weekStart || '') ? 1 : -1);
+
+  const fmtShort = ds => ds
+    ? new Date(ds + 'T12:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
+    : '';
+
+  let sequenceHtml;
+  if (completed.length === 0) {
+    sequenceHtml = `<p style="font-family:var(--display);font-style:italic;font-size:14px;color:var(--ink-3);padding:4px 0;">Your journey will appear here as you close each principle.</p>`;
+  } else {
+    const pills = completed.map(r => `
+      <div class="trajectory-pill">
+        <div class="trajectory-pill-letter">${escapeHtml(r.principleLetter)}</div>
+        <div class="trajectory-pill-date">${fmtShort(r.weekStart)}–${fmtShort(r.completedAt)}</div>
+      </div>`);
+    const cur = state.week.principleLetter || 'A';
+    pills.push(`
+      <div class="trajectory-pill current">
+        <div class="trajectory-pill-letter">${escapeHtml(cur)}</div>
+        <div class="trajectory-pill-date">In progress</div>
+      </div>`);
+    sequenceHtml = `<div class="trajectory-strip">${pills.join('')}</div>`;
+  }
+
+  pane.innerHTML = `
+    <div class="traj-section">
+      <div class="traj-section-head">Resonance <em>line</em></div>
+      ${resonanceHtml}
+    </div>
+    <div class="traj-section">
+      <div class="traj-section-head">Principle <em>sequence</em></div>
+      ${sequenceHtml}
+    </div>`;
+}
+
 // ============ RENDER ALL ============
 function renderAll() {
   renderToday();
@@ -4842,6 +5188,8 @@ function renderAll() {
   renderSummaries();
   renderCardCategoryPicker();
   renderConstitution();
+  renderPastReviews();
+  renderTrajectory();
   updateMentorPromptLabels();
   if (mindMode === 'category') renderCategoryDetail();
 }

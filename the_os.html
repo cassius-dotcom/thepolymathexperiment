@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
 <meta name="theme-color" content="#0a0a0a">
 <title>The Load-Bearing OS</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,400&family=Geist+Mono:wght@300;400;500&family=Geist:wght@300;400;500;600&display=swap');
 
@@ -1656,6 +1657,81 @@ body {
   }
 }
 
+/* ========== AUTH SCREEN ========== */
+#auth-screen {
+  position: fixed; inset: 0;
+  background: var(--bg);
+  z-index: 1000;
+  display: none; align-items: center; justify-content: center;
+  padding: 24px;
+}
+#auth-screen.show { display: flex; }
+.auth-wrap { width: 100%; max-width: 380px; }
+.auth-brand {
+  display: flex; align-items: center; gap: 10px;
+  justify-content: center; margin-bottom: 32px;
+}
+.auth-brand-text {
+  font-family: var(--display);
+  font-size: 20px; font-weight: 500; letter-spacing: -0.01em;
+}
+.auth-card {
+  background: var(--bg-1); border: 1px solid var(--line);
+  border-radius: 20px; padding: 28px 24px;
+}
+.auth-tabs {
+  display: flex; background: var(--bg-2);
+  border-radius: 10px; padding: 3px; gap: 2px; margin-bottom: 24px;
+}
+.auth-tab {
+  flex: 1; background: none; border: none;
+  color: var(--ink-3); padding: 9px;
+  border-radius: 8px; font-family: var(--sans);
+  font-size: 13px; font-weight: 500; cursor: pointer;
+  transition: all 200ms ease;
+}
+.auth-tab.active { background: var(--bg); color: var(--gold); }
+.auth-field { margin-bottom: 16px; }
+.auth-label {
+  font-family: var(--mono); font-size: 10px;
+  letter-spacing: 0.2em; text-transform: uppercase;
+  color: var(--ink-3); display: block; margin-bottom: 6px;
+}
+.auth-input {
+  width: 100%; background: var(--bg-2);
+  border: 1px solid var(--line); border-radius: 10px;
+  padding: 13px 14px; color: var(--ink);
+  font-family: var(--sans); font-size: 15px;
+  outline: none; transition: border-color 200ms ease;
+}
+.auth-input:focus { border-color: var(--gold-soft); }
+.auth-input::placeholder { color: var(--ink-4); }
+.auth-btn {
+  width: 100%; background: var(--gold); color: var(--bg);
+  border: none; border-radius: 12px; padding: 14px;
+  font-family: var(--sans); font-size: 14px; font-weight: 600;
+  cursor: pointer; transition: transform 150ms ease; margin-top: 8px;
+}
+.auth-btn:active { transform: scale(0.98); }
+.auth-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+.auth-error {
+  background: rgba(200,103,78,0.1); border: 1px solid rgba(200,103,78,0.3);
+  border-radius: 10px; padding: 12px 14px;
+  color: var(--red); font-size: 13px; line-height: 1.45;
+  margin-bottom: 16px; display: none;
+}
+.auth-success {
+  background: rgba(107,167,107,0.1); border: 1px solid rgba(107,167,107,0.3);
+  border-radius: 10px; padding: 12px 14px;
+  color: var(--green); font-size: 13px; line-height: 1.45;
+  margin-bottom: 16px; display: none;
+}
+.auth-sub {
+  text-align: center; margin-top: 14px;
+  font-size: 11px; color: var(--ink-4); font-family: var(--mono);
+  letter-spacing: 0.05em;
+}
+
 /* ========== PRINCIPLE BANNER ========== */
 .principle-banner {
   background: linear-gradient(135deg, rgba(212,168,87,0.1), rgba(212,168,87,0.03));
@@ -1987,6 +2063,36 @@ body {
 </style>
 </head>
 <body>
+
+<!-- AUTH SCREEN -->
+<div id="auth-screen">
+  <div class="auth-wrap">
+    <div class="auth-brand">
+      <div class="brand-mark"></div>
+      <div class="auth-brand-text">The OS</div>
+    </div>
+    <div class="auth-card">
+      <div class="auth-tabs">
+        <button class="auth-tab active" data-mode="signin">Sign in</button>
+        <button class="auth-tab" data-mode="signup">Create account</button>
+      </div>
+      <div id="auth-error" class="auth-error"></div>
+      <div id="auth-success" class="auth-success"></div>
+      <div class="auth-field">
+        <label class="auth-label">Email</label>
+        <input id="auth-email" type="email" class="auth-input" placeholder="you@example.com" autocomplete="email"/>
+      </div>
+      <div class="auth-field">
+        <label class="auth-label">Password</label>
+        <input id="auth-password" type="password" class="auth-input" placeholder="••••••••" autocomplete="current-password"/>
+      </div>
+      <button id="auth-submit" class="auth-btn">Sign in</button>
+      <div class="auth-sub">Your data is yours. Synced across devices.</div>
+    </div>
+  </div>
+</div>
+
+<div id="app-wrap" style="display:none;">
 
 <!-- TOPBAR -->
 <div class="topbar">
@@ -2357,6 +2463,13 @@ body {
         <input id="api-key-input" type="password" placeholder="sk-ant-..."
           style="width: 100%; background: var(--bg-2); border: 1px solid var(--line); border-radius: 8px; padding: 10px 12px; color: var(--ink); font-family: var(--mono); font-size: 12px; outline: none; letter-spacing: 0.05em;"/>
       </div>
+      <div class="settings-row" id="signout-btn">
+        <div>
+          <div class="settings-label">Sign out</div>
+          <div class="settings-sublabel" id="signout-email">—</div>
+        </div>
+        <div class="settings-val" style="color: var(--red);">→</div>
+      </div>
       <div class="settings-row" id="open-weekly-review-btn">
         <div>
           <div class="settings-label">Open weekly review</div>
@@ -2432,6 +2545,8 @@ body {
     <span class="tab-label">More</span>
   </button>
 </nav>
+
+</div><!-- #app-wrap -->
 
 <!-- REVIEW OVERLAY -->
 <div class="review-overlay" id="review-overlay">
@@ -2776,13 +2891,32 @@ body {
 <div class="toast" id="toast"><span class="toast-dot"></span><span id="toast-text">Saved</span></div>
 
 <script>
+const SUPABASE_URL = 'https://tilulkkukndyqpouizba.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRpbHVsa2t1a25keXFwb3VpemJhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg4OTkxOTEsImV4cCI6MjA5NDQ3NTE5MX0.ffe0dbJKXHjA29JU2inOqCB1baJaJ-X0eDpen1_extc';
+const _sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+let _currentUserId = null;
+
 window.storage = {
+  // Fast read from localStorage cache (populated on login via loadAll)
   get: async (key) => {
     const v = localStorage.getItem(key);
     return v != null ? { value: v } : null;
   },
+  // Write-through: localStorage instantly, Supabase in background
   set: async (key, value) => {
     localStorage.setItem(key, value);
+    if (!_currentUserId) return;
+    _sb.from('user_data')
+      .upsert({ user_id: _currentUserId, key, value, updated_at: new Date().toISOString() },
+               { onConflict: 'user_id,key' })
+      .then(() => {}).catch(console.error);
+  },
+  // Bulk load all user data from Supabase into localStorage on login
+  loadAll: async () => {
+    if (!_currentUserId) return;
+    const { data, error } = await _sb.from('user_data').select('key, value');
+    if (error) { console.error('Supabase load error:', error); return; }
+    if (data) data.forEach(row => localStorage.setItem(row.key, row.value));
   }
 };
 </script>
@@ -2792,6 +2926,68 @@ window.storage = {
 const TODAY = new Date().toISOString().split('T')[0];
 const NOW = Date.now();
 const DAY_MS = 86400000;
+
+// ============ AUTH UI ============
+function showApp() {
+  document.getElementById('auth-screen').classList.remove('show');
+  document.getElementById('app-wrap').style.display = '';
+}
+function showAuth() {
+  document.getElementById('auth-screen').classList.add('show');
+  document.getElementById('app-wrap').style.display = 'none';
+}
+
+let _authMode = 'signin';
+document.querySelectorAll('.auth-tab').forEach(tab => {
+  tab.onclick = () => {
+    _authMode = tab.dataset.mode;
+    document.querySelectorAll('.auth-tab').forEach(t => t.classList.remove('active'));
+    tab.classList.add('active');
+    document.getElementById('auth-submit').textContent = _authMode === 'signin' ? 'Sign in' : 'Create account';
+    document.getElementById('auth-error').style.display = 'none';
+    document.getElementById('auth-success').style.display = 'none';
+  };
+});
+
+document.getElementById('auth-submit').onclick = async () => {
+  const email = document.getElementById('auth-email').value.trim();
+  const password = document.getElementById('auth-password').value;
+  const errEl = document.getElementById('auth-error');
+  const okEl = document.getElementById('auth-success');
+  const btn = document.getElementById('auth-submit');
+  errEl.style.display = 'none';
+  okEl.style.display = 'none';
+  if (!email || !password) {
+    errEl.textContent = 'Email and password are required.';
+    errEl.style.display = 'block'; return;
+  }
+  btn.disabled = true;
+  btn.textContent = _authMode === 'signin' ? 'Signing in…' : 'Creating account…';
+  try {
+    let result;
+    if (_authMode === 'signin') {
+      result = await _sb.auth.signInWithPassword({ email, password });
+    } else {
+      result = await _sb.auth.signUp({ email, password });
+    }
+    if (result.error) {
+      errEl.textContent = result.error.message;
+      errEl.style.display = 'block';
+    } else if (_authMode === 'signup' && !result.data.session) {
+      okEl.textContent = 'Check your email to confirm your account, then sign in.';
+      okEl.style.display = 'block';
+    }
+  } catch (err) {
+    errEl.textContent = err.message || 'Something went wrong.';
+    errEl.style.display = 'block';
+  }
+  btn.disabled = false;
+  btn.textContent = _authMode === 'signin' ? 'Sign in' : 'Create account';
+};
+
+document.getElementById('auth-password').addEventListener('keydown', (e) => {
+  if (e.key === 'Enter') document.getElementById('auth-submit').click();
+});
 
 // ============ PRINCIPLES ============
 const PRINCIPLES = [
@@ -4639,11 +4835,35 @@ apiKeyInput.addEventListener('blur', () => {
   apiKeyInput.type = 'password';
 });
 
-// ============ INIT ============
+// ============ SIGN OUT ============
+document.getElementById('signout-btn').onclick = async () => {
+  if (!confirm('Sign out? Your data is saved to your account.')) return;
+  await _sb.auth.signOut();
+  // Clear local cache so a different account starts clean
+  Object.keys(localStorage).forEach(k => { if (k.startsWith('os:')) localStorage.removeItem(k); });
+};
+
+// ============ INIT — auth state drives everything ============
 setDateGreeting();
-loadState().then(() => {
-  updateContextToggle();
-  loadChatRender();
+showAuth(); // hidden until session confirmed
+
+_sb.auth.onAuthStateChange(async (event, session) => {
+  if (session?.user) {
+    _currentUserId = session.user.id;
+    // Show user email in sign-out row
+    const emailEl = document.getElementById('signout-email');
+    if (emailEl) emailEl.textContent = session.user.email;
+    // Bulk sync from Supabase into localStorage, then boot app
+    await window.storage.loadAll();
+    showApp();
+    setDateGreeting();
+    await loadState();
+    updateContextToggle();
+    loadChatRender();
+  } else {
+    _currentUserId = null;
+    showAuth();
+  }
 });
 </script>
 

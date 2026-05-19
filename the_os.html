@@ -3332,7 +3332,7 @@ window.storage = {
   // Bulk load all user data from Supabase into localStorage on login
   loadAll: async () => {
     if (!_currentUserId) return;
-    const { data, error } = await _sb.from('user_data').select('key, value');
+    const { data, error } = await _sb.from('user_data').select('key, value').eq('user_id', _currentUserId);
     if (error) { console.error('Supabase load error:', error); return; }
     if (data) data.forEach(row => localStorage.setItem(row.key, row.value));
   }
@@ -3592,10 +3592,10 @@ async function loadState() {
       { id: 'philosophy', name: 'Philosophy', icon: '🏛️', created: NOW },
       { id: 'language', name: 'Language', icon: '🗣️', created: NOW },
     ];
-    save('categories');
+    save('categories', true);
   }
   if (!state.week.emotionalRepIds || state.week.emotionalRepIds.length === 0) {
-    pickWeekReps(); save('week');
+    pickWeekReps(); save('week', true);
   }
   if (state.meta.firstVisit) {
     setTimeout(() => document.getElementById('help-modal').classList.add('show'), 400);
@@ -3604,10 +3604,10 @@ async function loadState() {
   document.getElementById('auto-cards-val').textContent = state.meta.skipAutoFlashcards ? 'Off' : 'On';
 }
 
-async function save(key) {
+async function save(key, silent = false) {
   try {
     await window.storage.set('os:' + key, JSON.stringify(state[key]));
-    toast('Saved');
+    if (!silent) toast('Saved');
   } catch (e) { console.error(e); }
 }
 
@@ -4795,6 +4795,7 @@ function formatMentorText(text) {
   html = html.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
   html = html.replace(/\*(.+?)\*/g, '<em>$1</em>');
   html = html.replace(/`([^`]+)`/g, '<code>$1</code>');
+  html = html.replace(/\n\n+/g, '<br><br>').replace(/\n/g, '<br>');
   return html.trim();
 }
 
@@ -5882,21 +5883,24 @@ document.getElementById('signout-btn').onclick = async () => {
 setDateGreeting();
 showAuth(); // hidden until session confirmed
 
+let _appInitialized = false;
 _sb.auth.onAuthStateChange(async (event, session) => {
   if (session?.user) {
     _currentUserId = session.user.id;
-    // Show user email in sign-out row
     const emailEl = document.getElementById('signout-email');
     if (emailEl) emailEl.textContent = session.user.email;
-    // Bulk sync from Supabase into localStorage, then boot app
-    await window.storage.loadAll();
-    showApp();
-    setDateGreeting();
-    await loadState();
-    updateContextToggle();
-    loadChatRender();
+    if (!_appInitialized) {
+      _appInitialized = true;
+      await window.storage.loadAll();
+      showApp();
+      setDateGreeting();
+      await loadState();
+      updateContextToggle();
+      loadChatRender();
+    }
   } else {
     _currentUserId = null;
+    _appInitialized = false;
     showAuth();
   }
 });

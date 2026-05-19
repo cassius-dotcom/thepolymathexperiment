@@ -5883,24 +5883,21 @@ document.getElementById('signout-btn').onclick = async () => {
 setDateGreeting();
 showAuth(); // hidden until session confirmed
 
-let _appInitialized = false;
 _sb.auth.onAuthStateChange(async (event, session) => {
   if (session?.user) {
     _currentUserId = session.user.id;
     const emailEl = document.getElementById('signout-email');
     if (emailEl) emailEl.textContent = session.user.email;
-    if (!_appInitialized) {
-      _appInitialized = true;
-      await window.storage.loadAll();
-      showApp();
-      setDateGreeting();
-      await loadState();
-      updateContextToggle();
-      loadChatRender();
-    }
+    if (event === 'TOKEN_REFRESHED') return;
+    await window.storage.loadAll();
+    showApp();
+    setDateGreeting();
+    document.getElementById('chat-scroll').innerHTML = '';
+    await loadState();
+    updateContextToggle();
+    loadChatRender();
   } else {
     _currentUserId = null;
-    _appInitialized = false;
     showAuth();
   }
 });

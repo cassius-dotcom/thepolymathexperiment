@@ -3462,16 +3462,39 @@ function getNextPrincipleLetter(current) {
   const idx = PRINCIPLES.findIndex(p => p.letter === c);
   return PRINCIPLES[(idx + 1) % PRINCIPLES.length].letter;
 }
-function pickWeekReps() {
-  const shuffled = [...EMOTIONAL_PILLAR.reps].sort(() => Math.random() - 0.5);
-  state.week.emotionalRepIds = shuffled.slice(0, 4).map(r => r.id);
-  state.week.pillarRepIds = getCurrentPrinciple().pillar.reps.map(r => r.id);
+function hashDateString(s) {
+  let h = 0;
+  for (let i = 0; i < s.length; i++) {
+    h = ((h << 5) - h) + s.charCodeAt(i);
+    h |= 0;
+  }
+  return Math.abs(h);
+}
+function pickFromPool(pool, count, seed) {
+  const arr = [...pool];
+  let rngState = seed || 1;
+  function next() {
+    rngState = (rngState * 1664525 + 1013904223) >>> 0;
+    return rngState / 0x100000000;
+  }
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = Math.floor(next() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+  return arr.slice(0, Math.min(count, arr.length));
+}
+function getRepsForDate(isoDate) {
+  const principle = getCurrentPrinciple();
+  const seed = hashDateString(isoDate);
+  const emotionalReps = pickFromPool(EMOTIONAL_PILLAR.reps, 4, seed);
+  const pillarPool = principle.pillar.reps;
+  const pillarReps = pillarPool.length <= 3
+    ? pillarPool
+    : pickFromPool(pillarPool, 3, seed + 1);
+  return { emotional: emotionalReps, pillar: pillarReps, principle };
 }
 function getActiveRepStructure() {
-  const principle = getCurrentPrinciple();
-  const ids = state.week.emotionalRepIds || EMOTIONAL_PILLAR.reps.slice(0, 4).map(r => r.id);
-  const emotionalReps = ids.map(id => EMOTIONAL_PILLAR.reps.find(r => r.id === id)).filter(Boolean);
-  return { emotional: emotionalReps, pillar: principle.pillar.reps, principle };
+  return getRepsForDate(getToday());
 }
 function daysSinceWeekStart() {
   const startDate = state.week.startedDate || getToday();
@@ -3518,9 +3541,7 @@ async function loadState() {
     ];
     save('categories', true);
   }
-  if (!state.week.emotionalRepIds || state.week.emotionalRepIds.length === 0) {
-    pickWeekReps(); save('week', true);
-  }
+
   if (state.meta.firstVisit) {
     setTimeout(() => document.getElementById('help-modal').classList.add('show'), 400);
   }
@@ -5011,7 +5032,6 @@ document.getElementById('reset-all-btn').onclick = () => {
     else state[k] = {};
     save(k);
   });
-  pickWeekReps(); save('week');
   document.getElementById('chat-scroll').innerHTML = '';
   renderAll();
   toast('Wiped');
@@ -5172,7 +5192,6 @@ document.getElementById('wr-complete-btn').onclick = async () => {
   state.week.principleLetter = nextLetter;
   state.week.startedDate = getToday();
   state.week.cycleIndex = (state.week.cycleIndex + 1) % 7;
-  pickWeekReps();
   await save('weeklyReviews'); await save('week');
   if (!state.meta.skipAutoFlashcards) {
     if (state.weeklyReviews.filter(r => r.completed).length === 1) {

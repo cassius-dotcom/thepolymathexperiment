@@ -2152,6 +2152,185 @@ body {
   background: linear-gradient(135deg, rgba(212,168,87,0.12), rgba(212,168,87,0.04));
   border-color: rgba(212,168,87,0.3);
 }
+
+/* ========== LAB ========== */
+.lab-filter-row {
+  display: flex; gap: 6px;
+  overflow-x: auto; padding-bottom: 4px;
+  margin-bottom: 16px; scrollbar-width: none;
+}
+.lab-filter-row::-webkit-scrollbar { display: none; }
+.lab-filter {
+  flex-shrink: 0; background: none;
+  border: 1px solid var(--line); color: var(--ink-3);
+  font-family: var(--mono); font-size: 10px;
+  letter-spacing: 0.15em; text-transform: uppercase;
+  padding: 8px 14px; border-radius: 100px;
+  cursor: pointer; transition: all 200ms ease;
+}
+.lab-filter:active { transform: scale(0.95); }
+.lab-filter.active {
+  background: rgba(212, 168, 87, 0.15);
+  color: var(--gold); border-color: var(--gold);
+}
+.experiment-card {
+  background: var(--bg-1); border: 1px solid var(--line);
+  border-radius: 16px; padding: 18px 20px;
+  margin-bottom: 12px; cursor: pointer;
+  transition: all 200ms ease;
+}
+.experiment-card:active { transform: scale(0.99); }
+@media (hover: hover) {
+  .experiment-card:hover { border-color: var(--line-bright); }
+}
+.experiment-card[data-status="active"] { border-color: rgba(212, 168, 87, 0.3); }
+.experiment-card[data-status="completed"] { opacity: 0.85; }
+.experiment-card[data-status="failed"] { opacity: 0.7; }
+.experiment-card[data-status="paused"] { opacity: 0.75; }
+.experiment-head {
+  display: flex; align-items: flex-start;
+  gap: 12px; margin-bottom: 10px;
+}
+.experiment-status-dot {
+  width: 8px; height: 8px; border-radius: 50%;
+  flex-shrink: 0; margin-top: 8px;
+}
+.experiment-card[data-status="active"] .experiment-status-dot {
+  background: var(--gold);
+  box-shadow: 0 0 8px rgba(212, 168, 87, 0.5);
+  animation: pulse 4s ease-in-out infinite;
+}
+.experiment-card[data-status="paused"] .experiment-status-dot { background: var(--ink-3); }
+.experiment-card[data-status="completed"] .experiment-status-dot { background: var(--green); }
+.experiment-card[data-status="failed"] .experiment-status-dot { background: var(--red); }
+.experiment-info { flex: 1; min-width: 0; }
+.experiment-name {
+  font-family: var(--display); font-size: 17px;
+  font-weight: 500; letter-spacing: -0.01em;
+  margin-bottom: 3px; line-height: 1.3;
+}
+.experiment-hypothesis {
+  font-family: var(--display); font-style: italic;
+  font-size: 13px; color: var(--ink-3); line-height: 1.4;
+}
+.experiment-day-count {
+  font-family: var(--mono); font-size: 10px;
+  letter-spacing: 0.1em; color: var(--gold);
+  text-transform: uppercase; flex-shrink: 0; padding-top: 4px;
+}
+.experiment-card[data-status="completed"] .experiment-day-count,
+.experiment-card[data-status="failed"] .experiment-day-count,
+.experiment-card[data-status="paused"] .experiment-day-count { color: var(--ink-3); }
+.experiment-meta {
+  display: flex; gap: 8px; flex-wrap: wrap;
+  font-family: var(--mono); font-size: 10px;
+  color: var(--ink-4); letter-spacing: 0.05em;
+}
+.field-hint {
+  font-family: var(--display); font-style: italic;
+  font-size: 12px; color: var(--ink-4);
+  margin-top: 6px; line-height: 1.4;
+}
+.exp-detail-status-row {
+  display: flex; align-items: center;
+  justify-content: space-between; margin-bottom: 8px;
+}
+.exp-detail-status-pill {
+  font-family: var(--mono); font-size: 10px;
+  letter-spacing: 0.2em; text-transform: uppercase;
+  padding: 4px 10px; border-radius: 100px;
+  background: var(--bg-2); border: 1px solid var(--line);
+  color: var(--ink-3);
+}
+.exp-detail-status-pill.active { color: var(--gold); border-color: var(--gold-soft); }
+.exp-detail-status-pill.completed { color: var(--green); border-color: var(--green); }
+.exp-detail-status-pill.failed { color: var(--red); border-color: var(--red); }
+.exp-detail-day {
+  font-family: var(--mono); font-size: 11px;
+  color: var(--ink-3); letter-spacing: 0.1em;
+}
+.exp-detail-name {
+  font-family: var(--display); font-size: 24px;
+  font-weight: 500; letter-spacing: -0.01em;
+  line-height: 1.2; margin-bottom: 20px;
+}
+.exp-detail-section {
+  margin-bottom: 20px; padding-bottom: 16px;
+  border-bottom: 1px solid var(--line);
+}
+.exp-detail-section:last-of-type { border-bottom: none; }
+.exp-detail-text {
+  font-family: var(--display); font-style: italic;
+  font-size: 15px; line-height: 1.55;
+  color: var(--ink-2); white-space: pre-wrap;
+}
+.exp-detail-verdict {
+  background: var(--bg-2); padding: 12px 14px;
+  border-radius: 10px; border-left: 2px solid var(--gold);
+  font-style: normal;
+}
+.exp-detail-meta-row {
+  display: flex; gap: 12px;
+  font-family: var(--mono); font-size: 11px;
+  color: var(--ink-3); letter-spacing: 0.05em;
+  margin-bottom: 20px; padding-bottom: 16px;
+  border-bottom: 1px solid var(--line);
+}
+.exp-entry {
+  background: var(--bg-2); border-radius: 10px;
+  padding: 12px 14px; margin-bottom: 8px; position: relative;
+}
+.exp-entry-date {
+  font-family: var(--mono); font-size: 10px;
+  color: var(--ink-4); letter-spacing: 0.1em;
+  margin-bottom: 4px; text-transform: uppercase;
+}
+.exp-entry-text {
+  font-family: var(--display); font-style: italic;
+  font-size: 14px; line-height: 1.5;
+  color: var(--ink); white-space: pre-wrap; word-break: break-word;
+}
+.exp-entry-delete {
+  position: absolute; top: 8px; right: 8px;
+  background: none; border: none; color: var(--ink-4);
+  font-size: 14px; cursor: pointer; opacity: 0.4;
+  transition: opacity 200ms ease; padding: 4px 6px;
+}
+.exp-entry-delete:hover { opacity: 1; color: var(--red); }
+.exp-new-entry textarea {
+  width: 100%; background: var(--bg-2);
+  border: 1px solid var(--line); border-radius: 10px;
+  padding: 12px 14px; color: var(--ink);
+  font-family: var(--display); font-style: italic;
+  font-size: 15px; line-height: 1.5; outline: none;
+  resize: vertical; min-height: 60px;
+  transition: border-color 200ms ease;
+}
+.exp-new-entry textarea:focus { border-color: var(--gold-soft); }
+.exp-status-actions {
+  display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px;
+}
+.exp-status-btn {
+  background: var(--bg-2); border: 1px solid var(--line);
+  border-radius: 10px; padding: 12px;
+  font-family: var(--sans); font-size: 13px;
+  font-weight: 500; color: var(--ink-2);
+  cursor: pointer; transition: all 180ms ease;
+}
+.exp-status-btn:active { transform: scale(0.97); }
+.exp-status-btn.complete { color: var(--green); border-color: rgba(107, 167, 107, 0.3); }
+.exp-status-btn.fail { color: var(--red); border-color: rgba(200, 103, 78, 0.3); }
+.exp-status-btn.resume { color: var(--gold); border-color: rgba(212, 168, 87, 0.3); }
+.exp-verdict-form textarea {
+  width: 100%; background: var(--bg-2);
+  border: 1px solid var(--line); border-radius: 10px;
+  padding: 12px 14px; color: var(--ink);
+  font-family: var(--display); font-style: italic;
+  font-size: 15px; line-height: 1.5; outline: none;
+  resize: vertical; min-height: 80px;
+  transition: border-color 200ms ease;
+}
+.exp-verdict-form textarea:focus { border-color: var(--gold-soft); }
 </style>
 </head>
 <body>
@@ -2423,6 +2602,31 @@ body {
 
   </div>
 
+  <!-- ============ LAB VIEW ============ -->
+  <div class="view" id="view-lab">
+    <div class="container">
+      <div class="hero">
+        <div class="hero-eyebrow">The Lab</div>
+        <div class="hero-title">Run <em>experiments</em><br>on the man.</div>
+        <div class="hero-sub">Small inputs. Measured outputs. Truth over guessing.</div>
+      </div>
+
+      <div class="quick-stats" id="lab-stats"></div>
+
+      <div class="lab-filter-row" id="lab-filter-row">
+        <button class="lab-filter active" data-filter="active">Active</button>
+        <button class="lab-filter" data-filter="paused">Paused</button>
+        <button class="lab-filter" data-filter="completed">Completed</button>
+        <button class="lab-filter" data-filter="failed">Failed</button>
+        <button class="lab-filter" data-filter="all">All</button>
+      </div>
+
+      <button class="btn btn-primary" id="lab-new-btn" style="width:100%;margin-bottom:20px;">+ New experiment</button>
+
+      <div id="lab-list"></div>
+    </div>
+  </div>
+
   <!-- ============ MENTOR VIEW ============ -->
   <div class="view" id="view-mentor">
 
@@ -2460,6 +2664,10 @@ body {
         <button class="prompt-tile principle-prompt" data-prompt="principle-coach">
           <span class="prompt-icon">◆</span>
           <span class="prompt-text" id="principle-prompt-text">Coach me on this week's principle.</span>
+        </button>
+        <button class="prompt-tile" data-prompt="lab-review">
+          <span class="prompt-icon">⚗️</span>
+          <span class="prompt-text">Review my active experiments.</span>
         </button>
         <button class="prompt-tile" data-prompt="decision">
           <span class="prompt-icon">🧭</span>
@@ -2640,6 +2848,10 @@ body {
   <button class="tab" data-view="mind">
     <svg viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
     <span class="tab-label">Mind</span>
+  </button>
+  <button class="tab" data-view="lab">
+    <svg class="tab-icon" viewBox="0 0 24 24"><path d="M9 2h6"/><path d="M10 2v6.5L4.5 18A2.5 2.5 0 0 0 6.5 22h11a2.5 2.5 0 0 0 2-4L14 8.5V2"/><path d="M6.5 14h11"/></svg>
+    <span class="tab-label">Lab</span>
   </button>
   <button class="tab" data-view="mentor">
     <svg viewBox="0 0 24 24"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
@@ -2988,7 +3200,108 @@ body {
       </div>
     </div>
 
+    <div class="modal-step">
+      <div class="modal-step-num">5</div>
+      <div class="modal-step-text">
+        <strong>Run experiments.</strong>
+        The Lab is where you test changes on yourself. Hypothesis → trial → verdict. Small inputs, measured outputs, truth over guessing.
+      </div>
+    </div>
+
     <button class="btn btn-primary" id="close-help-btn" style="margin-top: 16px; width: 100%;">Begin</button>
+  </div>
+</div>
+
+<!-- ============ NEW/EDIT EXPERIMENT MODAL ============ -->
+<div class="modal-bg" id="exp-new-modal">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-eyebrow" id="exp-modal-eyebrow">New Experiment</div>
+    <div class="modal-title">Form a hypothesis.</div>
+
+    <div class="field">
+      <div class="field-label">Name</div>
+      <input id="exp-name-input" placeholder="e.g. Creatine 5g daily, Cold shower, No phone in bedroom"/>
+    </div>
+
+    <div class="field">
+      <div class="field-label">Hypothesis</div>
+      <textarea id="exp-hypothesis-input" rows="3" placeholder="What do you expect to happen, and why?"></textarea>
+    </div>
+
+    <div class="field">
+      <div class="field-label">Started</div>
+      <input id="exp-start-input" type="date"/>
+    </div>
+
+    <div class="field">
+      <div class="field-label">End date (optional)</div>
+      <input id="exp-end-input" type="date"/>
+      <div class="field-hint">An experiment without an end date is just a new habit you're hoping works.</div>
+    </div>
+
+    <div class="field">
+      <div class="field-label">Success criteria (optional)</div>
+      <textarea id="exp-criteria-input" rows="2" placeholder="How will you know it worked? Define this BEFORE you start, not after."></textarea>
+    </div>
+
+    <div class="modal-actions">
+      <button class="btn btn-ghost" id="exp-new-cancel">Cancel</button>
+      <button class="btn btn-primary" id="exp-new-save">Start experiment</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============ EXPERIMENT DETAIL MODAL ============ -->
+<div class="modal-bg" id="exp-detail-modal">
+  <div class="modal">
+    <div class="modal-handle"></div>
+
+    <div class="exp-detail-status-row">
+      <span class="exp-detail-status-pill" id="exp-d-status">Active</span>
+      <span class="exp-detail-day" id="exp-d-day">Day 1</span>
+    </div>
+
+    <div class="exp-detail-name" id="exp-d-name">Experiment name</div>
+
+    <div class="exp-detail-section">
+      <div class="field-label">Hypothesis</div>
+      <div class="exp-detail-text" id="exp-d-hypothesis">—</div>
+    </div>
+
+    <div class="exp-detail-section" id="exp-d-criteria-section">
+      <div class="field-label">Success criteria</div>
+      <div class="exp-detail-text" id="exp-d-criteria">—</div>
+    </div>
+
+    <div class="exp-detail-meta-row" id="exp-d-meta"></div>
+
+    <div class="exp-detail-section" id="exp-d-verdict-section" style="display:none;">
+      <div class="field-label">Verdict</div>
+      <div class="exp-detail-text exp-detail-verdict" id="exp-d-verdict">—</div>
+    </div>
+
+    <div class="exp-detail-section">
+      <div class="field-label">Notes</div>
+      <div id="exp-d-entries"></div>
+      <div class="exp-new-entry">
+        <textarea id="exp-new-entry-input" rows="2" placeholder="Log an observation..."></textarea>
+        <button class="btn btn-primary" id="exp-add-entry-btn" style="margin-top:8px;width:100%;">Add note</button>
+      </div>
+    </div>
+
+    <div class="exp-detail-section">
+      <div class="field-label">Status</div>
+      <div class="exp-status-actions" id="exp-status-actions"></div>
+    </div>
+
+    <div class="modal-actions">
+      <button class="btn btn-ghost" id="exp-edit-btn">Edit</button>
+      <button class="btn btn-danger" id="exp-delete-btn">Delete</button>
+    </div>
+    <div class="modal-actions" style="margin-top:8px;">
+      <button class="btn btn-primary" id="exp-detail-close-btn" style="width:100%;">Close</button>
+    </div>
   </div>
 </div>
 
@@ -3209,11 +3522,12 @@ const state = {
   reviewStats: { total: 0 }, chat: [],
   week: { cycleIndex: 0, principleLetter: 'A', startedDate: getToday(), emotionalRepIds: null, pillarRepIds: null },
   weeklyReviews: [],
+  experiments: [],
   meta: { firstVisit: true, contextOn: true }
 };
 
 const ICONS = ['📚','🧠','💡','📖','🎯','⚖️','🔬','🎨','💼','🌍','🧘','💪','💰','❤️','🛠️','🗣️','🎵','✍️','🏛️','⚔️','🌱','🔥','✦','♟️'];
-const KEYS = ['reps','alignment','filters','reflections','tomorrow','categories','cards','books','summaries','reviewStats','chat','week','weeklyReviews','meta'];
+const KEYS = ['reps','alignment','filters','reflections','tomorrow','categories','cards','books','summaries','reviewStats','chat','week','weeklyReviews','experiments','meta'];
 
 // ============ WEEK HELPERS ============
 function getCurrentPrinciple() {
@@ -3350,6 +3664,7 @@ document.querySelectorAll('.tab').forEach(tab => {
     tab.classList.add('active');
     document.getElementById('view-' + view).classList.add('active');
     currentView = view;
+    if (view === 'lab') renderLab();
     window.scrollTo({ top: 0, behavior: 'smooth' });
   });
 });
@@ -4265,6 +4580,7 @@ WHEN HE SHARES CONTEXT (today's reps, alignment scores, reflections, friction no
 - Connect the data to his principles. ("Your reflection says you over-explained at work today. That's on the refusals list.")
 - Never pretend to see context that isn't there.
 - If past weekly reviews are present, treat them as deep context. Notice patterns across cycles. If he's now in a principle he's been in before, reference what he wrote then. The arc matters more than any single day.
+- If active experiments are present, treat them as live data. Reference specific experiments by name. If recent notes show a pattern, name it. If criteria were defined, hold him to them. Quitting an experiment before its end date without good reason is Principle B speaking — capacity vs. comfort.
 
 FLASHCARD GENERATION:
 When he asks you to generate flashcards from a passage, book, idea, or topic, respond with:
@@ -4293,6 +4609,7 @@ function buildQuickPrompts() {
     reactivity: "I had reactive moments today. Use my reflection notes if you have access. Help me dissect what triggered them and the pattern they point to.",
     audit: `Audit my week through the lens of Principle ${p.letter}: ${p.name}. Use my reps, alignment scores, and reflections. What pattern do you see? What's the most important thing I should know about myself right now?`,
     'principle-coach': `Coach me on Principle ${p.letter}: ${p.name}. What's the most important thing for me to understand this week? What pattern should I watch for?`,
+    'lab-review': "Look at my active experiments. For each one: where am I in it, what's the hypothesis, what do my recent notes show? Then tell me what you'd watch for or push me on.",
     decision: "I'm wrestling with a decision. Walk me through it using my own principles. I'll lay out the situation.",
     cards: "I'm going to paste some text. Generate 6-10 flashcards from it that capture the most important ideas. Atomic cards, one idea each."
   };
@@ -4412,6 +4729,34 @@ function buildLiveContext() {
   if (state.summaries.length > 0) {
     const recent = state.summaries.slice(-3).map(s => s.title).join('; ');
     lines.push(`Recent summaries: ${recent}`);
+  }
+
+  // Active experiments
+  const activeExperiments = state.experiments.filter(e => e.status === 'active');
+  if (activeExperiments.length > 0) {
+    lines.push(`\nActive experiments (${activeExperiments.length}):`);
+    activeExperiments.forEach(exp => {
+      const days = experimentDayCount(exp);
+      lines.push(`  - "${exp.name}" (${days}). Hypothesis: ${exp.hypothesis}`);
+      if (exp.criteria) lines.push(`    Success criteria: ${exp.criteria}`);
+      if (exp.endDate) lines.push(`    Ends: ${exp.endDate}`);
+      const recentEntries = (exp.entries || []).slice(-3);
+      if (recentEntries.length > 0) {
+        lines.push(`    Recent notes:`);
+        recentEntries.forEach(e => lines.push(`      ${formatEntryTime(e.at)}: "${e.text}"`));
+      }
+    });
+  }
+  const recentClosed = state.experiments
+    .filter(e => e.status === 'completed' || e.status === 'failed')
+    .sort((a, b) => (b.closedAt || 0) - (a.closedAt || 0))
+    .slice(0, 5);
+  if (recentClosed.length > 0) {
+    lines.push(`\nRecent closed experiments:`);
+    recentClosed.forEach(exp => {
+      lines.push(`  - [${exp.status.toUpperCase()}] "${exp.name}" — hypothesis: ${exp.hypothesis}`);
+      if (exp.verdict) lines.push(`    Verdict: "${exp.verdict}"`);
+    });
   }
 
   lines.push("=== END LIVE CONTEXT ===");
@@ -5178,6 +5523,321 @@ function renderTrajectory() {
     </div>`;
 }
 
+// ============ LAB ============
+let currentLabFilter = 'active';
+let currentExpId = null;
+let expEditMode = false;
+
+function experimentDayCount(exp) {
+  const start = new Date(exp.startedAt + 'T00:00:00');
+  const end = exp.closedAt ? new Date(exp.closedAt) : new Date();
+  const days = Math.max(1, Math.floor((end - start) / DAY_MS) + 1);
+  if (days <= 30) return `Day ${days}`;
+  if (days < 84) return `Week ${Math.floor(days / 7) + 1}`;
+  return `Month ${Math.floor(days / 30) + 1}`;
+}
+
+function formatDateShort(isoDate) {
+  if (!isoDate) return '—';
+  return new Date(isoDate + 'T12:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+}
+
+function formatEntryTime(iso) {
+  const d = new Date(iso);
+  return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) + ' · ' +
+         d.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
+}
+
+function renderLab() {
+  const active = state.experiments.filter(e => e.status === 'active').length;
+  const completed = state.experiments.filter(e => e.status === 'completed').length;
+  const failed = state.experiments.filter(e => e.status === 'failed').length;
+
+  const stats = document.getElementById('lab-stats');
+  if (stats) {
+    stats.innerHTML = `
+      <div class="qs"><div class="qs-val gold">${active}</div><div class="qs-label">Active</div></div>
+      <div class="qs"><div class="qs-val">${completed}</div><div class="qs-label">Completed</div></div>
+      <div class="qs"><div class="qs-val">${failed}</div><div class="qs-label">Failed</div></div>`;
+  }
+
+  const list = document.getElementById('lab-list');
+  if (!list) return;
+
+  const filtered = currentLabFilter === 'all'
+    ? state.experiments
+    : state.experiments.filter(e => e.status === currentLabFilter);
+
+  const sorted = filtered.slice().sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
+
+  if (sorted.length === 0) {
+    list.innerHTML = `
+      <div class="empty-state">
+        <div class="empty-state-icon">⚗️</div>
+        <div class="empty-state-text">No experiments here.</div>
+        <div class="empty-state-sub">Hypothesize. Test. Learn. Tap + to begin.</div>
+      </div>`;
+    return;
+  }
+
+  list.innerHTML = sorted.map(exp => {
+    const meta = [];
+    meta.push(`Started ${formatDateShort(exp.startedAt)}`);
+    if (exp.endDate) meta.push(`Ends ${formatDateShort(exp.endDate)}`);
+    meta.push(`${(exp.entries || []).length} note${(exp.entries || []).length !== 1 ? 's' : ''}`);
+    return `
+      <div class="experiment-card" data-status="${exp.status}" data-id="${exp.id}">
+        <div class="experiment-head">
+          <div class="experiment-status-dot"></div>
+          <div class="experiment-info">
+            <div class="experiment-name">${escapeHtml(exp.name)}</div>
+            <div class="experiment-hypothesis">${escapeHtml(exp.hypothesis)}</div>
+          </div>
+          <div class="experiment-day-count">${experimentDayCount(exp)}</div>
+        </div>
+        <div class="experiment-meta">
+          ${meta.map((m, i) => i < meta.length - 1
+            ? `<span>${escapeHtml(m)}</span><span>·</span>`
+            : `<span>${escapeHtml(m)}</span>`).join('')}
+        </div>
+      </div>`;
+  }).join('');
+
+  list.querySelectorAll('.experiment-card').forEach(card => {
+    card.onclick = () => openExpDetail(card.dataset.id);
+  });
+}
+
+function openExpDetail(id) {
+  const exp = state.experiments.find(e => e.id === id);
+  if (!exp) return;
+  currentExpId = id;
+
+  const statusPill = document.getElementById('exp-d-status');
+  statusPill.textContent = exp.status.charAt(0).toUpperCase() + exp.status.slice(1);
+  statusPill.className = `exp-detail-status-pill ${exp.status}`;
+  document.getElementById('exp-d-day').textContent = experimentDayCount(exp);
+  document.getElementById('exp-d-name').textContent = exp.name;
+  document.getElementById('exp-d-hypothesis').textContent = exp.hypothesis || '—';
+
+  const criteriaSection = document.getElementById('exp-d-criteria-section');
+  if (exp.criteria) {
+    criteriaSection.style.display = '';
+    document.getElementById('exp-d-criteria').textContent = exp.criteria;
+  } else {
+    criteriaSection.style.display = 'none';
+  }
+
+  const meta = [];
+  meta.push(`Started ${formatDateShort(exp.startedAt)}`);
+  if (exp.endDate) meta.push(`Ends ${formatDateShort(exp.endDate)}`);
+  document.getElementById('exp-d-meta').innerHTML = meta.map(m => `<span>${escapeHtml(m)}</span>`).join('');
+
+  const verdictSection = document.getElementById('exp-d-verdict-section');
+  if (exp.verdict) {
+    verdictSection.style.display = '';
+    document.getElementById('exp-d-verdict').textContent = exp.verdict;
+  } else {
+    verdictSection.style.display = 'none';
+  }
+
+  renderExpEntries(exp);
+  renderExpStatusActions(exp);
+
+  document.getElementById('exp-new-entry-input').value = '';
+  document.getElementById('exp-detail-modal').classList.add('show');
+}
+
+function renderExpEntries(exp) {
+  const container = document.getElementById('exp-d-entries');
+  const entries = (exp.entries || []).slice().reverse();
+  if (entries.length === 0) {
+    container.innerHTML = `<div style="color:var(--ink-4);font-size:13px;font-style:italic;font-family:var(--display);padding:8px 0 12px;">No notes yet.</div>`;
+    return;
+  }
+  container.innerHTML = entries.map(entry => `
+    <div class="exp-entry" data-entry-id="${entry.id}">
+      <button class="exp-entry-delete" title="Delete">✕</button>
+      <div class="exp-entry-date">${formatEntryTime(entry.at)}</div>
+      <div class="exp-entry-text">${escapeHtml(entry.text)}</div>
+    </div>`).join('');
+  container.querySelectorAll('.exp-entry-delete').forEach(btn => {
+    btn.onclick = () => {
+      const entryId = btn.closest('.exp-entry').dataset.entryId;
+      const expObj = state.experiments.find(e => e.id === currentExpId);
+      if (!expObj) return;
+      expObj.entries = (expObj.entries || []).filter(en => en.id !== entryId);
+      save('experiments');
+      renderExpEntries(expObj);
+      renderLab();
+    };
+  });
+}
+
+function renderExpStatusActions(exp) {
+  const container = document.getElementById('exp-status-actions');
+  let html = '';
+  if (exp.status === 'active') {
+    html = `<button class="exp-status-btn pause" data-action="pause">Pause</button>
+            <button class="exp-status-btn complete" data-action="complete">Complete</button>
+            <button class="exp-status-btn fail" data-action="fail">Fail</button>`;
+  } else if (exp.status === 'paused') {
+    html = `<button class="exp-status-btn resume" data-action="resume">Resume</button>
+            <button class="exp-status-btn complete" data-action="complete">Complete</button>
+            <button class="exp-status-btn fail" data-action="fail">Fail</button>`;
+  } else {
+    html = `<button class="exp-status-btn resume" data-action="reopen">Reopen</button>`;
+  }
+  container.innerHTML = html;
+  container.querySelectorAll('.exp-status-btn').forEach(btn => {
+    btn.onclick = () => handleExpStatusAction(btn.dataset.action);
+  });
+}
+
+function handleExpStatusAction(action) {
+  const exp = state.experiments.find(e => e.id === currentExpId);
+  if (!exp) return;
+  if (action === 'pause') {
+    exp.status = 'paused';
+    save('experiments'); renderLab(); openExpDetail(currentExpId);
+  } else if (action === 'resume' || action === 'reopen') {
+    exp.status = 'active';
+    exp.closedAt = null;
+    exp.verdict = '';
+    save('experiments'); renderLab(); openExpDetail(currentExpId);
+  } else if (action === 'complete' || action === 'fail') {
+    const pendingStatus = action === 'complete' ? 'completed' : 'failed';
+    const actionsEl = document.getElementById('exp-status-actions');
+    actionsEl.innerHTML = `
+      <div class="exp-verdict-form" style="width:100%;">
+        <div class="field-label" style="margin-bottom:8px;">What did you learn?</div>
+        <textarea id="exp-verdict-input" rows="3" placeholder="The truth. No softening."></textarea>
+        <div class="modal-actions" style="margin-top:8px;">
+          <button class="btn btn-ghost" id="exp-verdict-cancel">Cancel</button>
+          <button class="btn btn-primary" id="exp-verdict-save">Save &amp; close experiment</button>
+        </div>
+      </div>`;
+    document.getElementById('exp-verdict-cancel').onclick = () => renderExpStatusActions(exp);
+    document.getElementById('exp-verdict-save').onclick = () => {
+      const verdict = document.getElementById('exp-verdict-input').value.trim();
+      exp.status = pendingStatus;
+      exp.verdict = verdict;
+      exp.closedAt = Date.now();
+      save('experiments'); renderLab(); openExpDetail(currentExpId);
+    };
+  }
+}
+
+// Filter buttons
+document.getElementById('lab-filter-row').addEventListener('click', e => {
+  const btn = e.target.closest('.lab-filter');
+  if (!btn) return;
+  currentLabFilter = btn.dataset.filter;
+  document.querySelectorAll('.lab-filter').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderLab();
+});
+
+// New experiment button
+document.getElementById('lab-new-btn').onclick = () => {
+  expEditMode = false;
+  document.getElementById('exp-modal-eyebrow').textContent = 'New Experiment';
+  document.getElementById('exp-name-input').value = '';
+  document.getElementById('exp-hypothesis-input').value = '';
+  document.getElementById('exp-start-input').value = getToday();
+  document.getElementById('exp-end-input').value = '';
+  document.getElementById('exp-criteria-input').value = '';
+  document.getElementById('exp-new-modal').classList.add('show');
+};
+
+document.getElementById('exp-new-cancel').onclick = () =>
+  document.getElementById('exp-new-modal').classList.remove('show');
+
+document.getElementById('exp-new-save').onclick = () => {
+  const name = document.getElementById('exp-name-input').value.trim();
+  const hypothesis = document.getElementById('exp-hypothesis-input').value.trim();
+  if (!name || !hypothesis) { toast('Name and hypothesis are required.'); return; }
+  const startedAt = document.getElementById('exp-start-input').value || getToday();
+  const endDate = document.getElementById('exp-end-input').value || null;
+  const criteria = document.getElementById('exp-criteria-input').value.trim();
+
+  if (expEditMode && currentExpId) {
+    const exp = state.experiments.find(e => e.id === currentExpId);
+    if (exp) {
+      exp.name = name; exp.hypothesis = hypothesis;
+      exp.startedAt = startedAt; exp.endDate = endDate;
+      exp.criteria = criteria;
+      save('experiments');
+      document.getElementById('exp-new-modal').classList.remove('show');
+      renderLab();
+      openExpDetail(currentExpId);
+      return;
+    }
+  }
+
+  state.experiments.push({
+    id: uid(), name, hypothesis, startedAt, endDate: endDate || null,
+    criteria, status: 'active', verdict: '',
+    entries: [], createdAt: Date.now(), closedAt: null
+  });
+  save('experiments');
+  document.getElementById('exp-new-modal').classList.remove('show');
+  currentLabFilter = 'active';
+  document.querySelectorAll('.lab-filter').forEach(b =>
+    b.classList.toggle('active', b.dataset.filter === 'active'));
+  renderLab();
+  toast('Experiment started.');
+};
+
+// Detail modal controls
+document.getElementById('exp-detail-close-btn').onclick = () =>
+  document.getElementById('exp-detail-modal').classList.remove('show');
+
+document.getElementById('exp-add-entry-btn').onclick = () => {
+  const text = document.getElementById('exp-new-entry-input').value.trim();
+  if (!text) return;
+  const exp = state.experiments.find(e => e.id === currentExpId);
+  if (!exp) return;
+  if (!exp.entries) exp.entries = [];
+  exp.entries.push({ id: uid(), at: new Date().toISOString(), text });
+  save('experiments');
+  document.getElementById('exp-new-entry-input').value = '';
+  renderExpEntries(exp);
+  renderLab();
+};
+
+document.getElementById('exp-edit-btn').onclick = () => {
+  const exp = state.experiments.find(e => e.id === currentExpId);
+  if (!exp) return;
+  expEditMode = true;
+  document.getElementById('exp-modal-eyebrow').textContent = 'Edit Experiment';
+  document.getElementById('exp-name-input').value = exp.name;
+  document.getElementById('exp-hypothesis-input').value = exp.hypothesis;
+  document.getElementById('exp-start-input').value = exp.startedAt;
+  document.getElementById('exp-end-input').value = exp.endDate || '';
+  document.getElementById('exp-criteria-input').value = exp.criteria || '';
+  document.getElementById('exp-detail-modal').classList.remove('show');
+  document.getElementById('exp-new-modal').classList.add('show');
+};
+
+document.getElementById('exp-delete-btn').onclick = () => {
+  const exp = state.experiments.find(e => e.id === currentExpId);
+  if (!exp) return;
+  if (!confirm(`Delete "${exp.name}" and all its notes? Cannot be undone.`)) return;
+  state.experiments = state.experiments.filter(e => e.id !== currentExpId);
+  save('experiments');
+  document.getElementById('exp-detail-modal').classList.remove('show');
+  renderLab();
+};
+
+// Close modals by clicking backdrop
+document.getElementById('exp-new-modal').addEventListener('click', e => {
+  if (e.target.id === 'exp-new-modal') document.getElementById('exp-new-modal').classList.remove('show');
+});
+document.getElementById('exp-detail-modal').addEventListener('click', e => {
+  if (e.target.id === 'exp-detail-modal') document.getElementById('exp-detail-modal').classList.remove('show');
+});
+
 // ============ RENDER ALL ============
 function renderAll() {
   renderToday();
@@ -5191,6 +5851,7 @@ function renderAll() {
   renderPastReviews();
   renderTrajectory();
   updateMentorPromptLabels();
+  renderLab();
   if (mindMode === 'category') renderCategoryDetail();
 }
 

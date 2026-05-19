@@ -2432,82 +2432,6 @@ body {
 
     <div id="pillars-container"></div>
 
-    <!-- Evening -->
-    <div class="sect-head">
-      <div class="sect-title">Evening check-in</div>
-      <div class="sect-meta">2 min</div>
-    </div>
-
-    <div class="evening-card alignment">
-      <div class="ec-head">
-        <div class="ec-eyebrow">Resonance Score</div>
-        <div class="ec-title" id="resonance-title">How aligned was today with the man you're becoming?</div>
-      </div>
-      <div class="scale" id="scale-alignment">
-        <button class="scale-btn" data-val="1">1</button>
-        <button class="scale-btn" data-val="2">2</button>
-        <button class="scale-btn" data-val="3">3</button>
-        <button class="scale-btn" data-val="4">4</button>
-        <button class="scale-btn" data-val="5">5</button>
-        <button class="scale-btn" data-val="6">6</button>
-        <button class="scale-btn" data-val="7">7</button>
-        <button class="scale-btn" data-val="8">8</button>
-        <button class="scale-btn" data-val="9">9</button>
-        <button class="scale-btn" data-val="10">10</button>
-      </div>
-      <div class="scale-labels">
-        <span>Out of frequency</span>
-        <span>In resonance</span>
-      </div>
-    </div>
-
-    <div class="filter-card">
-      <div class="filter-q"><strong>Strengthen</strong> or weaken the foundation?</div>
-      <div class="yn" data-q="f1">
-        <button class="yn-btn yes" data-val="yes">✓</button>
-        <button class="yn-btn no" data-val="no">✕</button>
-      </div>
-    </div>
-    <div class="filter-card">
-      <div class="filter-q"><strong>Capacity</strong> or comfort-seeking?</div>
-      <div class="yn" data-q="f2">
-        <button class="yn-btn yes" data-val="yes">✓</button>
-        <button class="yn-btn no" data-val="no">✕</button>
-      </div>
-    </div>
-    <div class="filter-card">
-      <div class="filter-q">Increased your <strong>self-respect</strong>?</div>
-      <div class="yn" data-q="f3">
-        <button class="yn-btn yes" data-val="yes">✓</button>
-        <button class="yn-btn no" data-val="no">✕</button>
-      </div>
-    </div>
-
-    <div class="evening-card">
-      <div class="ec-head">
-        <div class="ec-eyebrow">Win</div>
-        <div class="ec-title" id="win-title">Where did you show up as him today?</div>
-      </div>
-      <div class="reflect">
-        <textarea id="reflect-win" rows="2" placeholder="One specific moment..."></textarea>
-      </div>
-    </div>
-
-    <div class="evening-card">
-      <div class="ec-head">
-        <div class="ec-eyebrow">Friction</div>
-        <div class="ec-title">Where did the old pattern win?</div>
-      </div>
-      <div class="reflect">
-        <textarea id="reflect-friction" rows="2" placeholder="No softening. Just the truth..."></textarea>
-      </div>
-    </div>
-
-    <div class="tomorrow">
-      <div class="tomorrow-eyebrow">Tomorrow's One Rep</div>
-      <div class="tomorrow-prompt">The single most important act. Write it before bed.</div>
-      <input id="tomorrow-input" placeholder="The one thing..."/>
-    </div>
 
   </div>
 
@@ -3731,11 +3655,6 @@ function renderQuickStats() {
   document.getElementById('qs-foundation').textContent = foundationStrength7d();
 }
 
-function renderResonanceTitle() {
-  const p = getCurrentPrinciple();
-  document.getElementById('resonance-title').textContent = `How well did you live inside ${p.name} today?`;
-  document.getElementById('win-title').textContent = `Where did you embody ${p.name} today?`;
-}
 
 function renderPillars() {
   const container = document.getElementById('pillars-container');
@@ -3817,11 +3736,7 @@ function renderToday() {
   renderRing();
   renderPillars();
   renderQuickStats();
-  renderAlignment();
-  renderFilters();
-  renderReflections();
   renderPrincipleBanner();
-  renderResonanceTitle();
   renderWeeklyPrompt();
 }
 
@@ -3837,66 +3752,7 @@ document.getElementById('pillars-container').addEventListener('click', (e) => {
   save('reps');
 });
 
-document.querySelectorAll('#scale-alignment .scale-btn').forEach(btn => {
-  btn.addEventListener('click', () => {
-    state.alignment[getToday()] = parseInt(btn.dataset.val);
-    renderAlignment();
-    save('alignment');
-  });
-});
 
-document.querySelectorAll('.yn').forEach(yn => {
-  const q = yn.dataset.q;
-  yn.querySelectorAll('.yn-btn').forEach(btn => {
-    btn.addEventListener('click', () => {
-      if (!state.filters[getToday()]) state.filters[getToday()] = {};
-      const val = btn.dataset.val;
-      if (state.filters[getToday()][q] === val) delete state.filters[getToday()][q];
-      else state.filters[getToday()][q] = val;
-      renderFilters();
-      save('filters');
-    });
-  });
-});
-
-function bindReflect(elId, key) {
-  const el = document.getElementById(elId);
-  el.addEventListener('input', () => {
-    if (!state.reflections[getToday()]) state.reflections[getToday()] = {};
-    state.reflections[getToday()][key] = el.value;
-  });
-  el.addEventListener('blur', () => save('reflections'));
-}
-bindReflect('reflect-win', 'win');
-bindReflect('reflect-friction', 'friction');
-
-const tomEl = document.getElementById('tomorrow-input');
-tomEl.addEventListener('input', () => { state.tomorrow[getToday()] = tomEl.value; });
-tomEl.addEventListener('blur', () => save('tomorrow'));
-
-function renderAlignment() {
-  const val = state.alignment[getToday()];
-  document.querySelectorAll('#scale-alignment .scale-btn').forEach(btn => {
-    btn.classList.toggle('selected', parseInt(btn.dataset.val) === val);
-  });
-}
-
-function renderFilters() {
-  document.querySelectorAll('.yn').forEach(yn => {
-    const q = yn.dataset.q;
-    const val = state.filters[getToday()] ? state.filters[getToday()][q] : null;
-    yn.querySelectorAll('.yn-btn').forEach(btn => {
-      btn.classList.toggle('selected', btn.dataset.val === val);
-    });
-  });
-}
-
-function renderReflections() {
-  const r = state.reflections[getToday()] || {};
-  document.getElementById('reflect-win').value = r.win || '';
-  document.getElementById('reflect-friction').value = r.friction || '';
-  document.getElementById('tomorrow-input').value = state.tomorrow[getToday()] || '';
-}
 
 // ============ MIND VIEW ============
 function showMindHome() {

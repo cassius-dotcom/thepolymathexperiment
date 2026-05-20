@@ -1180,6 +1180,100 @@ body {
 }
 .card-due-now { color: var(--gold); }
 
+/* All Cards section */
+.all-cards-controls {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+.all-cards-search-wrap {
+  flex: 1;
+  position: relative;
+}
+.all-cards-search-wrap input {
+  width: 100%;
+  background: var(--bg-1);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 11px 14px;
+  color: var(--ink);
+  font-family: var(--sans);
+  font-size: 14px;
+  outline: none;
+  transition: border-color 200ms ease;
+}
+.all-cards-search-wrap input::placeholder { color: var(--ink-4); font-style: italic; }
+.all-cards-search-wrap input:focus { border-color: var(--gold-soft); }
+.all-cards-filter {
+  flex-shrink: 0;
+  background: var(--bg-1);
+  border: 1px solid var(--line);
+  color: var(--ink-3);
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  padding: 11px 14px;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 200ms ease;
+}
+.all-cards-filter:active { transform: scale(0.96); }
+.all-cards-filter.active {
+  background: rgba(212, 168, 87, 0.15);
+  color: var(--gold);
+  border-color: var(--gold);
+}
+.all-card-row {
+  background: var(--bg-1);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 14px 16px;
+  margin-bottom: 8px;
+  cursor: pointer;
+  transition: all 200ms ease;
+}
+.all-card-row:active { transform: scale(0.99); }
+@media (hover: hover) {
+  .all-card-row:hover { border-color: var(--line-bright); }
+}
+.all-card-row.due-now { border-color: rgba(212, 168, 87, 0.3); }
+.all-card-front {
+  font-family: var(--display);
+  font-size: 15px; font-weight: 500;
+  color: var(--ink);
+  line-height: 1.4; margin-bottom: 4px;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.all-card-back {
+  font-size: 12px; color: var(--ink-3);
+  line-height: 1.4;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.all-card-meta {
+  display: flex; justify-content: space-between;
+  align-items: center;
+  margin-top: 10px; padding-top: 10px;
+  border-top: 1px solid var(--line);
+  font-family: var(--mono);
+  font-size: 10px; color: var(--ink-4);
+  letter-spacing: 0.05em;
+}
+.all-card-category { color: var(--ink-3); display: flex; align-items: center; gap: 4px; }
+.all-card-due { color: var(--ink-4); }
+.all-card-due.now { color: var(--gold); }
+.all-cards-empty {
+  text-align: center; padding: 28px 20px;
+  color: var(--ink-3);
+  font-family: var(--display); font-style: italic; font-size: 14px;
+}
+
 /* Add modal tabs */
 .add-tabs {
   display: flex;
@@ -2476,6 +2570,22 @@ body {
       </div>
 
       <div class="cat-grid" id="cat-grid"></div>
+
+      <div class="sect-head">
+        <div class="sect-title">All cards</div>
+        <div class="sect-meta" id="all-cards-meta">0 cards</div>
+      </div>
+
+      <div class="all-cards-controls">
+        <div class="all-cards-search-wrap">
+          <input id="all-cards-search" placeholder="Search cards..." type="text"/>
+        </div>
+        <button class="all-cards-filter" id="all-cards-due-toggle">Due only</button>
+      </div>
+
+      <div id="all-cards-list"></div>
+
+      <button class="btn btn-ghost" id="all-cards-show-more" style="display: none; margin-top: 8px;">Show more</button>
 
       <div class="sect-head">
         <div class="sect-title">Books</div>
@@ -3925,6 +4035,91 @@ function renderSummaries() {
   });
 }
 
+// ============ ALL CARDS ============
+let allCardsFilter = { search: '', dueOnly: false, limit: 50 };
+
+function renderAllCards() {
+  const list = document.getElementById('all-cards-list');
+  const meta = document.getElementById('all-cards-meta');
+  const showMoreBtn = document.getElementById('all-cards-show-more');
+  const q = allCardsFilter.search.trim().toLowerCase();
+  const now = Date.now();
+
+  let cards = state.cards.filter(c => {
+    if (allCardsFilter.dueOnly && c.due > now) return false;
+    if (q) {
+      const front = (c.front || '').toLowerCase();
+      const back = (c.back || '').toLowerCase();
+      if (!front.includes(q) && !back.includes(q)) return false;
+    }
+    return true;
+  });
+
+  cards.sort((a, b) => {
+    const aDue = a.due <= now;
+    const bDue = b.due <= now;
+    if (aDue && !bDue) return -1;
+    if (!aDue && bDue) return 1;
+    if (aDue && bDue) return a.due - b.due;
+    return (b.created || 0) - (a.created || 0);
+  });
+
+  const totalAll = state.cards.length;
+  const matchedCount = cards.length;
+  if (totalAll === 0) {
+    meta.textContent = '0 cards';
+  } else if (q || allCardsFilter.dueOnly) {
+    meta.textContent = `${matchedCount} of ${totalAll}`;
+  } else {
+    meta.textContent = `${totalAll} card${totalAll === 1 ? '' : 's'}`;
+  }
+
+  if (totalAll === 0) {
+    list.innerHTML = '<div class="all-cards-empty">No flashcards yet. Use a category above, or the Mentor, to create one.</div>';
+    showMoreBtn.style.display = 'none';
+    return;
+  }
+  if (matchedCount === 0) {
+    list.innerHTML = '<div class="all-cards-empty">No cards match.</div>';
+    showMoreBtn.style.display = 'none';
+    return;
+  }
+
+  const slice = cards.slice(0, allCardsFilter.limit);
+  list.innerHTML = '';
+  slice.forEach(card => {
+    const cat = getCategoryById(card.categoryId);
+    const isDue = card.due <= now;
+    const dueText = isDue
+      ? 'Due now'
+      : `Due in ${Math.ceil((card.due - now) / DAY_MS)}d`;
+    const row = document.createElement('div');
+    row.className = 'all-card-row' + (isDue ? ' due-now' : '');
+    row.dataset.cardId = card.id;
+    row.innerHTML = `
+      <div class="all-card-front">${escapeHtml(card.front)}</div>
+      <div class="all-card-back">${escapeHtml(card.back)}</div>
+      <div class="all-card-meta">
+        <span class="all-card-category">
+          <span>${cat ? cat.icon : '—'}</span>
+          <span>${escapeHtml(cat ? cat.name : 'Uncategorized')}</span>
+        </span>
+        <span class="all-card-due${isDue ? ' now' : ''}">${dueText}</span>
+      </div>
+    `;
+    row.onclick = () => openDetail('card', card.id);
+    list.appendChild(row);
+  });
+
+  if (cards.length > allCardsFilter.limit) {
+    showMoreBtn.style.display = 'block';
+    const remaining = cards.length - allCardsFilter.limit;
+    showMoreBtn.textContent = `Show ${Math.min(remaining, 50)} more`;
+  } else {
+    showMoreBtn.style.display = 'none';
+  }
+}
+
 function renderCategoryDetail() {
   const cat = getCategoryById(currentCategoryId);
   if (!cat) { showMindHome(); return; }
@@ -3971,6 +4166,22 @@ document.getElementById('cat-edit-btn').onclick = () => openCategoryModal(curren
 document.getElementById('add-book-btn').onclick = () => openAddModal('book');
 document.getElementById('add-summary-btn').onclick = () => openAddModal('summary');
 document.getElementById('open-add-modal-btn').onclick = () => openAddModal('card');
+
+document.getElementById('all-cards-search').addEventListener('input', (e) => {
+  allCardsFilter.search = e.target.value;
+  allCardsFilter.limit = 50;
+  renderAllCards();
+});
+document.getElementById('all-cards-due-toggle').addEventListener('click', () => {
+  allCardsFilter.dueOnly = !allCardsFilter.dueOnly;
+  document.getElementById('all-cards-due-toggle').classList.toggle('active', allCardsFilter.dueOnly);
+  allCardsFilter.limit = 50;
+  renderAllCards();
+});
+document.getElementById('all-cards-show-more').addEventListener('click', () => {
+  allCardsFilter.limit += 50;
+  renderAllCards();
+});
 
 // ============ ADD MODAL ============
 let selectedCardCategory = null;
@@ -5730,6 +5941,7 @@ function renderAll() {
   renderLibraryStats();
   renderReviewBanner();
   renderCategories();
+  renderAllCards();
   renderBooks();
   renderSummaries();
   renderCardCategoryPicker();

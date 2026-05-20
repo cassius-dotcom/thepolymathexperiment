@@ -5,9 +5,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
 <meta name="theme-color" content="#0a0a0a">
 <title>The Load-Bearing OS</title>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></scriphht>
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,400&family=Geist+Mono:wght@300;400;500&family=Geist:wght@300;400;500;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:ital,opshz,wght@0,9..144,300;0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,400&family=Geist+Mono:wght@300;400;500&family=Geist:wght@300;400;500;600&display=swap');
 
 :root {
   --bg: #0a0a0a;
@@ -5768,19 +5768,21 @@ document.getElementById('signout-btn').onclick = async () => {
 setDateGreeting();
 showAuth(); // hidden until session confirmed
 
-_sb.auth.onAuthStateChange(async (event, session) => {
+_sb.auth.onAuthStateChange((event, session) => {
   if (session?.user) {
     _currentUserId = session.user.id;
     const emailEl = document.getElementById('signout-email');
     if (emailEl) emailEl.textContent = session.user.email;
     if (event === 'TOKEN_REFRESHED') return;
-    await window.storage.loadAll();
-    showApp();
-    setDateGreeting();
-    document.getElementById('chat-scroll').innerHTML = '';
-    await loadState();
-    updateContextToggle();
-    loadChatRender();
+    setTimeout(async () => {
+      await window.storage.loadAll();
+      showApp();
+      setDateGreeting();
+      document.getElementById('chat-scroll').innerHTML = '';
+      await loadState();
+      updateContextToggle();
+      loadChatRender();
+    }, 0);
   } else {
     _currentUserId = null;
     showAuth();

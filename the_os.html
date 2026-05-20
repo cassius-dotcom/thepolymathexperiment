@@ -3239,21 +3239,21 @@ const _sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 let _currentUserId = null;
 
 window.storage = {
-  // Fast read from localStorage cache (populated on login via loadAll)
   get: async (key) => {
     const v = localStorage.getItem(key);
     return v != null ? { value: v } : null;
   },
-  // Write-through: localStorage instantly, Supabase in background
   set: async (key, value) => {
     localStorage.setItem(key, value);
     if (!_currentUserId) return;
-    _sb.from('user_data')
+    const { error } = await _sb.from('user_data')
       .upsert({ user_id: _currentUserId, key, value, updated_at: new Date().toISOString() },
-               { onConflict: 'user_id,key' })
-      .then(() => {}).catch(console.error);
+               { onConflict: 'user_id,key' });
+    if (error) {
+      console.error('Sync error for', key, error);
+      throw error;
+    }
   },
-  // Bulk load all user data from Supabase into localStorage on login
   loadAll: async () => {
     if (!_currentUserId) return;
     const { data, error } = await _sb.from('user_data').select('key, value').eq('user_id', _currentUserId);
@@ -3265,7 +3265,10 @@ window.storage = {
 
 <script>
 // ============ SHARED STATE ============
-function getToday() { return new Date().toISOString().split('T')[0]; }
+function getToday() {
+  const d = new Date();
+  return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
+}
 const NOW = Date.now();
 const DAY_MS = 86400000;
 
@@ -3515,7 +3518,7 @@ function foundationStrength7d() {
   let total = 0;
   for (let i = 0; i < 7; i++) {
     const d = new Date(); d.setDate(d.getDate() - i);
-    const ds = d.toISOString().split('T')[0];
+    const ds = d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
     total += state.reps[ds] ? Object.keys(state.reps[ds]).length : 0;
   }
   const ratio = total / (7 * maxPerDay);
@@ -3550,10 +3553,17 @@ async function loadState() {
 }
 
 async function save(key, silent = false) {
-  try {
-    await window.storage.set('os:' + key, JSON.stringify(state[key]));
-    if (!silent) toast('Saved');
-  } catch (e) { console.error(e); }
+  const json = JSON.stringify(state[key]);
+  localStorage.setItem('os:' + key, json);
+  if (!silent) toast('Saved');
+  if (!_currentUserId) return;
+  const { error } = await _sb.from('user_data')
+    .upsert({ user_id: _currentUserId, key: 'os:' + key, value: json, updated_at: new Date().toISOString() },
+             { onConflict: 'user_id,key' });
+  if (error) {
+    console.error('Sync error for', key, error);
+    if (!silent) toast('Not synced — check connection');
+  }
 }
 
 // ============ TOAST ============
@@ -4552,7 +4562,7 @@ function buildLiveContext() {
   for (let i = 0; i < 7; i++) {
     const d = new Date();
     d.setDate(d.getDate() - i);
-    const ds = d.toISOString().split('T')[0];
+    const ds = d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
     const reps = state.reps[ds];
     if (reps && Object.keys(reps).length > 0) {
       weekReps += Object.keys(reps).length;
@@ -4571,7 +4581,7 @@ function buildLiveContext() {
   for (let i = 0; i < 14; i++) {
     const d = new Date();
     d.setDate(d.getDate() - i);
-    const ds = d.toISOString().split('T')[0];
+    const ds = d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
     const ref = state.reflections[ds];
     if (ref && ref.friction && ref.friction.trim()) {
       recentFriction.push(`(${ds}) "${ref.friction.trim()}"`);
@@ -4783,7 +4793,7 @@ async function callMentor(userMessage) {
         "anthropic-dangerous-direct-browser-access": "true"
       },
       body: JSON.stringify({
-        model: "claude-sonnet-4-5",
+        model: "claude-sonnet-4-6",
         max_tokens: 1500,
         system: systemPrompt,
         messages: state.chat
@@ -5015,7 +5025,7 @@ document.getElementById('reset-today-btn').onclick = () => {
   delete state.filters[getToday()];
   delete state.reflections[getToday()];
   delete state.tomorrow[getToday()];
-  ['reps','alignment','filters','reflections','tomorrow'].forEach(save);
+  ['reps','alignment','filters','reflections','tomorrow'].forEach(k => save(k, true));
   renderAll();
   toast('Reset');
 };
@@ -5053,7 +5063,7 @@ function openWeeklyReview() {
   const frictionItems = [], winItems = [];
   for (let i = 0; i < 14; i++) {
     const d = new Date(); d.setDate(d.getDate() - i);
-    const ds = d.toISOString().split('T')[0];
+    const ds = d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
     if (new Date(ds) < weekStart) continue;
     const repsDay = state.reps[ds] ? Object.keys(state.reps[ds]).length : 0;
     if (repsDay > 0) { totalReps += repsDay; daysWithReps++; }
@@ -5296,7 +5306,7 @@ function renderTrajectory() {
   // ---- Part A: Resonance line chart ----
   const cutoff = new Date();
   cutoff.setDate(cutoff.getDate() - 59);
-  const cutoffStr = cutoff.toISOString().split('T')[0];
+  const cutoffStr = cutoff.getFullYear() + '-' + String(cutoff.getMonth()+1).padStart(2,'0') + '-' + String(cutoff.getDate()).padStart(2,'0');
 
   const points = Object.entries(state.alignment)
     .filter(([ds]) => ds >= cutoffStr)

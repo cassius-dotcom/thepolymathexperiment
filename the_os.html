@@ -111,120 +111,232 @@ body {
   max-width: 460px; margin: 0 auto;
 }
 
-/* ========== TODAY: FORMATION CARDS ========== */
-.today-header { margin-bottom: 24px; }
-.today-eyebrow {
+/* ========== TODAY: VIRTUE LIST HOMEPAGE ========== */
+.home-header { margin: 8px 0 28px; }
+.home-eyebrow {
   font-family: var(--mono); font-size: 10px;
-  letter-spacing: 0.25em; text-transform: uppercase;
-  color: var(--ink-3); margin-bottom: 6px;
+  letter-spacing: 0.3em; text-transform: uppercase;
+  color: var(--ink-3); margin-bottom: 8px;
 }
-.today-title {
-  font-family: var(--display); font-size: 22px;
-  line-height: 1.25; font-weight: 400; margin-bottom: 6px;
+.home-title {
+  font-family: var(--display); font-size: 24px;
+  line-height: 1.2; font-weight: 400;
+  color: var(--ink);
   letter-spacing: -0.01em;
 }
-.today-title em { font-style: italic; color: var(--gold); }
-.today-sub {
-  font-size: 12px; color: var(--ink-3);
-  line-height: 1.5;
-}
 
-.formation-card {
+.virtue-list-row {
   background: rgba(255,255,255,0.02);
   border: 0.5px solid var(--line);
-  border-radius: 12px;
-  margin-bottom: 10px;
-  overflow: hidden;
-  transition: border-color 200ms ease;
+  border-radius: 10px;
+  padding: 16px;
+  margin-bottom: 8px;
+  cursor: pointer;
+  transition: border-color 200ms ease, background 200ms ease;
 }
-.formation-card[data-pinned="true"] {
+.virtue-list-row[data-pinned="true"] {
+  background: linear-gradient(90deg, rgba(212,168,87,0.06), transparent);
+  border: none;
   border-left: 2px solid var(--gold);
-  background: linear-gradient(180deg, rgba(212,168,87,0.04), rgba(255,255,255,0.02));
+  border-radius: 0 10px 10px 0;
+  padding-left: 14px;
 }
 @media (hover: hover) {
-  .formation-card:hover { border-color: var(--line-bright); }
+  .virtue-list-row:hover {
+    border-color: var(--line-bright);
+    background: rgba(255,255,255,0.04);
+  }
+  .virtue-list-row[data-pinned="true"]:hover {
+    background: linear-gradient(90deg, rgba(212,168,87,0.1), transparent);
+  }
 }
-.formation-card.open .formation-body { display: block; }
-
-.formation-head {
-  padding: 16px 16px 14px;
-  cursor: pointer;
-  user-select: none;
-}
-.formation-meta-row {
+.virtue-list-top {
   display: flex; justify-content: space-between;
-  align-items: flex-start; margin-bottom: 8px;
-  gap: 10px;
+  align-items: center; margin-bottom: 4px;
 }
-.formation-title {
-  display: flex; align-items: baseline; gap: 8px;
-  min-width: 0; flex: 1;
+.virtue-list-title {
+  display: flex; align-items: baseline; gap: 10px;
 }
-.formation-symbol { font-size: 16px; flex-shrink: 0; }
-.formation-name {
-  font-size: 15px; font-weight: 500;
+.virtue-list-symbol { font-size: 18px; }
+.virtue-list-name {
+  font-size: 16px; font-weight: 500;
   letter-spacing: -0.005em;
   font-family: var(--display);
   color: var(--ink);
 }
-.formation-pinned {
-  font-family: var(--mono); font-size: 9px;
-  letter-spacing: 0.15em; color: var(--gold);
-  margin-top: 4px;
-  flex-shrink: 0;
+.virtue-list-chevron {
+  color: var(--ink-4);
+  font-size: 16px;
 }
-.formation-identity {
+.virtue-list-identity {
   font-family: var(--display); font-style: italic;
-  font-size: 12px; color: var(--ink-2);
-  line-height: 1.5; margin-bottom: 10px;
-}
-.formation-stats {
-  display: flex; justify-content: space-between;
-  align-items: center; margin-bottom: 6px;
-  gap: 10px;
-}
-.formation-stat-today, .formation-stat-arc {
-  font-family: var(--mono); font-size: 9px;
-  letter-spacing: 0.15em; text-transform: uppercase;
-  color: var(--ink-3);
-}
-.formation-bar {
-  height: 4px;
-  background: rgba(255,255,255,0.06);
-  border-radius: 2px; overflow: hidden;
-}
-.formation-bar-fill {
-  height: 100%;
-  background: linear-gradient(90deg, #8a7240, #d4a857);
-  border-radius: 2px;
-  transition: width 400ms ease;
+  font-size: 12px; color: var(--ink-3);
+  line-height: 1.5; padding-left: 28px;
 }
 
-.formation-body {
-  display: none;
-  padding: 0 16px 16px;
-  border-top: 0.5px solid var(--line);
-  padding-top: 14px;
+/* ========== FULL-SCREEN VIRTUE VIEW ========== */
+.virtue-view-overlay {
+  position: fixed; inset: 0;
+  background: var(--bg);
+  z-index: 200;
+  overflow-y: auto;
+  animation: virtue-view-in 200ms ease;
 }
-.formation-body-label {
+@keyframes virtue-view-in {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.virtue-view-container {
+  max-width: 600px; margin: 0 auto;
+  padding: 18px 16px 80px;
+}
+.virtue-view-topbar {
+  display: flex; justify-content: space-between;
+  align-items: center; margin-bottom: 24px;
+}
+.virtue-view-back, .virtue-view-edit {
+  background: transparent; border: none;
+  font-size: 13px; padding: 8px 4px;
+  cursor: pointer; font-family: var(--sans);
+}
+.virtue-view-back { color: var(--gold); }
+.virtue-view-edit { color: var(--ink-3); }
+
+.virtue-portrait {
+  text-align: center; margin-bottom: 28px;
+}
+.virtue-portrait-symbol { font-size: 36px; margin-bottom: 8px; }
+.virtue-portrait-pinned {
   font-family: var(--mono); font-size: 9px;
-  letter-spacing: 0.2em; text-transform: uppercase;
-  color: var(--ink-3); margin-bottom: 8px;
+  color: var(--gold); letter-spacing: 0.3em;
+  margin-bottom: 8px;
 }
-.formation-body-empty {
-  font-size: 12px; color: var(--ink-3);
-  font-style: italic; padding: 8px 0;
+.virtue-portrait-name {
+  font-family: var(--display); font-size: 28px;
+  line-height: 1.15; margin-bottom: 12px;
+  letter-spacing: -0.01em;
 }
-.formation-divider {
-  height: 0.5px; background: var(--line);
-  margin: 14px 0;
+.virtue-portrait-identity {
+  font-family: var(--display); font-style: italic;
+  font-size: 15px; color: #c8b994;
+  line-height: 1.5; max-width: 320px; margin: 0 auto;
 }
-.formation-body .rep {
-  border-top: none;
-  padding: 10px 0;
+
+.virtue-section-label {
+  font-family: var(--mono); font-size: 9px;
+  letter-spacing: 0.25em; text-transform: uppercase;
+  color: var(--ink-3); margin-bottom: 10px;
 }
-.formation-body .rep + .rep {
-  border-top: 0.5px solid var(--line);
+.virtue-section { margin-bottom: 24px; }
+.virtue-section:last-child { margin-bottom: 12px; }
+
+/* The man behind it */
+.virtue-body-box {
+  font-size: 13px; line-height: 1.6;
+  color: var(--ink-2);
+  padding: 12px 14px;
+  background: rgba(255,255,255,0.02);
+  border-left: 2px solid rgba(212,168,87,0.3);
+  border-radius: 0 8px 8px 0;
+  white-space: pre-wrap;
+}
+
+/* Behaviors */
+.virtue-behavior-item {
+  background: rgba(212,168,87,0.04);
+  border: 0.5px solid rgba(212,168,87,0.2);
+  border-left: 2px solid var(--gold);
+  border-radius: 8px;
+  padding: 12px 14px;
+  margin-bottom: 8px;
+}
+.virtue-behavior-item:last-child { margin-bottom: 0; }
+.virtue-behavior-text {
+  font-size: 13px; line-height: 1.5;
+  color: var(--ink);
+}
+.virtue-behavior-text.has-cue { margin-bottom: 6px; }
+.virtue-behavior-cue {
+  font-size: 11px; color: var(--ink-3);
+  font-style: italic; line-height: 1.45;
+  font-family: var(--display);
+}
+
+/* Mantras */
+.virtue-mantra-item {
+  font-family: var(--display); font-style: italic;
+  font-size: 14px; color: #c8b994;
+  line-height: 1.65;
+  padding: 6px 0 6px 18px;
+  border-left: 2px solid rgba(212,168,87,0.25);
+  margin-bottom: 6px;
+}
+.virtue-mantra-item:last-child { margin-bottom: 0; }
+
+/* Rules */
+.virtue-rule-item {
+  display: flex; align-items: flex-start; gap: 10px;
+  margin-bottom: 10px;
+}
+.virtue-rule-item:last-child { margin-bottom: 0; }
+.virtue-rule-bullet {
+  color: var(--gold); font-size: 11px;
+  margin-top: 4px; flex-shrink: 0;
+}
+.virtue-rule-text {
+  font-size: 13px; line-height: 1.55;
+  color: var(--ink);
+}
+
+/* Anti-behaviors */
+.virtue-anti-item {
+  background: rgba(229,76,76,0.04);
+  border: 0.5px solid rgba(229,76,76,0.15);
+  border-radius: 8px;
+  padding: 10px 12px;
+  margin-bottom: 6px;
+  display: flex; gap: 10px;
+}
+.virtue-anti-item:last-child { margin-bottom: 0; }
+.virtue-anti-x {
+  color: #c84a4a; font-size: 12px;
+  margin-top: 1px; flex-shrink: 0;
+}
+.virtue-anti-text {
+  font-size: 13px; color: #b8a8a8;
+  line-height: 1.5;
+}
+
+/* Triggers */
+.virtue-trigger-item {
+  border-left: 2px solid rgba(218,165,32,0.4);
+  padding: 6px 0 6px 14px;
+  margin-bottom: 6px;
+  display: flex; gap: 8px;
+}
+.virtue-trigger-item:last-child { margin-bottom: 0; }
+.virtue-trigger-mark {
+  color: #daa520; font-size: 13px;
+  margin-top: 1px; flex-shrink: 0;
+}
+.virtue-trigger-text {
+  font-size: 13px; color: #c8b89c;
+  line-height: 1.5;
+}
+
+/* Habits */
+.virtue-habit-item {
+  display: flex; align-items: flex-start; gap: 10px;
+  margin-bottom: 8px;
+}
+.virtue-habit-item:last-child { margin-bottom: 0; }
+.virtue-habit-mark {
+  color: #6b8aa8; font-size: 11px;
+  margin-top: 3px; flex-shrink: 0;
+}
+.virtue-habit-text {
+  font-size: 13px; color: #a8b8c8;
+  line-height: 1.5;
 }
 
 /* ========== STATS ========== */
@@ -345,71 +457,6 @@ body {
   margin-left: 4px; margin-top: 4px;
 }
 .pillar.open .chevron { transform: rotate(180deg); }
-.reps { max-height: 0; overflow: hidden; transition: max-height 500ms var(--ease); }
-.pillar.open .reps { max-height: 3000px; }
-.rep {
-  display: flex;
-  align-items: flex-start;
-  gap: 14px;
-  padding: 14px 20px;
-  border-top: 1px solid var(--line);
-  cursor: pointer;
-  transition: background 150ms ease;
-  user-select: none;
-}
-.rep:active { background: var(--bg-2); }
-@media (hover: hover) {
-  .rep:hover { background: var(--bg-2); }
-}
-.check {
-  width: 22px; height: 22px;
-  border-radius: 7px;
-  border: 1.5px solid var(--line-bright);
-  background: var(--bg-2);
-  flex-shrink: 0;
-  margin-top: 1px;
-  position: relative;
-  transition: all 200ms var(--ease-spring);
-}
-.rep.done .check {
-  background: var(--gold);
-  border-color: var(--gold);
-  transform: scale(1.05);
-}
-.rep.done .check::after {
-  content: '';
-  position: absolute;
-  left: 6px; top: 2px;
-  width: 6px; height: 11px;
-  border: solid var(--bg);
-  border-width: 0 2px 2px 0;
-  transform: rotate(45deg);
-  animation: checkPop 250ms var(--ease-spring);
-}
-@keyframes checkPop {
-  from { opacity: 0; transform: rotate(45deg) scale(0.5); }
-  to { opacity: 1; transform: rotate(45deg) scale(1); }
-}
-.rep-body { flex: 1; min-width: 0; }
-.rep-text {
-  font-size: 14px; line-height: 1.45;
-  color: var(--ink);
-  transition: color 250ms ease;
-}
-.rep-cue {
-  font-family: var(--display);
-  font-style: italic; font-size: 12px;
-  color: var(--ink-3);
-  margin-top: 3px;
-  line-height: 1.4;
-}
-.rep.done .rep-text {
-  color: var(--ink-3);
-  text-decoration: line-through;
-  text-decoration-thickness: 1px;
-  text-decoration-color: var(--ink-4);
-}
-
 /* ========== EVENING CARD ========== */
 .evening-card {
   background: linear-gradient(180deg, var(--bg-1), var(--bg-2));
@@ -1969,17 +2016,6 @@ body {
   margin-left: 6px;
   vertical-align: middle;
 }
-.rep-why {
-  border-top: 1px dashed var(--line);
-  margin-top: 8px; padding-top: 8px;
-  font-size: 12px; color: var(--ink-3); line-height: 1.45;
-}
-.rep-why strong {
-  color: var(--ink-4);
-  font-size: 9px; letter-spacing: 0.1em;
-  text-transform: uppercase; font-family: var(--mono);
-  display: block; margin-bottom: 3px;
-}
 .pillar-complete-banner {
   padding: 14px 20px;
   border-top: 1px solid rgba(212,168,87,0.2);
@@ -2529,44 +2565,6 @@ body {
   opacity: 0.85;
 }
 
-/* Migration banner */
-.migration-banner {
-  background: linear-gradient(135deg, rgba(212,168,87,0.12), rgba(212,168,87,0.04));
-  border: 1px solid rgba(212,168,87,0.35);
-  border-radius: 16px;
-  padding: 18px 20px;
-  margin-bottom: 20px;
-  display: flex; gap: 14px; align-items: flex-start;
-  position: relative; overflow: hidden;
-}
-.migration-banner::before {
-  content: ''; position: absolute; top: 0; left: 0;
-  width: 3px; height: 100%; background: var(--gold);
-}
-.migration-banner-body { flex: 1; min-width: 0; }
-.migration-banner-eyebrow {
-  font-family: var(--mono); font-size: 10px;
-  letter-spacing: 0.25em; color: var(--gold);
-  text-transform: uppercase; margin-bottom: 6px;
-}
-.migration-banner-title {
-  font-family: var(--display);
-  font-size: 16px; font-weight: 500;
-  letter-spacing: -0.01em; line-height: 1.35;
-  margin-bottom: 2px;
-}
-.migration-banner-sub {
-  font-size: 12.5px; color: var(--ink-3);
-  font-family: var(--display); font-style: italic;
-  line-height: 1.4;
-}
-.migration-banner-close {
-  background: none; border: none;
-  color: var(--ink-3); font-size: 20px;
-  cursor: pointer; padding: 0 4px;
-  line-height: 1; flex-shrink: 0;
-}
-
 /* ========== CONSTITUTION TAB ========== */
 .constitution-filter-chips {
   display: flex; gap: 6px;
@@ -3069,6 +3067,151 @@ body {
   border-top: 1px solid var(--line);
 }
 
+/* ========== EDITOR: COMPONENTS LIST ========== */
+.ve-available-label {
+  font-family: var(--mono); font-size: 9px;
+  letter-spacing: 0.25em; text-transform: uppercase;
+  color: var(--ink-4);
+  margin: 24px 0 10px;
+}
+.ve-component-row {
+  background: var(--bg-1);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 14px 16px;
+  margin-bottom: 8px;
+  display: flex; align-items: center; gap: 12px;
+  cursor: pointer;
+  transition: border-color 200ms ease, background 200ms ease;
+}
+.ve-component-row.dragging { opacity: 0.4; }
+@media (hover: hover) {
+  .ve-component-row:hover { border-color: var(--line-bright); }
+}
+.ve-component-row.locked {
+  background: linear-gradient(90deg, rgba(212,168,87,0.05), rgba(255,255,255,0.01));
+  border-color: rgba(212,168,87,0.25);
+}
+.ve-component-drag {
+  color: var(--ink-4);
+  font-size: 14px;
+  letter-spacing: -2px;
+  cursor: grab;
+  user-select: none;
+  flex-shrink: 0;
+  width: 14px;
+}
+.ve-component-drag:active { cursor: grabbing; }
+.ve-component-drag.locked-handle {
+  color: var(--ink-4);
+  opacity: 0.4;
+  cursor: default;
+}
+.ve-component-icon {
+  font-size: 18px;
+  flex-shrink: 0;
+  width: 24px; text-align: center;
+}
+.ve-component-info { flex: 1; min-width: 0; }
+.ve-component-name {
+  font-family: var(--display);
+  font-size: 15px; font-weight: 500;
+  letter-spacing: -0.005em;
+  color: var(--ink);
+}
+.ve-component-desc {
+  font-size: 11.5px; color: var(--ink-3);
+  margin-top: 2px;
+  font-family: var(--display); font-style: italic;
+  line-height: 1.4;
+}
+.ve-component-count {
+  font-family: var(--mono); font-size: 10px;
+  letter-spacing: 0.1em; color: var(--ink-3);
+  flex-shrink: 0;
+}
+.ve-component-chevron {
+  color: var(--ink-4); font-size: 16px;
+  flex-shrink: 0;
+}
+.ve-component-row.available {
+  background: transparent;
+  border: 1px dashed rgba(212,168,87,0.3);
+}
+.ve-component-row.available .ve-component-name { color: var(--gold); }
+.ve-component-row.available .ve-component-desc { color: var(--ink-3); }
+@media (hover: hover) {
+  .ve-component-row.available:hover {
+    background: rgba(212,168,87,0.06);
+    border-color: var(--gold);
+  }
+}
+
+/* Editor: section view */
+.ve-section-back {
+  background: none; border: 1px solid var(--line);
+  color: var(--ink-2);
+  border-radius: 100px;
+  padding: 7px 12px;
+  font-family: var(--sans);
+  font-size: 12px; cursor: pointer;
+  margin-bottom: 18px;
+}
+.ve-section-back:active { transform: scale(0.96); }
+.ve-section-head {
+  margin-bottom: 18px;
+}
+.ve-section-title {
+  font-family: var(--display);
+  font-size: 22px; font-weight: 500;
+  letter-spacing: -0.01em;
+  margin-bottom: 4px;
+}
+.ve-section-sub {
+  font-family: var(--display);
+  font-style: italic;
+  font-size: 13px; color: var(--ink-3);
+  line-height: 1.5;
+}
+.ve-section-remove-btn {
+  width: 100%;
+  background: var(--bg-2);
+  border: 1px solid rgba(200,103,78,0.3);
+  color: var(--red);
+  border-radius: 12px;
+  padding: 12px;
+  font-family: var(--sans);
+  font-size: 12px; font-weight: 500;
+  cursor: pointer;
+  margin-top: 24px;
+  transition: all 200ms ease;
+}
+.ve-section-remove-btn:active { transform: scale(0.99); }
+
+/* Generic string-list item (mantras, rules, anti, triggers, habits in editor) */
+.ve-string-item {
+  background: var(--bg-1);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 12px 14px;
+  margin-bottom: 8px;
+  display: flex; align-items: flex-start; gap: 12px;
+}
+.ve-string-item-text {
+  flex: 1;
+  font-size: 13.5px;
+  color: var(--ink);
+  line-height: 1.45;
+}
+.ve-string-item-del {
+  background: none; border: none;
+  color: var(--ink-4); font-size: 16px;
+  cursor: pointer;
+  padding: 0 4px;
+  flex-shrink: 0;
+}
+.ve-string-item-del:hover { color: var(--red); }
+
 /* Empty states inside editor */
 .ve-empty {
   text-align: center;
@@ -3079,100 +3222,6 @@ body {
   font-size: 13px;
 }
 
-/* ========== EVENING CHECK-IN ========== */
-.evening-checkin {
-  background: linear-gradient(180deg, var(--bg-1), var(--bg-2));
-  border: 1px solid rgba(212,168,87,0.25);
-  border-radius: 16px;
-  padding: 20px;
-  margin-bottom: 18px;
-  position: relative;
-}
-.evening-checkin-head {
-  display: flex; align-items: flex-start;
-  justify-content: space-between;
-  gap: 10px; margin-bottom: 14px;
-}
-.evening-checkin-eyebrow {
-  font-family: var(--mono);
-  font-size: 10px; letter-spacing: 0.25em;
-  color: var(--gold); text-transform: uppercase;
-  margin-bottom: 4px;
-}
-.evening-checkin-title {
-  font-family: var(--display);
-  font-size: 17px; font-weight: 500;
-  letter-spacing: -0.01em;
-  line-height: 1.3;
-}
-.evening-checkin-dismiss {
-  background: none; border: none;
-  color: var(--ink-4); font-size: 18px;
-  cursor: pointer; padding: 0 4px;
-  line-height: 1; flex-shrink: 0;
-}
-.checkin-virtue {
-  border-top: 1px solid var(--line);
-  padding: 12px 0;
-  display: flex; align-items: center;
-  gap: 12px;
-}
-.checkin-virtue-info { flex: 1; min-width: 0; }
-.checkin-virtue-name {
-  font-family: var(--display);
-  font-size: 14px; font-weight: 500;
-  line-height: 1.3;
-}
-.checkin-virtue-symbol {
-  color: var(--gold); margin-right: 6px;
-}
-.checkin-virtue-q {
-  font-size: 11.5px; color: var(--ink-3);
-  font-style: italic; font-family: var(--display);
-  margin-top: 2px;
-}
-.checkin-votes {
-  display: flex; gap: 6px; flex-shrink: 0;
-}
-.checkin-vote-btn {
-  width: 38px; height: 38px;
-  background: var(--bg-2);
-  border: 1px solid var(--line-bright);
-  border-radius: 10px;
-  font-size: 16px;
-  cursor: pointer;
-  transition: all 180ms var(--ease);
-  display: flex; align-items: center; justify-content: center;
-}
-.checkin-vote-btn:active { transform: scale(0.92); }
-.checkin-vote-btn.for.selected {
-  background: var(--green); border-color: var(--green);
-}
-.checkin-vote-btn.against.selected {
-  background: var(--red); border-color: var(--red);
-}
-.checkin-note-input {
-  margin-top: 6px;
-  width: 100%;
-  background: var(--bg-2);
-  border: 1px solid var(--line);
-  border-radius: 8px;
-  padding: 8px 10px;
-  color: var(--ink);
-  font-family: var(--display);
-  font-style: italic;
-  font-size: 13px;
-  outline: none;
-  display: none;
-}
-.checkin-note-input.show { display: block; }
-.checkin-note-input:focus { border-color: var(--gold-soft); }
-.checkin-note-input::placeholder { color: var(--ink-4); }
-.checkin-save-row {
-  margin-top: 14px;
-  display: flex; gap: 8px;
-}
-.checkin-save-row .btn { flex: 1; }
 </style>
 </head>
 <body>
@@ -3218,18 +3267,15 @@ body {
 
 <div class="container">
 
-  <!-- ============ TODAY VIEW ============ -->
+  <!-- ============ TODAY VIEW (virtue list homepage) ============ -->
   <div class="view active" id="view-today">
 
-    <div id="migration-banner-container"></div>
-
-    <div class="today-header">
-      <div class="today-eyebrow">Identity in formation</div>
-      <div class="today-title">The man you are <em>becoming</em>.</div>
-      <div class="today-sub" id="today-sub">— virtues. Each one becomes you through repeated behavior.</div>
+    <div class="home-header">
+      <div class="home-eyebrow">The man</div>
+      <div class="home-title">Who you are.</div>
     </div>
 
-    <div id="formation-cards-container"></div>
+    <div id="virtue-list-container"></div>
 
   </div>
 
@@ -3532,13 +3578,6 @@ body {
         <div class="settings-val">↑</div>
       </div>
       <input type="file" id="import-file" accept="application/json" style="display: none;"/>
-      <div class="settings-row" id="reset-today-btn">
-        <div>
-          <div class="settings-label">Reset today</div>
-          <div class="settings-sublabel">Clear today's reps and reflections</div>
-        </div>
-        <div class="settings-val">↺</div>
-      </div>
       <div class="settings-row" id="reset-all-btn">
         <div>
           <div class="settings-label">Reset everything</div>
@@ -3584,6 +3623,11 @@ body {
 </nav>
 
 </div><!-- #app-wrap -->
+
+<!-- FULL-SCREEN VIRTUE VIEW (homepage tap-through) -->
+<div class="virtue-view-overlay" id="virtue-view-overlay" style="display:none;">
+  <div class="virtue-view-container" id="virtue-view-container"></div>
+</div>
 
 <!-- REVIEW OVERLAY -->
 <div class="review-overlay" id="review-overlay">
@@ -3796,8 +3840,7 @@ body {
 
     <div class="ve-tabs">
       <button class="ve-tab active" data-ve-pane="identity">Identity</button>
-      <button class="ve-tab" data-ve-pane="behaviors">Behaviors · <span id="ve-tab-behaviors-count">0</span></button>
-      <button class="ve-tab" data-ve-pane="rules">Rules · <span id="ve-tab-rules-count">0</span></button>
+      <button class="ve-tab" data-ve-pane="components">Components</button>
     </div>
 
     <div class="ve-pane active" id="ve-pane-identity">
@@ -3821,7 +3864,7 @@ body {
       <div class="ve-toggle-row" id="ve-active-row">
         <div class="ve-toggle-info">
           <div class="ve-toggle-label">Active</div>
-          <div class="ve-toggle-sublabel">Show in Today, count toward coherence</div>
+          <div class="ve-toggle-sublabel">Show on the Today homepage</div>
         </div>
         <div class="ve-toggle" id="ve-active-toggle"></div>
       </div>
@@ -3835,25 +3878,41 @@ body {
       <button class="ve-delete-btn" id="ve-delete-btn">Delete virtue</button>
     </div>
 
-    <div class="ve-pane" id="ve-pane-behaviors">
-      <div class="ve-authoring-prompt">
-        What does this man <em>do</em>? Concrete daily votes. Small enough to do today.
+    <div class="ve-pane" id="ve-pane-components">
+      <!-- Components list view (default) -->
+      <div id="ve-components-list-view">
+        <div class="ve-authoring-prompt">
+          The pieces that make up this virtue. Behaviors stay on top. Reorder the rest by dragging.
+        </div>
+        <div id="ve-active-components"></div>
+        <div class="ve-available-label" id="ve-available-label" style="display:none;">AVAILABLE · NOT ADDED</div>
+        <div id="ve-available-components"></div>
       </div>
-      <div id="ve-behavior-list"></div>
-      <button class="add-behavior-btn" id="ve-add-behavior-btn">+ Add Behavior</button>
-    </div>
 
-    <div class="ve-pane" id="ve-pane-rules">
-      <div class="ve-authoring-prompt">
-        What does this man <em>stand by</em>? Lines he will not cross. Short. Declarative.
-      </div>
-      <div id="ve-rule-list"></div>
-      <div class="rule-add-row">
-        <input id="ve-rule-input" placeholder="Add a rule he stands by..."/>
-        <button id="ve-rule-add-btn" disabled>+</button>
-      </div>
-      <div class="rules-footnote">
-        Rules show in the Mentor's context and on the virtue's expanded card in Today. They're the lines you keep — even when no one's checking.
+      <!-- Components section view (one component type's items) -->
+      <div id="ve-components-section-view" style="display:none;">
+        <button class="ve-section-back" id="ve-section-back-btn">← Components</button>
+        <div class="ve-section-head">
+          <div class="ve-section-title" id="ve-section-title">Section</div>
+          <div class="ve-section-sub" id="ve-section-sub"></div>
+        </div>
+
+        <!-- Behaviors body (only shown when section type is 'behaviors') -->
+        <div id="ve-section-behaviors" style="display:none;">
+          <div id="ve-behavior-list"></div>
+          <button class="add-behavior-btn" id="ve-add-behavior-btn">+ Add Behavior</button>
+        </div>
+
+        <!-- Generic string-list body (mantras/rules/antiBehaviors/triggers/habits) -->
+        <div id="ve-section-strings" style="display:none;">
+          <div id="ve-string-list"></div>
+          <div class="rule-add-row">
+            <input id="ve-string-input" placeholder="Add an item..."/>
+            <button id="ve-string-add-btn" disabled>+</button>
+          </div>
+        </div>
+
+        <button class="ve-section-remove-btn" id="ve-section-remove-btn">Remove this component</button>
       </div>
     </div>
   </div>
@@ -4151,7 +4210,6 @@ document.getElementById('auth-password').addEventListener('keydown', (e) => {
 // EMOTIONAL_PILLAR globals have been retired in favor of state.virtues[].
 
 const state = {
-  reps: {}, alignment: {}, filters: {}, reflections: {}, tomorrow: {},
   categories: [], cards: [], books: [], summaries: [],
   reviewStats: { total: 0 }, chat: [],
   virtues: [],
@@ -4161,14 +4219,9 @@ const state = {
 
 const ICONS = ['📚','🧠','💡','📖','🎯','⚖️','🔬','🎨','💼','🌍','🧘','💪','💰','❤️','🛠️','🗣️','🎵','✍️','🏛️','⚔️','🌱','🔥','✦','♟️'];
 const VIRTUE_SYMBOLS = ['◆','⚡','⊙','◈','◇','◉','◎','⚖️','✦','✧','✶','★','☉','☼','◊','▲','■','●','♆','✚','✿','❄','☯','⚓'];
-const KEYS = ['reps','alignment','filters','reflections','tomorrow','categories','cards','books','summaries','reviewStats','chat','virtues','experiments','meta'];
+const KEYS = ['categories','cards','books','summaries','reviewStats','chat','virtues','experiments','meta'];
 
 // ============ VIRTUE HELPERS ============
-function isoDateOffset(days) {
-  const d = new Date();
-  d.setDate(d.getDate() - days);
-  return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
-}
 function getVirtueById(id) {
   return (state.virtues || []).find(v => v.id === id);
 }
@@ -4191,43 +4244,24 @@ function getAllVirtuesSorted() {
     return (a.createdAt || 0) - (b.createdAt || 0);
   });
 }
-function getActiveRepStructure() {
-  const virtues = getActiveVirtues();
-  return { virtues };
-}
-function totalRepsToday() {
-  const virtues = getActiveVirtues();
-  return virtues.reduce((sum, v) => sum + (v.behaviors || []).length, 0);
-}
-function repsDoneToday() {
-  const todayReps = state.reps[getToday()] || {};
-  // Count only reps that belong to currently active virtues
-  const validIds = new Set();
-  getActiveVirtues().forEach(v => (v.behaviors || []).forEach(b => validIds.add(b.id)));
-  let n = 0;
-  for (const id of Object.keys(todayReps)) {
-    if (validIds.has(id)) n++;
+
+const ALL_COMPONENT_TYPES = ['behaviors','mantras','rules','antiBehaviors','triggers','habits'];
+const STRING_COMPONENT_TYPES = ['mantras','rules','antiBehaviors','triggers','habits'];
+const DEFAULT_COMPONENT_ORDER = ['behaviors','mantras','rules','antiBehaviors','triggers','habits'];
+
+function ensureVirtueShape(v) {
+  if (!Array.isArray(v.behaviors)) v.behaviors = [];
+  if (!Array.isArray(v.rules)) v.rules = [];
+  if (!Array.isArray(v.antiBehaviors)) v.antiBehaviors = [];
+  if (!Array.isArray(v.habits)) v.habits = [];
+  if (!Array.isArray(v.mantras)) v.mantras = [];
+  if (!Array.isArray(v.triggers)) v.triggers = [];
+  if (!Array.isArray(v.componentOrder)) {
+    const order = ['behaviors'];
+    if (v.rules.length) order.push('rules');
+    v.componentOrder = order;
   }
-  return n;
-}
-function foundationStrength7d() {
-  const total = totalRepsToday();
-  if (total === 0) return 'Settling';
-  const activeIds = new Set();
-  getActiveVirtues().forEach(v => (v.behaviors || []).forEach(b => activeIds.add(b.id)));
-  let done = 0;
-  for (let i = 0; i < 7; i++) {
-    const ds = isoDateOffset(i);
-    const reps = state.reps[ds];
-    if (!reps) continue;
-    for (const id of Object.keys(reps)) if (activeIds.has(id)) done++;
-  }
-  const ratio = Math.min(1, done / (7 * total));
-  if (ratio >= 0.75) return 'Strong';
-  if (ratio >= 0.5) return 'Steady';
-  if (ratio >= 0.25) return 'Wavering';
-  if (ratio > 0) return 'Breaking';
-  return 'Settling';
+  return v;
 }
 
 // ============ MIGRATION: principles -> virtues ============
@@ -4331,10 +4365,23 @@ function migrateToVirtues() {
   delete state.week;
   delete state.weeklyReviews;
 
+  // Ensure every seeded virtue has the full component shape so migrateVirtuesToComponents
+  // doesn't need to do double-work on the same data.
+  state.virtues.forEach(ensureVirtueShape);
+
   state.meta = state.meta || {};
   state.meta.migratedToVirtues = true;
-  state.meta.showVirtueMigrationBanner = true;
   state.meta.version = 2;
+  return true;
+}
+
+// ============ MIGRATION: virtues -> components (one-shot) ============
+function migrateVirtuesToComponents() {
+  if (state.meta && state.meta.migratedToComponents) return false;
+  state.virtues = state.virtues || [];
+  state.virtues.forEach(ensureVirtueShape);
+  state.meta = state.meta || {};
+  state.meta.migratedToComponents = true;
   return true;
 }
 
@@ -4358,6 +4405,15 @@ async function loadState() {
   if (migrateToVirtues()) {
     await save('virtues', true);
     await save('meta', true);
+  }
+  // Run one-shot migration to add new component arrays + componentOrder
+  if (migrateVirtuesToComponents()) {
+    await save('virtues', true);
+    await save('meta', true);
+  } else {
+    // Defensive: even if migration flag is set, ensure every virtue has the full shape
+    // (in case a virtue was imported or hand-edited)
+    (state.virtues || []).forEach(ensureVirtueShape);
   }
 
   if (state.meta.firstVisit) {
@@ -4440,184 +4496,181 @@ document.querySelectorAll('.tab').forEach(tab => {
   });
 });
 
-// ============ MIGRATION BANNER ============
-function renderMigrationBanner() {
-  const container = document.getElementById('migration-banner-container');
-  if (!container) return;
-  if (state.meta && state.meta.showVirtueMigrationBanner) {
-    container.innerHTML = `
-      <div class="migration-banner">
-        <div class="migration-banner-body">
-          <div class="migration-banner-eyebrow">The OS has changed</div>
-          <div class="migration-banner-title">Your constitution is now yours to edit.</div>
-          <div class="migration-banner-sub">Your data is preserved. Open the Constitution tab to author the man you're becoming.</div>
-        </div>
-        <button class="migration-banner-close" id="migration-banner-close" aria-label="Dismiss">×</button>
-      </div>`;
-    document.getElementById('migration-banner-close').onclick = () => {
-      state.meta.showVirtueMigrationBanner = false;
-      save('meta', true);
-      container.innerHTML = '';
-    };
-  } else {
-    container.innerHTML = '';
-  }
-}
-
-// Tracks which virtue ids the user has currently expanded on Today
-const openVirtueIds = new Set();
-
-// ============ TODAY RENDER ============
-function calculateFormation(virtue) {
-  const windowSize = 30;
-  const today = new Date(getToday());
-
-  // Virtue creation cutoff: if virtue is younger than the window,
-  // use its age instead so new virtues can reach 100%
-  const createdAt = new Date(virtue.createdAt || virtue.created || today);
-  const daysSinceCreation = Math.floor((today - createdAt) / (1000 * 60 * 60 * 24)) + 1;
-  const effectiveWindow = Math.min(windowSize, Math.max(1, daysSinceCreation));
-
-  if (!virtue.behaviors || virtue.behaviors.length === 0) {
-    return { daysShownUp: 0, windowSize: effectiveWindow, pct: 0 };
-  }
-
-  const behaviorIds = new Set(virtue.behaviors.map(b => b.id));
-  let daysShownUp = 0;
-
-  for (let i = 0; i < effectiveWindow; i++) {
-    const d = new Date(today);
-    d.setDate(d.getDate() - i);
-    const ds = d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
-    const dayReps = state.reps[ds] || {};
-
-    // "Showed up" = at least one behavior from this virtue was done that day
-    const showedUp = Object.keys(dayReps).some(repId => behaviorIds.has(repId));
-    if (showedUp) daysShownUp++;
-  }
-
-  const pct = Math.round((daysShownUp / effectiveWindow) * 100);
-  return { daysShownUp, windowSize: effectiveWindow, pct };
-}
-
-function renderVirtueFormationCards() {
-  const container = document.getElementById('formation-cards-container');
+// ============ TODAY: VIRTUE LIST HOMEPAGE ============
+function renderHomepage() {
+  const container = document.getElementById('virtue-list-container');
   if (!container) return;
   container.innerHTML = '';
-  const virtues = getActiveVirtues();
-  const todayReps = state.reps[getToday()] || {};
 
-  // Update the today-sub line
-  const sub = document.getElementById('today-sub');
-  if (sub) {
-    const n = virtues.length;
-    sub.textContent = `${n} virtue${n === 1 ? '' : 's'}. Each one becomes you through repeated behavior.`;
-  }
+  const virtues = getActiveVirtues();
 
   if (virtues.length === 0) {
     container.innerHTML = `
       <div class="empty-state">
         <div class="empty-state-icon">◇</div>
         <div class="empty-state-text">No active virtues.</div>
-        <div class="empty-state-sub">Open the Constitution tab to activate one or write a new one.</div>
+        <div class="empty-state-sub">Open Constitution to activate one or write a new virtue.</div>
       </div>`;
     return;
   }
 
   virtues.forEach(v => {
-    const behaviors = v.behaviors || [];
-    const rules = v.rules || [];
-    const behaviorCount = behaviors.length;
-    const todayDone = behaviors.filter(b => todayReps[b.id]).length;
-    const formation = calculateFormation(v);
-    const isOpen = openVirtueIds.has(v.id);
-
-    const card = document.createElement('div');
-    card.className = `formation-card${isOpen ? ' open' : ''}`;
-    card.dataset.virtueId = v.id;
-    card.dataset.pinned = v.pinned ? 'true' : 'false';
-
-    const behaviorsHtml = behaviorCount === 0
-      ? `<div class="formation-body-empty">No behaviors yet. Add some in the Constitution.</div>`
-      : behaviors.map(b => {
-          const isDone = !!todayReps[b.id];
-          return `
-            <div class="rep${isDone ? ' done' : ''}" data-id="${escapeHtml(b.id)}">
-              <div class="check"></div>
-              <div class="rep-body">
-                <div class="rep-text">${escapeHtml(b.text)}</div>
-                ${b.cue ? `<div class="rep-cue">${escapeHtml(b.cue)}</div>` : ''}
-                ${b.why ? `<div class="rep-why"><strong>Why</strong>${escapeHtml(b.why)}</div>` : ''}
-              </div>
-            </div>`;
-        }).join('');
-
-    const rulesHtml = rules.length === 0 ? '' : `
-      <div class="formation-divider"></div>
-      <div class="formation-body-label">Rules</div>
-      ${rules.map(r => `<div class="virtue-rule-line"><span class="virtue-rule-bullet">${escapeHtml(v.symbol || '◆')}</span><span>${escapeHtml(r)}</span></div>`).join('')}
-    `;
-
-    card.innerHTML = `
-      <div class="formation-head">
-        <div class="formation-meta-row">
-          <div class="formation-title">
-            <span class="formation-symbol">${escapeHtml(v.symbol || '◆')}</span>
-            <span class="formation-name">${escapeHtml(v.name)}</span>
-          </div>
-          ${v.pinned ? '<span class="formation-pinned">PINNED</span>' : ''}
+    const row = document.createElement('div');
+    row.className = 'virtue-list-row';
+    row.dataset.virtueId = v.id;
+    row.dataset.pinned = v.pinned ? 'true' : 'false';
+    row.innerHTML = `
+      <div class="virtue-list-top">
+        <div class="virtue-list-title">
+          <span class="virtue-list-symbol">${escapeHtml(v.symbol || '◆')}</span>
+          <span class="virtue-list-name">${escapeHtml(v.name)}</span>
         </div>
-        <div class="formation-identity">${escapeHtml(v.identityLine || '')}</div>
-        <div class="formation-stats">
-          <span class="formation-stat-today">TODAY · ${todayDone} / ${behaviorCount}</span>
-          <span class="formation-stat-arc">FORMATION · ${formation.daysShownUp} / ${formation.windowSize}</span>
-        </div>
-        <div class="formation-bar">
-          <div class="formation-bar-fill" style="width: ${formation.pct}%"></div>
-        </div>
+        <span class="virtue-list-chevron">›</span>
       </div>
-      <div class="formation-body">
-        <div class="formation-body-label">Behaviors</div>
-        ${behaviorsHtml}
-        ${rulesHtml}
-      </div>
+      <div class="virtue-list-identity">${escapeHtml(v.identityLine || '')}</div>
     `;
-
-    card.querySelector('.formation-head').addEventListener('click', () => {
-      const id = v.id;
-      if (openVirtueIds.has(id)) {
-        openVirtueIds.delete(id);
-        card.classList.remove('open');
-      } else {
-        openVirtueIds.add(id);
-        card.classList.add('open');
-      }
-    });
-
-    container.appendChild(card);
+    row.addEventListener('click', () => openVirtueView(v.id));
+    container.appendChild(row);
   });
 }
 
 function renderToday() {
-  renderMigrationBanner();
-  renderVirtueFormationCards();
+  renderHomepage();
 }
 
-// ============ REP CLICK (event delegation on formation cards) ============
-document.getElementById('formation-cards-container').addEventListener('click', (e) => {
-  const rep = e.target.closest('.rep');
-  if (!rep || !rep.dataset.id) return;
-  // Prevent the card-toggle handler from also firing
-  e.stopPropagation();
-  const id = rep.dataset.id;
-  if (!state.reps[getToday()]) state.reps[getToday()] = {};
-  if (state.reps[getToday()][id]) delete state.reps[getToday()][id];
-  else state.reps[getToday()][id] = true;
-  renderToday();
-  save('reps');
-});
+// ============ FULL-SCREEN VIRTUE VIEW ============
+let currentVirtueId = null;
 
+const COMPONENT_LABELS = {
+  behaviors: 'BEHAVIORS',
+  mantras: 'MANTRAS',
+  rules: 'RULES',
+  antiBehaviors: 'ANTI-BEHAVIORS',
+  triggers: 'TRIGGERS',
+  habits: 'HABITS'
+};
 
+function openVirtueView(virtueId) {
+  const v = getVirtueById(virtueId);
+  if (!v) return;
+  ensureVirtueShape(v);
+  currentVirtueId = virtueId;
+  renderVirtueView(v);
+  const overlay = document.getElementById('virtue-view-overlay');
+  overlay.style.display = 'block';
+  overlay.scrollTop = 0;
+  document.body.style.overflow = 'hidden';
+}
+
+function closeVirtueView() {
+  const overlay = document.getElementById('virtue-view-overlay');
+  overlay.style.display = 'none';
+  document.body.style.overflow = '';
+  currentVirtueId = null;
+}
+
+function renderVirtueView(v) {
+  const container = document.getElementById('virtue-view-container');
+
+  // Section order: behaviors always first, then componentOrder for the rest
+  const orderRaw = Array.isArray(v.componentOrder) && v.componentOrder.length
+    ? v.componentOrder
+    : DEFAULT_COMPONENT_ORDER;
+  const order = ['behaviors', ...orderRaw.filter(t => t !== 'behaviors')];
+
+  const sectionsHtml = order.map(type => renderComponentSection(type, v)).filter(Boolean).join('');
+
+  container.innerHTML = `
+    <div class="virtue-view-topbar">
+      <button class="virtue-view-back" id="virtue-view-back-btn">← Back</button>
+      <button class="virtue-view-edit" id="virtue-view-edit-btn">Edit</button>
+    </div>
+
+    <div class="virtue-portrait">
+      <div class="virtue-portrait-symbol">${escapeHtml(v.symbol || '◆')}</div>
+      ${v.pinned ? '<div class="virtue-portrait-pinned">PINNED</div>' : ''}
+      <div class="virtue-portrait-name">${escapeHtml(v.name)}</div>
+      <div class="virtue-portrait-identity">${escapeHtml(v.identityLine || '')}</div>
+    </div>
+
+    ${v.body ? `
+      <div class="virtue-section">
+        <div class="virtue-section-label">THE MAN BEHIND IT</div>
+        <div class="virtue-body-box">${escapeHtml(v.body)}</div>
+      </div>` : ''}
+
+    ${sectionsHtml}
+  `;
+
+  document.getElementById('virtue-view-back-btn').onclick = closeVirtueView;
+  document.getElementById('virtue-view-edit-btn').onclick = editCurrentVirtue;
+}
+
+function renderComponentSection(type, v) {
+  const items = v[type] || [];
+  if (!items.length) return '';
+  const label = COMPONENT_LABELS[type];
+
+  const textOf = it => typeof it === 'string' ? it : (it && it.text) || '';
+
+  let body = '';
+  switch (type) {
+    case 'behaviors':
+      body = items.map(b => `
+        <div class="virtue-behavior-item">
+          <div class="virtue-behavior-text${b.cue ? ' has-cue' : ''}">${escapeHtml(b.text || '')}</div>
+          ${b.cue ? `<div class="virtue-behavior-cue">Cue: ${escapeHtml(b.cue)}</div>` : ''}
+        </div>`).join('');
+      break;
+    case 'mantras':
+      body = items.map(m => `<div class="virtue-mantra-item">${escapeHtml(textOf(m))}</div>`).join('');
+      break;
+    case 'rules':
+      body = items.map(r => `
+        <div class="virtue-rule-item">
+          <span class="virtue-rule-bullet">◆</span>
+          <span class="virtue-rule-text">${escapeHtml(textOf(r))}</span>
+        </div>`).join('');
+      break;
+    case 'antiBehaviors':
+      body = items.map(a => `
+        <div class="virtue-anti-item">
+          <span class="virtue-anti-x">✕</span>
+          <span class="virtue-anti-text">${escapeHtml(textOf(a))}</span>
+        </div>`).join('');
+      break;
+    case 'triggers':
+      body = items.map(t => `
+        <div class="virtue-trigger-item">
+          <span class="virtue-trigger-mark">!</span>
+          <span class="virtue-trigger-text">${escapeHtml(textOf(t))}</span>
+        </div>`).join('');
+      break;
+    case 'habits':
+      body = items.map(h => `
+        <div class="virtue-habit-item">
+          <span class="virtue-habit-mark">◐</span>
+          <span class="virtue-habit-text">${escapeHtml(textOf(h))}</span>
+        </div>`).join('');
+      break;
+  }
+
+  return `
+    <div class="virtue-section">
+      <div class="virtue-section-label">${label}</div>
+      ${body}
+    </div>`;
+}
+
+function editCurrentVirtue() {
+  if (!currentVirtueId) return;
+  const id = currentVirtueId;
+  closeVirtueView();
+  // Switch to Constitution tab
+  const tab = document.querySelector('.tab[data-view="constitution"]');
+  if (tab) tab.click();
+  setTimeout(() => openVirtueEditor(id), 60);
+}
 
 // ============ MIND VIEW ============
 function showMindHome() {
@@ -5430,132 +5483,58 @@ function buildLiveContext() {
   const activeVirtues = getActiveVirtues();
   const dormantVirtues = (state.virtues || []).filter(v => !v.active);
 
-  // Build a name lookup for behavior ids across ALL virtues (so we can name reps even if a virtue toggled dormant)
-  const repIdToText = {};
-  const repIdToVirtue = {};
-  (state.virtues || []).forEach(v => {
-    (v.behaviors || []).forEach(b => {
-      repIdToText[b.id] = b.text;
-      repIdToVirtue[b.id] = v.name;
-    });
-  });
+  const textOf = it => typeof it === 'string' ? it : ((it && it.text) || '');
 
-  lines.push("=== LIVE CONTEXT (the user's actual data right now) ===");
+  lines.push("=== LIVE CONTEXT (the user's actual constitution right now) ===");
   lines.push(`Today: ${getToday()}`);
 
-  // The constitution — active virtues
+  // Active virtues — full picture
   if (activeVirtues.length === 0) {
-    lines.push("\nThe user has NO active virtues right now. Their constitution is empty for today. Encourage them to author one, but do not write it for them.");
+    lines.push("\nThe user has NO active virtues right now. Their constitution is empty. Encourage them to author one, but do not write it for them.");
   } else {
-    lines.push(`\nACTIVE VIRTUES (${activeVirtues.length}) — the men he is voting for, in priority order:`);
+    lines.push(`\nACTIVE VIRTUES (${activeVirtues.length}) — the men he is becoming, in priority order:`);
     activeVirtues.forEach(v => {
       const pinTag = v.pinned ? ' [PINNED]' : '';
-      lines.push(`  --- ${v.symbol || '◆'} ${v.name}${pinTag} ---`);
+      lines.push(`\n  --- ${v.symbol || '◆'} ${v.name}${pinTag} ---`);
       if (v.identityLine) lines.push(`    Identity: ${v.identityLine}`);
-      if (v.body && v.body.trim()) lines.push(`    The man behind it: ${v.body.trim().replace(/\s+/g, ' ').slice(0, 240)}`);
-      const behaviors = v.behaviors || [];
-      if (behaviors.length > 0) {
-        lines.push(`    Behaviors he votes with (${behaviors.length}):`);
-        behaviors.forEach(b => lines.push(`      - ${b.text}`));
+      if (v.body && v.body.trim()) lines.push(`    The man behind it: ${v.body.trim().replace(/\s+/g, ' ').slice(0, 320)}`);
+      if ((v.behaviors || []).length) {
+        lines.push(`    Behaviors (${v.behaviors.length}):`);
+        v.behaviors.forEach(b => {
+          const cue = b.cue ? ` [cue: ${b.cue}]` : '';
+          lines.push(`      - ${b.text}${cue}`);
+        });
       }
-      const rules = v.rules || [];
-      if (rules.length > 0) {
-        lines.push(`    Rules he stands by (${rules.length}):`);
-        rules.forEach(r => lines.push(`      • ${r}`));
+      if ((v.mantras || []).length) {
+        lines.push(`    Mantras (${v.mantras.length}):`);
+        v.mantras.forEach(m => lines.push(`      › ${textOf(m)}`));
+      }
+      if ((v.rules || []).length) {
+        lines.push(`    Rules he stands by (${v.rules.length}):`);
+        v.rules.forEach(r => lines.push(`      ◆ ${textOf(r)}`));
+      }
+      if ((v.antiBehaviors || []).length) {
+        lines.push(`    Anti-behaviors / refusals (${v.antiBehaviors.length}):`);
+        v.antiBehaviors.forEach(a => lines.push(`      ✕ ${textOf(a)}`));
+      }
+      if ((v.triggers || []).length) {
+        lines.push(`    Triggers to watch (${v.triggers.length}):`);
+        v.triggers.forEach(t => lines.push(`      ! ${textOf(t)}`));
+      }
+      if ((v.habits || []).length) {
+        lines.push(`    Habits (${v.habits.length}):`);
+        v.habits.forEach(h => lines.push(`      ◐ ${textOf(h)}`));
       }
     });
   }
 
-  // Dormant virtues — brief
+  // Dormant virtues — brief reference
   if (dormantVirtues.length > 0) {
     lines.push(`\nOther virtues in the constitution (currently DORMANT, ${dormantVirtues.length}):`);
     dormantVirtues.forEach(v => {
-      const id = v.identityLine ? ` — ${v.identityLine}` : '';
-      lines.push(`  - ${v.symbol || '◆'} ${v.name}${id}`);
+      const idl = v.identityLine ? ` — ${v.identityLine}` : '';
+      lines.push(`  - ${v.symbol || '◆'} ${v.name}${idl}`);
     });
-  }
-
-  // Today's reps
-  const todayReps = state.reps[getToday()] || {};
-  const doneIds = Object.keys(todayReps);
-  const totalToday = totalRepsToday();
-  if (doneIds.length === 0) {
-    lines.push(`\nToday's reps: NONE done yet (out of ${totalToday}).`);
-  } else {
-    const detail = doneIds.map(id => {
-      const t = repIdToText[id];
-      const vname = repIdToVirtue[id];
-      return t ? `[${vname || '?'}] "${t}"` : `[orphan] ${id}`;
-    });
-    lines.push(`\nToday's reps (${doneIds.length}/${totalToday}): ${detail.join('; ')}`);
-  }
-
-  if (state.alignment[getToday()]) {
-    lines.push(`Today's resonance score: ${state.alignment[getToday()]}/10`);
-  }
-
-  // Reflections (free-text notes, distinct from evening check-ins)
-  const r = state.reflections[getToday()] || {};
-  if (r.win) lines.push(`Today's win note: "${r.win}"`);
-  if (r.friction) lines.push(`Today's friction note: "${r.friction}"`);
-
-  // Tomorrow's one rep
-  if (state.tomorrow[getToday()]) lines.push(`Tomorrow's one rep: "${state.tomorrow[getToday()]}"`);
-
-  // Last 7 days summary
-  let weekReps = 0, weekDays = 0, weekAlignment = 0, weekAlignmentDays = 0;
-  for (let i = 0; i < 7; i++) {
-    const ds = isoDateOffset(i);
-    const reps = state.reps[ds];
-    if (reps && Object.keys(reps).length > 0) {
-      weekReps += Object.keys(reps).length;
-      weekDays++;
-    }
-    if (state.alignment[ds]) {
-      weekAlignment += state.alignment[ds];
-      weekAlignmentDays++;
-    }
-  }
-  lines.push(`\nLast 7 days: ${weekReps} reps across ${weekDays} days. Avg resonance: ${weekAlignmentDays ? (weekAlignment/weekAlignmentDays).toFixed(1) : 'no data'}`);
-  lines.push(`Foundation strength (7d): ${foundationStrength7d()}`);
-
-  // Recent friction patterns (free-text)
-  const recentFriction = [];
-  for (let i = 0; i < 14; i++) {
-    const ds = isoDateOffset(i);
-    const ref = state.reflections[ds];
-    if (ref && ref.friction && typeof ref.friction === 'string' && ref.friction.trim()) {
-      recentFriction.push(`(${ds}) "${ref.friction.trim()}"`);
-    }
-  }
-  if (recentFriction.length > 0) {
-    lines.push(`\nRecent friction notes (last 14 days):`);
-    recentFriction.slice(0, 5).forEach(fr => lines.push(`  - ${fr}`));
-  }
-
-  // Evening check-in votes (per-virtue, last 14 days)
-  // Stored at state.reflections[YYYY-MM-DD][virtueId] = { vote, note }
-  const recentCheckins = [];
-  for (let i = 0; i < 14; i++) {
-    const ds = isoDateOffset(i);
-    const ref = state.reflections[ds];
-    if (!ref) continue;
-    Object.keys(ref).forEach(key => {
-      const val = ref[key];
-      if (val && typeof val === 'object' && (val.vote === 'for' || val.vote === 'against')) {
-        const v = getVirtueById(key);
-        const vname = v ? v.name : '(deleted virtue)';
-        const note = val.note ? ` — "${val.note}"` : '';
-        recentCheckins.push({ ds, vname, vote: val.vote, note });
-      }
-    });
-  }
-  if (recentCheckins.length > 0) {
-    lines.push(`\nEvening check-ins (last 14 days, most recent first):`);
-    recentCheckins
-      .sort((a, b) => a.ds > b.ds ? -1 : 1)
-      .slice(0, 14)
-      .forEach(c => lines.push(`  (${c.ds}) ${c.vname}: ${c.vote.toUpperCase()}${c.note}`));
   }
 
   // Library state
@@ -5869,14 +5848,10 @@ function updateContextBanner() {
   }
   if (state.meta.contextOn) {
     banner.style.display = 'flex';
-    const done = repsDoneToday();
-    const total = totalRepsToday();
-    const align = state.alignment[getToday()];
     const active = getActiveVirtues().length;
-    const parts = [`${done}/${total} reps`, `${active} active virtue${active === 1 ? '' : 's'}`];
-    if (align) parts.push(`resonance ${align}/10`);
+    const dormant = (state.virtues || []).length - active;
     document.getElementById('ctx-label').textContent = 'Context active.';
-    document.getElementById('ctx-detail').textContent = `Mentor sees ${parts.join(', ')}, plus reflections, evening check-ins, and library.`;
+    document.getElementById('ctx-detail').textContent = `Mentor sees your full constitution — ${active} active virtue${active === 1 ? '' : 's'}${dormant > 0 ? `, ${dormant} dormant` : ''}.`;
   } else {
     banner.style.display = 'flex';
     document.getElementById('ctx-label').textContent = 'Context off.';
@@ -5959,18 +5934,6 @@ document.getElementById('import-file').onchange = (e) => {
   reader.readAsText(file);
 };
 
-document.getElementById('reset-today-btn').onclick = () => {
-  if (!confirm("Clear today's reps, scores, and reflections?")) return;
-  delete state.reps[getToday()];
-  delete state.alignment[getToday()];
-  delete state.filters[getToday()];
-  delete state.reflections[getToday()];
-  delete state.tomorrow[getToday()];
-  ['reps','alignment','filters','reflections','tomorrow'].forEach(k => save(k, true));
-  renderAll();
-  toast('Reset');
-};
-
 document.getElementById('reset-all-btn').onclick = async () => {
   if (!confirm("This will wipe ALL your data. There is no undo.\n\nProceed?")) return;
   if (!confirm("Absolutely sure?")) return;
@@ -5983,8 +5946,12 @@ document.getElementById('reset-all-btn').onclick = async () => {
     save(k);
   });
   document.getElementById('chat-scroll').innerHTML = '';
-  // Re-run migration so the user is left with the default constitution, not nothing.
+  // Re-run migrations so the user is left with the default constitution, fully shaped.
   if (migrateToVirtues()) {
+    await save('virtues', true);
+    await save('meta', true);
+  }
+  if (migrateVirtuesToComponents()) {
     await save('virtues', true);
     await save('meta', true);
   }
@@ -5997,12 +5964,23 @@ let _editingVirtueId = null;
 let _editorIsNew = false;
 let _editorDraft = null; // working copy
 let _editorVePane = 'identity';
+let _editorComponentView = 'list'; // 'list' or 'section'
+let _editorSectionType = null;      // 'behaviors' | 'mantras' | 'rules' | 'antiBehaviors' | 'triggers' | 'habits'
 let _constitutionFilter = 'active';
 let _editingBehaviorIdx = -1;
 
+const COMPONENT_META = {
+  behaviors:    { icon: '◇', label: 'Behaviors',      desc: 'Concrete actions. What he does.' },
+  mantras:      { icon: '›', label: 'Mantras',        desc: 'Lines he repeats to anchor.' },
+  rules:        { icon: '◆', label: 'Rules',          desc: 'Lines he will not cross.' },
+  antiBehaviors:{ icon: '✕', label: 'Anti-behaviors', desc: 'Patterns he refuses.' },
+  triggers:     { icon: '!', label: 'Triggers',       desc: 'Moments to watch for.' },
+  habits:       { icon: '◐', label: 'Habits',         desc: 'Standing routines that hold him.' }
+};
+
 function emptyVirtue() {
   const now = Date.now();
-  return {
+  return ensureVirtueShape({
     id: uid(),
     name: '',
     symbol: '◆',
@@ -6010,11 +5988,16 @@ function emptyVirtue() {
     body: '',
     behaviors: [],
     rules: [],
+    antiBehaviors: [],
+    habits: [],
+    mantras: [],
+    triggers: [],
+    componentOrder: DEFAULT_COMPONENT_ORDER.slice(),
     active: true,
     pinned: false,
     createdAt: now,
     updatedAt: now
-  };
+  });
 }
 
 function renderConstitution() {
@@ -6055,9 +6038,10 @@ function renderConstitution() {
   }
 
   list.innerHTML = pool.map(v => {
+    ensureVirtueShape(v);
     const isActive = v.active;
-    const behaviors = (v.behaviors || []).length;
-    const rules = (v.rules || []).length;
+    const totalItems = ALL_COMPONENT_TYPES.reduce((sum, t) => sum + (v[t] || []).length, 0);
+    const activeTypes = ALL_COMPONENT_TYPES.filter(t => (v[t] || []).length).length;
     const tag = v.pinned && isActive
       ? '<span class="virtue-row-tag active">Pinned · Active</span>'
       : isActive
@@ -6072,7 +6056,7 @@ function renderConstitution() {
             ${tag}
           </div>
           ${v.identityLine ? `<div class="virtue-row-identity">${escapeHtml(v.identityLine)}</div>` : ''}
-          <div class="virtue-row-meta">${behaviors} BEHAVIOR${behaviors === 1 ? '' : 'S'} · ${rules} RULE${rules === 1 ? '' : 'S'}</div>
+          <div class="virtue-row-meta">${activeTypes} COMPONENT${activeTypes === 1 ? '' : 'S'} · ${totalItems} ITEM${totalItems === 1 ? '' : 'S'}</div>
         </div>
         <div class="virtue-row-chevron">›</div>
       </div>`;
@@ -6100,17 +6084,22 @@ function openVirtueEditor(virtueId) {
     if (!v) return;
     _editingVirtueId = virtueId;
     _editorIsNew = false;
-    _editorDraft = JSON.parse(JSON.stringify(v));
+    _editorDraft = ensureVirtueShape(JSON.parse(JSON.stringify(v)));
   } else {
     _editorIsNew = true;
     _editorDraft = emptyVirtue();
     _editingVirtueId = _editorDraft.id;
   }
   _editorVePane = 'identity';
+  _editorComponentView = 'list';
+  _editorSectionType = null;
   document.getElementById('ve-eyebrow').textContent = _editorIsNew ? 'New Virtue' : 'Edit Virtue';
   // Show identity pane initially
   document.querySelectorAll('.ve-tab').forEach(t => t.classList.toggle('active', t.dataset.vePane === 'identity'));
   document.querySelectorAll('.ve-pane').forEach(p => p.classList.toggle('active', p.id === 've-pane-identity'));
+  // Reset component sub-views
+  document.getElementById('ve-components-list-view').style.display = 'block';
+  document.getElementById('ve-components-section-view').style.display = 'none';
   // Hide delete on brand new
   document.getElementById('ve-delete-btn').style.display = _editorIsNew ? 'none' : 'block';
   bindEditorFields();
@@ -6133,6 +6122,14 @@ document.querySelectorAll('.ve-tab').forEach(t => {
     document.querySelectorAll('.ve-pane').forEach(x => x.classList.remove('active'));
     t.classList.add('active');
     document.getElementById('ve-pane-' + _editorVePane).classList.add('active');
+    // When entering Components, always start at the list view (no stale section state).
+    if (_editorVePane === 'components') {
+      _editorComponentView = 'list';
+      _editorSectionType = null;
+      document.getElementById('ve-components-list-view').style.display = 'block';
+      document.getElementById('ve-components-section-view').style.display = 'none';
+      renderComponentsListView();
+    }
   };
 });
 
@@ -6165,15 +6162,12 @@ function updateEditorPreview() {
   document.getElementById('ve-preview-symbol').textContent = _editorDraft.symbol || '◆';
   document.getElementById('ve-preview-name').textContent = _editorDraft.name || 'Unnamed';
   document.getElementById('ve-preview-identity').textContent = _editorDraft.identityLine || 'Identity line';
-  document.getElementById('ve-tab-behaviors-count').textContent = (_editorDraft.behaviors || []).length;
-  document.getElementById('ve-tab-rules-count').textContent = (_editorDraft.rules || []).length;
 }
 
 function renderEditor() {
   updateEditorPreview();
   renderSymbolGrid();
-  renderBehaviorList();
-  renderRuleList();
+  renderComponentsListView();
 }
 
 function renderSymbolGrid() {
@@ -6188,8 +6182,10 @@ function renderSymbolGrid() {
       grid.querySelectorAll('.ve-symbol-opt').forEach(o => o.classList.remove('selected'));
       el.classList.add('selected');
       updateEditorPreview();
-      // Rule bullets use the virtue's symbol — re-render so they update live.
-      renderRuleList();
+      // If we happen to be viewing rules right now, re-render so bullets stay in sync.
+      if (_editorComponentView === 'section' && _editorSectionType === 'rules') {
+        renderStringList();
+      }
     };
     grid.appendChild(el);
   });
@@ -6284,48 +6280,246 @@ document.getElementById('behavior-save-btn').onclick = () => {
   updateEditorPreview();
 };
 
-function renderRuleList() {
-  const list = document.getElementById('ve-rule-list');
-  const rules = _editorDraft.rules || [];
-  if (rules.length === 0) {
-    list.innerHTML = `<div class="ve-empty">No rules yet. Add the lines he stands by below.</div>`;
+// ============ EDITOR: COMPONENTS LIST VIEW ============
+function renderComponentsListView() {
+  ensureVirtueShape(_editorDraft);
+
+  // Compose the visible order: behaviors always first (visual lock),
+  // followed by everything else in componentOrder.
+  const order = ['behaviors', ...(_editorDraft.componentOrder || []).filter(t => t !== 'behaviors')];
+  const activeSet = new Set(order);
+
+  const activeContainer = document.getElementById('ve-active-components');
+  const availContainer = document.getElementById('ve-available-components');
+  const availLabel = document.getElementById('ve-available-label');
+
+  activeContainer.innerHTML = order.map(type => {
+    const meta = COMPONENT_META[type];
+    if (!meta) return '';
+    const count = (_editorDraft[type] || []).length;
+    const locked = type === 'behaviors';
+    return `
+      <div class="ve-component-row${locked ? ' locked' : ''}"
+           data-type="${type}"
+           draggable="${locked ? 'false' : 'true'}">
+        <span class="ve-component-drag${locked ? ' locked-handle' : ''}" title="${locked ? 'Behaviors stay on top' : 'Drag to reorder'}">⋮⋮</span>
+        <span class="ve-component-icon">${meta.icon}</span>
+        <div class="ve-component-info">
+          <div class="ve-component-name">${meta.label}</div>
+          <div class="ve-component-desc">${meta.desc}</div>
+        </div>
+        <span class="ve-component-count">${count}</span>
+        <span class="ve-component-chevron">›</span>
+      </div>`;
+  }).join('');
+
+  // Wire up taps to open the section, and drag for non-behaviors
+  activeContainer.querySelectorAll('.ve-component-row').forEach(row => {
+    const type = row.dataset.type;
+    row.addEventListener('click', () => openComponentSection(type));
+    if (type === 'behaviors') return; // locked, no drag
+
+    row.addEventListener('dragstart', e => {
+      e.dataTransfer.setData('text/plain', type);
+      row.classList.add('dragging');
+    });
+    row.addEventListener('dragend', () => row.classList.remove('dragging'));
+    row.addEventListener('dragover', e => e.preventDefault());
+    row.addEventListener('drop', e => {
+      e.preventDefault();
+      const fromType = e.dataTransfer.getData('text/plain');
+      if (!fromType || fromType === 'behaviors' || fromType === type) return;
+      reorderComponent(fromType, type);
+    });
+  });
+
+  // Available (not yet added) components
+  const available = ALL_COMPONENT_TYPES.filter(t => !activeSet.has(t));
+  if (available.length === 0) {
+    availLabel.style.display = 'none';
+    availContainer.innerHTML = '';
   } else {
-    list.innerHTML = rules.map((r, idx) => `
-      <div class="rule-card" data-idx="${idx}">
-        <span class="rule-card-bullet">${escapeHtml(_editorDraft.symbol || '◆')}</span>
-        <span class="rule-card-text">${escapeHtml(r)}</span>
-        <button class="rule-card-del" data-idx="${idx}" aria-label="Delete">×</button>
-      </div>`).join('');
-    list.querySelectorAll('.rule-card-del').forEach(btn => {
-      btn.onclick = () => {
-        const i = parseInt(btn.dataset.idx);
-        _editorDraft.rules.splice(i, 1);
-        renderRuleList();
-        updateEditorPreview();
-      };
+    availLabel.style.display = 'block';
+    availContainer.innerHTML = available.map(type => {
+      const meta = COMPONENT_META[type];
+      return `
+        <div class="ve-component-row available" data-type="${type}">
+          <span class="ve-component-drag locked-handle">+</span>
+          <span class="ve-component-icon">${meta.icon}</span>
+          <div class="ve-component-info">
+            <div class="ve-component-name">${meta.label}</div>
+            <div class="ve-component-desc">${meta.desc}</div>
+          </div>
+          <span class="ve-component-chevron">›</span>
+        </div>`;
+    }).join('');
+    availContainer.querySelectorAll('.ve-component-row').forEach(row => {
+      row.addEventListener('click', () => {
+        const type = row.dataset.type;
+        _editorDraft.componentOrder = _editorDraft.componentOrder || [];
+        if (!_editorDraft.componentOrder.includes(type)) _editorDraft.componentOrder.push(type);
+        openComponentSection(type);
+      });
     });
   }
 }
 
-const ruleInput = document.getElementById('ve-rule-input');
-const ruleAddBtn = document.getElementById('ve-rule-add-btn');
-ruleInput.addEventListener('input', () => {
-  ruleAddBtn.disabled = ruleInput.value.trim().length === 0;
-});
-function addRuleFromInput() {
-  const val = ruleInput.value.trim();
-  if (!val) return;
-  _editorDraft.rules = _editorDraft.rules || [];
-  _editorDraft.rules.push(val);
-  ruleInput.value = '';
-  ruleAddBtn.disabled = true;
-  renderRuleList();
-  updateEditorPreview();
-  ruleInput.focus();
+function reorderComponent(fromType, toType) {
+  const order = _editorDraft.componentOrder || [];
+  // Make sure both exist in order (they should, since both are rendered in the active list).
+  // Behaviors handling: behaviors is rendered visually-first but might not be in componentOrder.
+  // Treat the non-behaviors slots as the only ones movable.
+  const movableOrder = order.filter(t => t !== 'behaviors');
+  const fromIdx = movableOrder.indexOf(fromType);
+  let toIdx = movableOrder.indexOf(toType);
+  if (fromIdx < 0) movableOrder.unshift(fromType); // insert if missing
+  else movableOrder.splice(fromIdx, 1);
+  toIdx = movableOrder.indexOf(toType);
+  if (toIdx < 0) movableOrder.push(fromType);
+  else movableOrder.splice(toIdx, 0, fromType);
+
+  // Reconstruct componentOrder, preserving whether 'behaviors' was in it
+  const hadBehaviors = order.includes('behaviors');
+  _editorDraft.componentOrder = hadBehaviors ? ['behaviors', ...movableOrder] : movableOrder;
+  renderComponentsListView();
 }
-ruleAddBtn.onclick = addRuleFromInput;
-ruleInput.addEventListener('keydown', (e) => {
-  if (e.key === 'Enter') { e.preventDefault(); addRuleFromInput(); }
+
+// ============ EDITOR: COMPONENT SECTION VIEW ============
+function openComponentSection(type) {
+  if (!COMPONENT_META[type]) return;
+  _editorSectionType = type;
+  _editorComponentView = 'section';
+
+  document.getElementById('ve-components-list-view').style.display = 'none';
+  document.getElementById('ve-components-section-view').style.display = 'block';
+
+  const meta = COMPONENT_META[type];
+  document.getElementById('ve-section-title').textContent = meta.label;
+  document.getElementById('ve-section-sub').textContent = meta.desc;
+
+  // Show the right body
+  document.getElementById('ve-section-behaviors').style.display = type === 'behaviors' ? 'block' : 'none';
+  document.getElementById('ve-section-strings').style.display = type === 'behaviors' ? 'none' : 'block';
+
+  if (type === 'behaviors') {
+    renderBehaviorList();
+  } else {
+    renderStringList();
+  }
+
+  // The remove button is always shown but only for non-behaviors
+  // (behaviors is part of the core shape — empty is allowed, but the component itself stays)
+  const removeBtn = document.getElementById('ve-section-remove-btn');
+  if (type === 'behaviors') {
+    removeBtn.style.display = 'none';
+  } else {
+    removeBtn.style.display = 'block';
+    removeBtn.textContent = `Remove ${meta.label.toLowerCase()} component`;
+  }
+}
+
+function closeComponentSection() {
+  _editorComponentView = 'list';
+  _editorSectionType = null;
+  document.getElementById('ve-components-section-view').style.display = 'none';
+  document.getElementById('ve-components-list-view').style.display = 'block';
+  renderComponentsListView();
+}
+
+document.getElementById('ve-section-back-btn').onclick = closeComponentSection;
+
+document.getElementById('ve-section-remove-btn').onclick = () => {
+  const type = _editorSectionType;
+  if (!type || type === 'behaviors') return;
+  const meta = COMPONENT_META[type];
+  const count = (_editorDraft[type] || []).length;
+  const msg = count > 0
+    ? `Remove ${meta.label} (and delete its ${count} item${count === 1 ? '' : 's'})?`
+    : `Remove ${meta.label} from this virtue?`;
+  if (!confirm(msg)) return;
+  _editorDraft[type] = [];
+  _editorDraft.componentOrder = (_editorDraft.componentOrder || []).filter(t => t !== type);
+  closeComponentSection();
+};
+
+// ============ EDITOR: GENERIC STRING LIST (mantras/rules/antiBehaviors/triggers/habits) ============
+function renderStringList() {
+  const list = document.getElementById('ve-string-list');
+  const type = _editorSectionType;
+  const items = _editorDraft[type] || [];
+  const input = document.getElementById('ve-string-input');
+  const meta = COMPONENT_META[type];
+
+  if (input) input.placeholder = `Add a ${meta.label.toLowerCase().replace(/s$/, '')}...`;
+
+  if (items.length === 0) {
+    list.innerHTML = `<div class="ve-empty">No items yet. Add the first one below.</div>`;
+    return;
+  }
+
+  // For rules, show the virtue symbol as the bullet (live with symbol changes).
+  list.innerHTML = items.map((it, idx) => {
+    const text = typeof it === 'string' ? it : (it && it.text) || '';
+    const bullet = type === 'rules' ? `<span class="rule-card-bullet">${escapeHtml(_editorDraft.symbol || '◆')}</span>` : '';
+    return `
+      <div class="ve-string-item" data-idx="${idx}" draggable="true">
+        ${bullet}
+        <span class="ve-string-item-text">${escapeHtml(text)}</span>
+        <button class="ve-string-item-del" data-idx="${idx}" aria-label="Delete">×</button>
+      </div>`;
+  }).join('');
+
+  list.querySelectorAll('.ve-string-item-del').forEach(btn => {
+    btn.onclick = (e) => {
+      e.stopPropagation();
+      const i = parseInt(btn.dataset.idx);
+      _editorDraft[type].splice(i, 1);
+      renderStringList();
+    };
+  });
+
+  // Drag-reorder within the list
+  list.querySelectorAll('.ve-string-item').forEach(item => {
+    const idx = parseInt(item.dataset.idx);
+    item.addEventListener('dragstart', e => {
+      e.dataTransfer.setData('text/plain', String(idx));
+      item.style.opacity = '0.4';
+    });
+    item.addEventListener('dragend', () => { item.style.opacity = ''; });
+    item.addEventListener('dragover', e => e.preventDefault());
+    item.addEventListener('drop', e => {
+      e.preventDefault();
+      const from = parseInt(e.dataTransfer.getData('text/plain'));
+      const to = idx;
+      if (isNaN(from) || from === to) return;
+      const arr = _editorDraft[type];
+      const [moved] = arr.splice(from, 1);
+      arr.splice(to, 0, moved);
+      renderStringList();
+    });
+  });
+}
+
+const stringInput = document.getElementById('ve-string-input');
+const stringAddBtn = document.getElementById('ve-string-add-btn');
+stringInput.addEventListener('input', () => {
+  stringAddBtn.disabled = stringInput.value.trim().length === 0;
+});
+function addStringFromInput() {
+  const val = stringInput.value.trim();
+  if (!val) return;
+  const type = _editorSectionType;
+  if (!type || type === 'behaviors') return;
+  _editorDraft[type] = _editorDraft[type] || [];
+  _editorDraft[type].push(val);
+  stringInput.value = '';
+  stringAddBtn.disabled = true;
+  renderStringList();
+  stringInput.focus();
+}
+stringAddBtn.onclick = addStringFromInput;
+stringInput.addEventListener('keydown', (e) => {
+  if (e.key === 'Enter') { e.preventDefault(); addStringFromInput(); }
 });
 
 document.getElementById('ve-save-btn').onclick = async () => {
@@ -6355,8 +6549,6 @@ document.getElementById('ve-delete-btn').onclick = async () => {
   if (!confirm('Delete this virtue? Its behaviors will no longer count toward today, but past rep checks are preserved.')) return;
   state.virtues = (state.virtues || []).filter(v => v.id !== _editingVirtueId);
   await save('virtues');
-  // Orphan rep entries (state.reps keyed by behavior id) are intentionally left
-  // in place — they won't render anywhere, and removing them would erase history.
   closeVirtueEditor();
   renderAll();
   toast('Deleted');

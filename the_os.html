@@ -111,41 +111,120 @@ body {
   max-width: 460px; margin: 0 auto;
 }
 
-/* ========== RING ========== */
-.ring-wrap {
-  position: relative; width: 200px; height: 200px;
-  margin: 16px auto 12px;
+/* ========== TODAY: FORMATION CARDS ========== */
+.today-header { margin-bottom: 24px; }
+.today-eyebrow {
+  font-family: var(--mono); font-size: 10px;
+  letter-spacing: 0.25em; text-transform: uppercase;
+  color: var(--ink-3); margin-bottom: 6px;
 }
-.ring-svg { width: 100%; height: 100%; transform: rotate(-90deg); }
-.ring-track { fill: none; stroke: var(--line); stroke-width: 7; }
-.ring-fill {
-  fill: none; stroke: url(#goldGrad);
-  stroke-width: 7; stroke-linecap: round;
-  transition: stroke-dashoffset 800ms var(--ease);
-  filter: drop-shadow(0 0 8px rgba(212, 168, 87, 0.4));
+.today-title {
+  font-family: var(--display); font-size: 22px;
+  line-height: 1.25; font-weight: 400; margin-bottom: 6px;
+  letter-spacing: -0.01em;
 }
-.ring-center {
-  position: absolute; inset: 0;
-  display: flex; flex-direction: column;
-  align-items: center; justify-content: center;
+.today-title em { font-style: italic; color: var(--gold); }
+.today-sub {
+  font-size: 12px; color: var(--ink-3);
+  line-height: 1.5;
 }
-.ring-pct {
+
+.formation-card {
+  background: rgba(255,255,255,0.02);
+  border: 0.5px solid var(--line);
+  border-radius: 12px;
+  margin-bottom: 10px;
+  overflow: hidden;
+  transition: border-color 200ms ease;
+}
+.formation-card[data-pinned="true"] {
+  border-left: 2px solid var(--gold);
+  background: linear-gradient(180deg, rgba(212,168,87,0.04), rgba(255,255,255,0.02));
+}
+@media (hover: hover) {
+  .formation-card:hover { border-color: var(--line-bright); }
+}
+.formation-card.open .formation-body { display: block; }
+
+.formation-head {
+  padding: 16px 16px 14px;
+  cursor: pointer;
+  user-select: none;
+}
+.formation-meta-row {
+  display: flex; justify-content: space-between;
+  align-items: flex-start; margin-bottom: 8px;
+  gap: 10px;
+}
+.formation-title {
+  display: flex; align-items: baseline; gap: 8px;
+  min-width: 0; flex: 1;
+}
+.formation-symbol { font-size: 16px; flex-shrink: 0; }
+.formation-name {
+  font-size: 15px; font-weight: 500;
+  letter-spacing: -0.005em;
   font-family: var(--display);
-  font-size: 52px; font-weight: 400;
-  line-height: 1; letter-spacing: -0.04em;
+  color: var(--ink);
 }
-.ring-pct .pct-sign { color: var(--ink-3); font-size: 26px; margin-left: 2px; }
-.ring-label {
-  font-family: var(--mono);
-  font-size: 10px; letter-spacing: 0.2em;
-  color: var(--ink-3); text-transform: uppercase;
+.formation-pinned {
+  font-family: var(--mono); font-size: 9px;
+  letter-spacing: 0.15em; color: var(--gold);
   margin-top: 4px;
+  flex-shrink: 0;
 }
-.ring-state {
-  font-family: var(--display);
-  font-style: italic; font-size: 14px;
-  color: var(--gold); margin-top: 12px;
-  min-height: 22px;
+.formation-identity {
+  font-family: var(--display); font-style: italic;
+  font-size: 12px; color: var(--ink-2);
+  line-height: 1.5; margin-bottom: 10px;
+}
+.formation-stats {
+  display: flex; justify-content: space-between;
+  align-items: center; margin-bottom: 6px;
+  gap: 10px;
+}
+.formation-stat-today, .formation-stat-arc {
+  font-family: var(--mono); font-size: 9px;
+  letter-spacing: 0.15em; text-transform: uppercase;
+  color: var(--ink-3);
+}
+.formation-bar {
+  height: 4px;
+  background: rgba(255,255,255,0.06);
+  border-radius: 2px; overflow: hidden;
+}
+.formation-bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #8a7240, #d4a857);
+  border-radius: 2px;
+  transition: width 400ms ease;
+}
+
+.formation-body {
+  display: none;
+  padding: 0 16px 16px;
+  border-top: 0.5px solid var(--line);
+  padding-top: 14px;
+}
+.formation-body-label {
+  font-family: var(--mono); font-size: 9px;
+  letter-spacing: 0.2em; text-transform: uppercase;
+  color: var(--ink-3); margin-bottom: 8px;
+}
+.formation-body-empty {
+  font-size: 12px; color: var(--ink-3);
+  font-style: italic; padding: 8px 0;
+}
+.formation-divider {
+  height: 0.5px; background: var(--line);
+  margin: 14px 0;
+}
+.formation-body .rep {
+  border-top: none;
+  padding: 10px 0;
+}
+.formation-body .rep + .rep {
+  border-top: 0.5px solid var(--line);
 }
 
 /* ========== STATS ========== */
@@ -1872,20 +1951,6 @@ body {
 }
 
 /* ========== RING CENTER UPDATES ========== */
-.ring-state-main {
-  font-family: var(--display);
-  font-style: italic;
-  font-size: 18px; font-weight: 400;
-  color: var(--ink); line-height: 1.2;
-  text-align: center;
-  padding: 0 8px;
-}
-.ring-sub {
-  font-family: var(--mono);
-  font-size: 9px; letter-spacing: 0.2em;
-  color: var(--ink-3); text-transform: uppercase;
-  margin-top: 4px; text-align: center;
-}
 
 /* ========== PILLAR UPDATES ========== */
 .pillar.principle-pillar {
@@ -3156,51 +3221,15 @@ body {
   <!-- ============ TODAY VIEW ============ -->
   <div class="view active" id="view-today">
 
-    <div class="hero">
-      <div class="hero-eyebrow" id="greeting">Good morning</div>
-      <div class="hero-title">Every action a <em>vote</em><br>for who you are becoming.</div>
-
-      <div class="ring-wrap">
-        <svg class="ring-svg" viewBox="0 0 100 100">
-          <defs>
-            <linearGradient id="goldGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-              <stop offset="0%" stop-color="#8a7240"/>
-              <stop offset="100%" stop-color="#d4a857"/>
-            </linearGradient>
-          </defs>
-          <circle class="ring-track" cx="50" cy="50" r="44"/>
-          <circle class="ring-fill" id="ring-fill" cx="50" cy="50" r="44"
-                  stroke-dasharray="276.46" stroke-dashoffset="276.46"/>
-        </svg>
-        <div class="ring-center">
-          <div class="ring-state-main" id="ring-state-main">Begin.</div>
-          <div class="ring-sub">Today's coherence</div>
-        </div>
-      </div>
-    </div>
-
-    <div class="quick-stats" style="grid-template-columns: repeat(2, 1fr);">
-      <div class="qs">
-        <div class="qs-val" id="qs-reps">0 / 0</div>
-        <div class="qs-label">Reps Today</div>
-      </div>
-      <div class="qs">
-        <div class="qs-val gold" id="qs-foundation">—</div>
-        <div class="qs-label">Foundation (7d)</div>
-      </div>
-    </div>
-
     <div id="migration-banner-container"></div>
 
-    <div id="evening-checkin-container"></div>
-
-    <div class="sect-head">
-      <div class="sect-title">Today's foundation</div>
-      <div class="sect-meta" id="foundation-sect-meta">— active · — reps</div>
+    <div class="today-header">
+      <div class="today-eyebrow">Identity in formation</div>
+      <div class="today-title">The man you are <em>becoming</em>.</div>
+      <div class="today-sub" id="today-sub">— virtues. Each one becomes you through repeated behavior.</div>
     </div>
 
-    <div id="pillars-container"></div>
-
+    <div id="formation-cards-container"></div>
 
   </div>
 
@@ -4388,7 +4417,9 @@ function setDateGreeting() {
   let g = 'Good morning';
   if (hour >= 12 && hour < 17) g = 'Good afternoon';
   else if (hour >= 17) g = 'Good evening';
-  document.getElementById('greeting').textContent = g;
+  // Greeting element was removed when Today was rebuilt — guard so this stays safe if reintroduced.
+  const greetingEl = document.getElementById('greeting');
+  if (greetingEl) greetingEl.textContent = g;
 }
 
 // ============ NAV ============
@@ -4433,33 +4464,55 @@ function renderMigrationBanner() {
   }
 }
 
-// Tracks which virtue ids the user has manually collapsed
-const collapsedPillars = new Set();
+// Tracks which virtue ids the user has currently expanded on Today
+const openVirtueIds = new Set();
 
 // ============ TODAY RENDER ============
-const RING_CIRC = 276.46;
+function calculateFormation(virtue) {
+  const windowSize = 30;
+  const today = new Date(getToday());
 
-function renderRing() {
-  const done = repsDoneToday();
-  const total = totalRepsToday();
-  const pct = total > 0 ? Math.round((done / total) * 100) : 0;
-  document.getElementById('ring-fill').style.strokeDashoffset = RING_CIRC - (RING_CIRC * pct / 100);
-  const states = ['Begin.', 'In motion.', 'Building.', 'Stacking evidence.', 'Aligning.', 'Coherent.', 'In tune.'];
-  const idx = Math.min(Math.floor((pct / 100) * (states.length - 1)), states.length - 1);
-  document.getElementById('ring-state-main').textContent = states[idx];
+  // Virtue creation cutoff: if virtue is younger than the window,
+  // use its age instead so new virtues can reach 100%
+  const createdAt = new Date(virtue.createdAt || virtue.created || today);
+  const daysSinceCreation = Math.floor((today - createdAt) / (1000 * 60 * 60 * 24)) + 1;
+  const effectiveWindow = Math.min(windowSize, Math.max(1, daysSinceCreation));
+
+  if (!virtue.behaviors || virtue.behaviors.length === 0) {
+    return { daysShownUp: 0, windowSize: effectiveWindow, pct: 0 };
+  }
+
+  const behaviorIds = new Set(virtue.behaviors.map(b => b.id));
+  let daysShownUp = 0;
+
+  for (let i = 0; i < effectiveWindow; i++) {
+    const d = new Date(today);
+    d.setDate(d.getDate() - i);
+    const ds = d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
+    const dayReps = state.reps[ds] || {};
+
+    // "Showed up" = at least one behavior from this virtue was done that day
+    const showedUp = Object.keys(dayReps).some(repId => behaviorIds.has(repId));
+    if (showedUp) daysShownUp++;
+  }
+
+  const pct = Math.round((daysShownUp / effectiveWindow) * 100);
+  return { daysShownUp, windowSize: effectiveWindow, pct };
 }
 
-function renderQuickStats() {
-  document.getElementById('qs-reps').textContent = `${repsDoneToday()} / ${totalRepsToday()}`;
-  document.getElementById('qs-foundation').textContent = foundationStrength7d();
-}
-
-
-function renderVirtueCards() {
-  const container = document.getElementById('pillars-container');
+function renderVirtueFormationCards() {
+  const container = document.getElementById('formation-cards-container');
+  if (!container) return;
   container.innerHTML = '';
   const virtues = getActiveVirtues();
   const todayReps = state.reps[getToday()] || {};
+
+  // Update the today-sub line
+  const sub = document.getElementById('today-sub');
+  if (sub) {
+    const n = virtues.length;
+    sub.textContent = `${n} virtue${n === 1 ? '' : 's'}. Each one becomes you through repeated behavior.`;
+  }
 
   if (virtues.length === 0) {
     container.innerHTML = `
@@ -4471,81 +4524,91 @@ function renderVirtueCards() {
     return;
   }
 
-  let totalBehaviors = 0;
   virtues.forEach(v => {
     const behaviors = v.behaviors || [];
-    totalBehaviors += behaviors.length;
-    const done = behaviors.filter(b => todayReps[b.id]).length;
-    const total = behaviors.length;
-    const complete = total > 0 && done === total;
-    const isOpen = !collapsedPillars.has(v.id);
-    const div = document.createElement('div');
-    div.className = `pillar${isOpen ? ' open' : ''}${v.pinned ? ' virtue-pinned' : ''}${complete ? ' complete' : ''}`;
-    div.dataset.virtueId = v.id;
-    const tagHtml = v.pinned ? `<span class="pillar-tag">Pinned</span>` : '';
-    div.innerHTML = `
-      <div class="pillar-head">
-        <div class="pillar-info">
-          <div class="pillar-name"><span class="pillar-emoji">${escapeHtml(v.symbol || '◆')}</span> ${escapeHtml(v.name)}${tagHtml}</div>
-          <div class="pillar-quote">${escapeHtml(v.identityLine || '')}</div>
+    const rules = v.rules || [];
+    const behaviorCount = behaviors.length;
+    const todayDone = behaviors.filter(b => todayReps[b.id]).length;
+    const formation = calculateFormation(v);
+    const isOpen = openVirtueIds.has(v.id);
+
+    const card = document.createElement('div');
+    card.className = `formation-card${isOpen ? ' open' : ''}`;
+    card.dataset.virtueId = v.id;
+    card.dataset.pinned = v.pinned ? 'true' : 'false';
+
+    const behaviorsHtml = behaviorCount === 0
+      ? `<div class="formation-body-empty">No behaviors yet. Add some in the Constitution.</div>`
+      : behaviors.map(b => {
+          const isDone = !!todayReps[b.id];
+          return `
+            <div class="rep${isDone ? ' done' : ''}" data-id="${escapeHtml(b.id)}">
+              <div class="check"></div>
+              <div class="rep-body">
+                <div class="rep-text">${escapeHtml(b.text)}</div>
+                ${b.cue ? `<div class="rep-cue">${escapeHtml(b.cue)}</div>` : ''}
+                ${b.why ? `<div class="rep-why"><strong>Why</strong>${escapeHtml(b.why)}</div>` : ''}
+              </div>
+            </div>`;
+        }).join('');
+
+    const rulesHtml = rules.length === 0 ? '' : `
+      <div class="formation-divider"></div>
+      <div class="formation-body-label">Rules</div>
+      ${rules.map(r => `<div class="virtue-rule-line"><span class="virtue-rule-bullet">${escapeHtml(v.symbol || '◆')}</span><span>${escapeHtml(r)}</span></div>`).join('')}
+    `;
+
+    card.innerHTML = `
+      <div class="formation-head">
+        <div class="formation-meta-row">
+          <div class="formation-title">
+            <span class="formation-symbol">${escapeHtml(v.symbol || '◆')}</span>
+            <span class="formation-name">${escapeHtml(v.name)}</span>
+          </div>
+          ${v.pinned ? '<span class="formation-pinned">PINNED</span>' : ''}
         </div>
-        <div class="pillar-progress">
-          <div class="pillar-count"><strong><span class="p-done">${done}</span></strong>/<span class="p-total">${total}</span></div>
-          <div class="pillar-bar"><div class="pillar-bar-fill" style="width:${total > 0 ? Math.round(done/total*100) : 0}%"></div></div>
-          <svg class="chevron" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
+        <div class="formation-identity">${escapeHtml(v.identityLine || '')}</div>
+        <div class="formation-stats">
+          <span class="formation-stat-today">TODAY · ${todayDone} / ${behaviorCount}</span>
+          <span class="formation-stat-arc">FORMATION · ${formation.daysShownUp} / ${formation.windowSize}</span>
+        </div>
+        <div class="formation-bar">
+          <div class="formation-bar-fill" style="width: ${formation.pct}%"></div>
         </div>
       </div>
-      <div class="reps-inner reps"></div>
-      ${(v.rules && v.rules.length > 0) ? `<div class="virtue-rules">
-        <div class="virtue-rules-eyebrow">Rules he stands by</div>
-        ${v.rules.map(r => `<div class="virtue-rule-line"><span class="virtue-rule-bullet">${escapeHtml(v.symbol || '◆')}</span><span>${escapeHtml(r)}</span></div>`).join('')}
-      </div>` : ''}
-      ${complete ? `<div class="pillar-complete-banner">${escapeHtml(v.identityLine || '')}</div>` : ''}
+      <div class="formation-body">
+        <div class="formation-body-label">Behaviors</div>
+        ${behaviorsHtml}
+        ${rulesHtml}
+      </div>
     `;
-    const repsInner = div.querySelector('.reps-inner');
-    if (behaviors.length === 0) {
-      repsInner.innerHTML = `<div class="ve-empty" style="padding:18px 20px;">No behaviors yet. Edit this virtue to add some.</div>`;
-    } else {
-      behaviors.forEach(rep => {
-        const isDone = !!todayReps[rep.id];
-        const repEl = document.createElement('div');
-        repEl.className = `rep${isDone ? ' done' : ''}`;
-        repEl.dataset.id = rep.id;
-        repEl.innerHTML = `
-          <div class="check"></div>
-          <div class="rep-body">
-            <div class="rep-text">${escapeHtml(rep.text)}</div>
-            ${rep.cue ? `<div class="rep-cue">${escapeHtml(rep.cue)}</div>` : ''}
-            ${rep.why ? `<div class="rep-why"><strong>Why</strong>${escapeHtml(rep.why)}</div>` : ''}
-          </div>
-        `;
-        repsInner.appendChild(repEl);
-      });
-    }
-    div.querySelector('.pillar-head').addEventListener('click', () => {
-      div.classList.toggle('open');
-      if (div.classList.contains('open')) collapsedPillars.delete(v.id);
-      else collapsedPillars.add(v.id);
-    });
-    container.appendChild(div);
-  });
 
-  document.getElementById('foundation-sect-meta').textContent =
-    `${virtues.length} active · ${totalBehaviors} reps`;
+    card.querySelector('.formation-head').addEventListener('click', () => {
+      const id = v.id;
+      if (openVirtueIds.has(id)) {
+        openVirtueIds.delete(id);
+        card.classList.remove('open');
+      } else {
+        openVirtueIds.add(id);
+        card.classList.add('open');
+      }
+    });
+
+    container.appendChild(card);
+  });
 }
 
 function renderToday() {
-  renderRing();
-  renderVirtueCards();
-  renderQuickStats();
   renderMigrationBanner();
-  renderEveningCheckin();
+  renderVirtueFormationCards();
 }
 
-// ============ REP CLICK (event delegation) ============
-document.getElementById('pillars-container').addEventListener('click', (e) => {
+// ============ REP CLICK (event delegation on formation cards) ============
+document.getElementById('formation-cards-container').addEventListener('click', (e) => {
   const rep = e.target.closest('.rep');
   if (!rep || !rep.dataset.id) return;
+  // Prevent the card-toggle handler from also firing
+  e.stopPropagation();
   const id = rep.dataset.id;
   if (!state.reps[getToday()]) state.reps[getToday()] = {};
   if (state.reps[getToday()][id]) delete state.reps[getToday()][id];
@@ -6298,110 +6361,6 @@ document.getElementById('ve-delete-btn').onclick = async () => {
   renderAll();
   toast('Deleted');
 };
-
-// ============ EVENING CHECK-IN ============
-function checkinSubmittedToday() {
-  const day = state.reflections[getToday()];
-  if (!day || typeof day !== 'object') return false;
-  return Object.values(day).some(v => v && typeof v === 'object' && (v.vote === 'for' || v.vote === 'against'));
-}
-
-function renderEveningCheckin() {
-  const container = document.getElementById('evening-checkin-container');
-  if (!container) return;
-  const hour = new Date().getHours();
-  const active = getActiveVirtues();
-  const dismissed = state.meta && state.meta.eveningCheckinDismissed === getToday();
-
-  if (hour < 19 || active.length === 0 || checkinSubmittedToday() || dismissed) {
-    container.innerHTML = '';
-    return;
-  }
-
-  // Don't blow away an in-progress check-in (user may have tapped votes but not saved).
-  // Only render the first time.
-  if (container.querySelector('.evening-checkin')) return;
-
-  container.innerHTML = `
-    <div class="evening-checkin">
-      <div class="evening-checkin-head">
-        <div>
-          <div class="evening-checkin-eyebrow">Evening Check-in</div>
-          <div class="evening-checkin-title">Did today vote for the man you're becoming?</div>
-        </div>
-        <button class="evening-checkin-dismiss" id="checkin-dismiss-btn" aria-label="Dismiss for today">×</button>
-      </div>
-      <div id="checkin-virtues-list"></div>
-      <div class="checkin-save-row">
-        <button class="btn btn-ghost" id="checkin-skip-btn">Skip</button>
-        <button class="btn btn-primary" id="checkin-save-btn">Save</button>
-      </div>
-    </div>`;
-
-  const listEl = document.getElementById('checkin-virtues-list');
-  const draft = {};
-  active.forEach(v => { draft[v.id] = { vote: null, note: '' }; });
-
-  listEl.innerHTML = active.map(v => `
-    <div class="checkin-virtue" data-virtue-id="${escapeHtml(v.id)}">
-      <div class="checkin-virtue-info">
-        <div class="checkin-virtue-name"><span class="checkin-virtue-symbol">${escapeHtml(v.symbol || '◆')}</span>${escapeHtml(v.name)}</div>
-        <div class="checkin-virtue-q">Did today vote for this man?</div>
-        <input class="checkin-note-input" data-virtue-id="${escapeHtml(v.id)}" placeholder="One line (optional)"/>
-      </div>
-      <div class="checkin-votes">
-        <button class="checkin-vote-btn for" data-vote="for" data-virtue-id="${escapeHtml(v.id)}" aria-label="Voted for">👍</button>
-        <button class="checkin-vote-btn against" data-vote="against" data-virtue-id="${escapeHtml(v.id)}" aria-label="Voted against">👎</button>
-      </div>
-    </div>`).join('');
-
-  listEl.querySelectorAll('.checkin-vote-btn').forEach(btn => {
-    btn.onclick = () => {
-      const vid = btn.dataset.virtueId;
-      const vote = btn.dataset.vote;
-      draft[vid] = draft[vid] || { vote: null, note: '' };
-      draft[vid].vote = vote;
-      // Update UI
-      listEl.querySelectorAll(`.checkin-vote-btn[data-virtue-id="${vid}"]`).forEach(b => b.classList.remove('selected'));
-      btn.classList.add('selected');
-      const noteInput = listEl.querySelector(`.checkin-note-input[data-virtue-id="${vid}"]`);
-      if (noteInput) noteInput.classList.add('show');
-    };
-  });
-  listEl.querySelectorAll('.checkin-note-input').forEach(input => {
-    input.oninput = () => {
-      const vid = input.dataset.virtueId;
-      draft[vid] = draft[vid] || { vote: null, note: '' };
-      draft[vid].note = input.value;
-    };
-  });
-
-  document.getElementById('checkin-dismiss-btn').onclick = () => {
-    state.meta.eveningCheckinDismissed = getToday();
-    save('meta', true);
-    container.innerHTML = '';
-  };
-  document.getElementById('checkin-skip-btn').onclick = () => {
-    state.meta.eveningCheckinDismissed = getToday();
-    save('meta', true);
-    container.innerHTML = '';
-  };
-  document.getElementById('checkin-save-btn').onclick = async () => {
-    const today = getToday();
-    state.reflections[today] = state.reflections[today] || {};
-    let any = false;
-    for (const vid of Object.keys(draft)) {
-      if (draft[vid].vote === 'for' || draft[vid].vote === 'against') {
-        state.reflections[today][vid] = { vote: draft[vid].vote, note: (draft[vid].note || '').trim() };
-        any = true;
-      }
-    }
-    if (!any) { toast('Tap a vote first'); return; }
-    await save('reflections');
-    container.innerHTML = '';
-    toast('Saved');
-  };
-}
 
 // ============ LAB ============
 let currentLabFilter = 'active';

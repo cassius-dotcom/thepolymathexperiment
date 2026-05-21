@@ -2425,6 +2425,689 @@ body {
   transition: border-color 200ms ease;
 }
 .exp-verdict-form textarea:focus { border-color: var(--gold-soft); }
+
+/* ========== VIRTUES SYSTEM ========== */
+/* Pinned virtue accent on Today (gold left-border) */
+.pillar.virtue-pinned {
+  border-color: rgba(212,168,87,0.3);
+  background: linear-gradient(180deg, rgba(212,168,87,0.03), transparent);
+  position: relative;
+}
+.pillar.virtue-pinned::before {
+  content: ''; position: absolute; top: 0; left: 0;
+  width: 3px; height: 100%; background: var(--gold);
+  border-radius: 16px 0 0 16px;
+}
+
+/* Rules sub-section on the Today virtue card */
+.virtue-rules {
+  border-top: 1px dashed var(--line);
+  padding: 14px 20px 16px;
+  background: rgba(0,0,0,0.15);
+}
+.virtue-rules-eyebrow {
+  font-family: var(--mono);
+  font-size: 9px; letter-spacing: 0.2em;
+  color: var(--ink-4); text-transform: uppercase;
+  margin-bottom: 8px;
+}
+.virtue-rule-line {
+  display: flex; align-items: flex-start; gap: 10px;
+  padding: 4px 0;
+  font-size: 12.5px; color: var(--ink-3);
+  line-height: 1.45;
+}
+.virtue-rule-bullet {
+  color: var(--gold);
+  font-size: 11px;
+  flex-shrink: 0; margin-top: 1px;
+  opacity: 0.85;
+}
+
+/* Migration banner */
+.migration-banner {
+  background: linear-gradient(135deg, rgba(212,168,87,0.12), rgba(212,168,87,0.04));
+  border: 1px solid rgba(212,168,87,0.35);
+  border-radius: 16px;
+  padding: 18px 20px;
+  margin-bottom: 20px;
+  display: flex; gap: 14px; align-items: flex-start;
+  position: relative; overflow: hidden;
+}
+.migration-banner::before {
+  content: ''; position: absolute; top: 0; left: 0;
+  width: 3px; height: 100%; background: var(--gold);
+}
+.migration-banner-body { flex: 1; min-width: 0; }
+.migration-banner-eyebrow {
+  font-family: var(--mono); font-size: 10px;
+  letter-spacing: 0.25em; color: var(--gold);
+  text-transform: uppercase; margin-bottom: 6px;
+}
+.migration-banner-title {
+  font-family: var(--display);
+  font-size: 16px; font-weight: 500;
+  letter-spacing: -0.01em; line-height: 1.35;
+  margin-bottom: 2px;
+}
+.migration-banner-sub {
+  font-size: 12.5px; color: var(--ink-3);
+  font-family: var(--display); font-style: italic;
+  line-height: 1.4;
+}
+.migration-banner-close {
+  background: none; border: none;
+  color: var(--ink-3); font-size: 20px;
+  cursor: pointer; padding: 0 4px;
+  line-height: 1; flex-shrink: 0;
+}
+
+/* ========== CONSTITUTION TAB ========== */
+.constitution-filter-chips {
+  display: flex; gap: 6px;
+  margin-bottom: 20px; padding-bottom: 4px;
+  overflow-x: auto; scrollbar-width: none;
+}
+.constitution-filter-chips::-webkit-scrollbar { display: none; }
+.cf-chip {
+  flex-shrink: 0;
+  background: none;
+  border: 1px solid var(--line);
+  color: var(--ink-3);
+  font-family: var(--mono); font-size: 10px;
+  letter-spacing: 0.15em; text-transform: uppercase;
+  padding: 8px 14px; border-radius: 100px;
+  cursor: pointer; transition: all 200ms ease;
+}
+.cf-chip:active { transform: scale(0.95); }
+.cf-chip.active {
+  background: rgba(212, 168, 87, 0.15);
+  color: var(--gold); border-color: var(--gold);
+}
+.cf-chip-count {
+  margin-left: 6px;
+  font-family: var(--display);
+  font-size: 11px;
+  opacity: 0.8;
+}
+
+.virtue-row {
+  background: var(--bg-1);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  padding: 16px 18px;
+  margin-bottom: 10px;
+  cursor: pointer;
+  transition: all 200ms ease;
+  position: relative;
+  display: flex; gap: 14px; align-items: flex-start;
+}
+.virtue-row:active { transform: scale(0.99); }
+@media (hover: hover) {
+  .virtue-row:hover { border-color: var(--line-bright); }
+}
+.virtue-row.active-virtue {
+  border-color: rgba(212,168,87,0.3);
+  background: linear-gradient(180deg, rgba(212,168,87,0.04), transparent);
+}
+.virtue-row.active-virtue::before {
+  content: ''; position: absolute; top: 0; left: 0;
+  width: 3px; height: 100%; background: var(--gold);
+  border-radius: 14px 0 0 14px;
+}
+.virtue-row.dormant-virtue { opacity: 0.55; }
+.virtue-row-symbol {
+  font-size: 24px;
+  line-height: 1;
+  flex-shrink: 0;
+  margin-top: 2px;
+  filter: grayscale(0.2);
+}
+.virtue-row-info { flex: 1; min-width: 0; }
+.virtue-row-head {
+  display: flex; align-items: center;
+  flex-wrap: wrap; gap: 8px;
+  margin-bottom: 4px;
+}
+.virtue-row-name {
+  font-family: var(--display);
+  font-size: 17px; font-weight: 500;
+  letter-spacing: -0.01em;
+}
+.virtue-row-tag {
+  display: inline-block;
+  font-family: var(--mono); font-size: 9px;
+  letter-spacing: 0.15em; text-transform: uppercase;
+  border-radius: 100px; padding: 2px 8px;
+  vertical-align: middle;
+}
+.virtue-row-tag.active {
+  background: rgba(212,168,87,0.15);
+  color: var(--gold);
+  border: 1px solid rgba(212,168,87,0.3);
+}
+.virtue-row-tag.dormant {
+  background: var(--bg-2);
+  color: var(--ink-3);
+  border: 1px solid var(--line);
+}
+.virtue-row-identity {
+  font-family: var(--display);
+  font-style: italic; font-size: 13.5px;
+  color: var(--ink-3); line-height: 1.4;
+  margin-bottom: 6px;
+}
+.virtue-row-meta {
+  font-family: var(--mono); font-size: 10px;
+  color: var(--ink-4); letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+.virtue-row-chevron {
+  color: var(--ink-4); font-size: 18px;
+  flex-shrink: 0; align-self: center;
+}
+
+.new-virtue-btn {
+  width: 100%;
+  background: transparent;
+  border: 1px dashed rgba(212,168,87,0.4);
+  color: var(--gold);
+  border-radius: 14px;
+  padding: 16px;
+  font-family: var(--sans); font-size: 14px; font-weight: 500;
+  cursor: pointer;
+  transition: all 200ms ease;
+  margin-bottom: 24px;
+}
+.new-virtue-btn:active { transform: scale(0.99); }
+@media (hover: hover) {
+  .new-virtue-btn:hover { background: rgba(212,168,87,0.06); border-color: var(--gold); }
+}
+
+.constitution-settings {
+  margin-top: 32px;
+  padding-top: 24px;
+  border-top: 1px solid var(--line);
+}
+.constitution-settings-eyebrow {
+  font-family: var(--mono);
+  font-size: 10px; letter-spacing: 0.25em;
+  color: var(--ink-3); text-transform: uppercase;
+  margin-bottom: 14px;
+}
+
+/* ========== VIRTUE EDITOR OVERLAY ========== */
+.virtue-editor {
+  position: fixed; inset: 0;
+  background: var(--bg);
+  z-index: 400;
+  display: none; flex-direction: column;
+  overflow: hidden;
+  animation: bgIn 250ms ease;
+}
+.virtue-editor.show { display: flex; }
+.ve-top {
+  padding: 14px 20px;
+  display: flex; align-items: center; justify-content: space-between;
+  border-bottom: 1px solid var(--line);
+  flex-shrink: 0;
+  background: rgba(10,10,10,0.92);
+  backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+}
+.ve-back {
+  background: none; border: 1px solid var(--line);
+  color: var(--ink-2);
+  border-radius: 100px; padding: 8px 14px;
+  font-family: var(--sans); font-size: 13px;
+  cursor: pointer;
+}
+.ve-back:active { transform: scale(0.96); }
+.ve-eyebrow {
+  font-family: var(--mono);
+  font-size: 10px; letter-spacing: 0.2em;
+  color: var(--ink-3); text-transform: uppercase;
+}
+.ve-save {
+  background: var(--gold); color: var(--bg);
+  border: none;
+  border-radius: 100px; padding: 8px 18px;
+  font-family: var(--sans); font-size: 13px; font-weight: 600;
+  cursor: pointer;
+  transition: transform 150ms ease;
+}
+.ve-save:active { transform: scale(0.97); }
+
+.ve-container {
+  flex: 1; overflow-y: auto;
+  padding: 24px 20px calc(40px + env(safe-area-inset-bottom));
+  max-width: 680px; margin: 0 auto; width: 100%;
+}
+.ve-preview {
+  text-align: center;
+  margin-bottom: 24px; padding-bottom: 20px;
+  border-bottom: 1px solid var(--line);
+}
+.ve-preview-name {
+  font-family: var(--display);
+  font-size: clamp(22px, 5vw, 28px); font-weight: 500;
+  letter-spacing: -0.02em;
+  margin-bottom: 4px;
+}
+.ve-preview-name .ve-preview-symbol {
+  color: var(--gold); margin-right: 10px;
+  font-size: 0.85em;
+}
+.ve-preview-identity {
+  font-family: var(--display);
+  font-style: italic; font-size: 14px;
+  color: var(--gold-soft);
+  max-width: 460px; margin: 0 auto;
+  line-height: 1.4;
+}
+
+.ve-tabs {
+  display: flex;
+  background: var(--bg-2);
+  border-radius: 12px;
+  padding: 4px;
+  margin-bottom: 24px;
+  gap: 2px;
+}
+.ve-tab {
+  flex: 1;
+  background: none; border: none;
+  color: var(--ink-3);
+  padding: 11px 8px;
+  border-radius: 8px;
+  font-family: var(--mono); font-size: 10px;
+  font-weight: 500; letter-spacing: 0.1em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all 200ms ease;
+}
+.ve-tab.active {
+  background: var(--bg);
+  color: var(--gold);
+}
+.ve-pane { display: none; }
+.ve-pane.active { display: block; animation: viewIn 250ms var(--ease); }
+
+/* Identity pane */
+.ve-symbol-grid {
+  display: grid;
+  grid-template-columns: repeat(8, 1fr);
+  gap: 6px;
+  margin-top: 6px;
+}
+.ve-symbol-opt {
+  aspect-ratio: 1;
+  background: var(--bg-2);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  font-size: 18px;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer;
+  transition: all 180ms ease;
+  font-family: var(--display);
+}
+.ve-symbol-opt:active { transform: scale(0.9); }
+.ve-symbol-opt.selected {
+  background: rgba(212, 168, 87, 0.15);
+  border-color: var(--gold);
+  color: var(--gold);
+}
+
+.ve-identity-input {
+  width: 100%;
+  background: var(--bg-2);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 14px 16px;
+  color: var(--ink);
+  font-family: var(--display);
+  font-style: italic;
+  font-size: 16px;
+  outline: none;
+  transition: border-color 200ms ease;
+}
+.ve-identity-input:focus { border-color: var(--gold); }
+.ve-identity-input::placeholder { color: var(--ink-4); }
+
+.ve-toggle-row {
+  background: var(--bg-1);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 14px 16px;
+  margin-bottom: 8px;
+  display: flex; align-items: center; gap: 14px;
+  cursor: pointer;
+  user-select: none;
+}
+.ve-toggle-info { flex: 1; min-width: 0; }
+.ve-toggle-label { font-size: 14px; color: var(--ink); }
+.ve-toggle-sublabel { font-size: 12px; color: var(--ink-3); margin-top: 2px; }
+.ve-toggle {
+  width: 44px; height: 26px;
+  background: var(--bg-3);
+  border: 1px solid var(--line-bright);
+  border-radius: 100px;
+  position: relative;
+  flex-shrink: 0;
+  transition: all 200ms ease;
+}
+.ve-toggle::after {
+  content: '';
+  position: absolute;
+  top: 2px; left: 2px;
+  width: 20px; height: 20px;
+  background: var(--ink-3);
+  border-radius: 50%;
+  transition: all 200ms var(--ease-spring);
+}
+.ve-toggle.on {
+  background: var(--gold);
+  border-color: var(--gold);
+}
+.ve-toggle.on::after {
+  background: var(--bg);
+  transform: translateX(18px);
+}
+
+.ve-delete-btn {
+  width: 100%;
+  background: var(--bg-2);
+  border: 1px solid rgba(200,103,78,0.3);
+  color: var(--red);
+  border-radius: 12px;
+  padding: 14px;
+  font-family: var(--sans);
+  font-size: 13px; font-weight: 500;
+  cursor: pointer;
+  margin-top: 24px;
+  transition: all 200ms ease;
+}
+.ve-delete-btn:active { transform: scale(0.98); }
+
+/* Behaviors / Rules authoring prompt */
+.ve-authoring-prompt {
+  background: var(--bg-2);
+  border-left: 2px solid var(--gold-soft);
+  border-radius: 0 10px 10px 0;
+  padding: 12px 16px;
+  margin-bottom: 18px;
+  font-family: var(--display);
+  font-style: italic;
+  font-size: 13.5px;
+  color: var(--ink-2);
+  line-height: 1.5;
+}
+.ve-authoring-prompt em { color: var(--gold); font-style: italic; }
+
+/* Behavior cards */
+.behavior-card {
+  background: var(--bg-1);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 14px 16px;
+  margin-bottom: 10px;
+  position: relative;
+}
+.behavior-card.dragging { opacity: 0.4; }
+.behavior-card-head {
+  display: flex; align-items: center;
+  justify-content: space-between;
+  gap: 8px; margin-bottom: 10px;
+}
+.behavior-card-drag {
+  color: var(--ink-4);
+  cursor: grab;
+  font-size: 14px;
+  letter-spacing: -2px;
+  user-select: none;
+}
+.behavior-card-drag:active { cursor: grabbing; }
+.behavior-card-label {
+  font-family: var(--mono);
+  font-size: 9px; letter-spacing: 0.2em;
+  color: var(--ink-3); text-transform: uppercase;
+  flex: 1;
+}
+.behavior-card-actions {
+  display: flex; gap: 4px;
+}
+.behavior-card-btn {
+  background: none; border: none;
+  color: var(--ink-3);
+  font-size: 12px;
+  font-family: var(--mono);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  padding: 4px 8px;
+  cursor: pointer;
+  border-radius: 6px;
+  transition: all 150ms ease;
+}
+.behavior-card-btn:hover { color: var(--gold); }
+.behavior-card-btn.del:hover { color: var(--red); }
+.behavior-card-text {
+  font-size: 13px;
+  color: var(--ink); line-height: 1.45;
+}
+.behavior-card-cue {
+  font-family: var(--display);
+  font-style: italic; font-size: 12px;
+  color: var(--ink-3);
+  margin-top: 6px; padding-left: 10px;
+  border-left: 1px solid var(--line);
+  line-height: 1.4;
+}
+.behavior-card-why {
+  margin-top: 8px; padding-top: 8px;
+  border-top: 1px dashed var(--line);
+  font-size: 12px; color: var(--ink-3);
+  line-height: 1.45;
+}
+.behavior-card-why strong {
+  font-family: var(--mono);
+  color: var(--ink-4);
+  font-size: 9px; letter-spacing: 0.1em;
+  text-transform: uppercase;
+  margin-right: 6px;
+}
+
+/* Rule cards */
+.rule-card {
+  background: var(--bg-1);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 12px 14px;
+  margin-bottom: 8px;
+  display: flex; align-items: flex-start; gap: 12px;
+}
+.rule-card-bullet {
+  color: var(--gold);
+  font-size: 14px;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+.rule-card-text {
+  flex: 1;
+  font-size: 14px;
+  color: var(--ink);
+  line-height: 1.45;
+}
+.rule-card-del {
+  background: none; border: none;
+  color: var(--ink-4);
+  font-size: 16px;
+  cursor: pointer;
+  padding: 0 4px;
+  flex-shrink: 0;
+  transition: color 150ms ease;
+}
+.rule-card-del:hover { color: var(--red); }
+
+.rule-add-row {
+  display: flex; gap: 8px;
+  margin-top: 12px;
+  background: var(--bg-2);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 4px 4px 4px 14px;
+  align-items: center;
+}
+.rule-add-row:focus-within { border-color: var(--gold-soft); }
+.rule-add-row input {
+  flex: 1;
+  background: transparent;
+  border: none;
+  color: var(--ink);
+  font-family: var(--sans);
+  font-size: 14px;
+  padding: 10px 0;
+  outline: none;
+}
+.rule-add-row input::placeholder { color: var(--ink-4); font-style: italic; }
+.rule-add-row button {
+  background: var(--gold); color: var(--bg);
+  border: none; border-radius: 8px;
+  width: 36px; height: 36px;
+  font-size: 18px; font-weight: 500;
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+}
+.rule-add-row button:active { transform: scale(0.92); }
+.rule-add-row button:disabled { opacity: 0.4; cursor: not-allowed; }
+
+.add-behavior-btn {
+  width: 100%;
+  background: transparent;
+  border: 1px dashed rgba(212,168,87,0.4);
+  color: var(--gold);
+  border-radius: 12px;
+  padding: 14px;
+  font-family: var(--sans); font-size: 13px; font-weight: 500;
+  cursor: pointer;
+  transition: all 200ms ease;
+  margin-top: 8px;
+}
+.add-behavior-btn:active { transform: scale(0.99); }
+
+.rules-footnote {
+  font-family: var(--display);
+  font-style: italic;
+  font-size: 12px;
+  color: var(--ink-4);
+  line-height: 1.5;
+  margin-top: 24px;
+  padding-top: 16px;
+  border-top: 1px solid var(--line);
+}
+
+/* Empty states inside editor */
+.ve-empty {
+  text-align: center;
+  padding: 20px 12px;
+  color: var(--ink-4);
+  font-family: var(--display);
+  font-style: italic;
+  font-size: 13px;
+}
+
+/* ========== EVENING CHECK-IN ========== */
+.evening-checkin {
+  background: linear-gradient(180deg, var(--bg-1), var(--bg-2));
+  border: 1px solid rgba(212,168,87,0.25);
+  border-radius: 16px;
+  padding: 20px;
+  margin-bottom: 18px;
+  position: relative;
+}
+.evening-checkin-head {
+  display: flex; align-items: flex-start;
+  justify-content: space-between;
+  gap: 10px; margin-bottom: 14px;
+}
+.evening-checkin-eyebrow {
+  font-family: var(--mono);
+  font-size: 10px; letter-spacing: 0.25em;
+  color: var(--gold); text-transform: uppercase;
+  margin-bottom: 4px;
+}
+.evening-checkin-title {
+  font-family: var(--display);
+  font-size: 17px; font-weight: 500;
+  letter-spacing: -0.01em;
+  line-height: 1.3;
+}
+.evening-checkin-dismiss {
+  background: none; border: none;
+  color: var(--ink-4); font-size: 18px;
+  cursor: pointer; padding: 0 4px;
+  line-height: 1; flex-shrink: 0;
+}
+.checkin-virtue {
+  border-top: 1px solid var(--line);
+  padding: 12px 0;
+  display: flex; align-items: center;
+  gap: 12px;
+}
+.checkin-virtue-info { flex: 1; min-width: 0; }
+.checkin-virtue-name {
+  font-family: var(--display);
+  font-size: 14px; font-weight: 500;
+  line-height: 1.3;
+}
+.checkin-virtue-symbol {
+  color: var(--gold); margin-right: 6px;
+}
+.checkin-virtue-q {
+  font-size: 11.5px; color: var(--ink-3);
+  font-style: italic; font-family: var(--display);
+  margin-top: 2px;
+}
+.checkin-votes {
+  display: flex; gap: 6px; flex-shrink: 0;
+}
+.checkin-vote-btn {
+  width: 38px; height: 38px;
+  background: var(--bg-2);
+  border: 1px solid var(--line-bright);
+  border-radius: 10px;
+  font-size: 16px;
+  cursor: pointer;
+  transition: all 180ms var(--ease);
+  display: flex; align-items: center; justify-content: center;
+}
+.checkin-vote-btn:active { transform: scale(0.92); }
+.checkin-vote-btn.for.selected {
+  background: var(--green); border-color: var(--green);
+}
+.checkin-vote-btn.against.selected {
+  background: var(--red); border-color: var(--red);
+}
+.checkin-note-input {
+  margin-top: 6px;
+  width: 100%;
+  background: var(--bg-2);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 8px 10px;
+  color: var(--ink);
+  font-family: var(--display);
+  font-style: italic;
+  font-size: 13px;
+  outline: none;
+  display: none;
+}
+.checkin-note-input.show { display: block; }
+.checkin-note-input:focus { border-color: var(--gold-soft); }
+.checkin-note-input::placeholder { color: var(--ink-4); }
+.checkin-save-row {
+  margin-top: 14px;
+  display: flex; gap: 8px;
+}
+.checkin-save-row .btn { flex: 1; }
 </style>
 </head>
 <body>
@@ -2507,21 +3190,13 @@ body {
       </div>
     </div>
 
-    <div id="review-prompt-container"></div>
+    <div id="migration-banner-container"></div>
 
-    <div class="principle-banner" id="principle-banner">
-      <div class="principle-banner-letter" id="pb-letter">A</div>
-      <div class="principle-banner-info">
-        <div class="principle-banner-meta" id="pb-meta">Week 1 of 7 · Day 1</div>
-        <div class="principle-banner-name" id="pb-name">Coherence Over Image</div>
-        <div class="principle-banner-quote" id="pb-quote">"He does not perform identity; he embodies it."</div>
-      </div>
-      <div class="principle-banner-chevron">→</div>
-    </div>
+    <div id="evening-checkin-container"></div>
 
     <div class="sect-head">
       <div class="sect-title">Today's foundation</div>
-      <div class="sect-meta" id="foundation-sect-meta">2 Pillars · 10 Reps</div>
+      <div class="sect-meta" id="foundation-sect-meta">— active · — reps</div>
     </div>
 
     <div id="pillars-container"></div>
@@ -2691,13 +3366,13 @@ body {
           <span class="prompt-icon">🌊</span>
           <span class="prompt-text">Help me dissect my reactivity today.</span>
         </button>
-        <button class="prompt-tile" data-prompt="audit">
-          <span class="prompt-icon">📊</span>
-          <span class="prompt-text" id="audit-prompt-text">Audit my week through this principle.</span>
-        </button>
-        <button class="prompt-tile principle-prompt" data-prompt="principle-coach">
+        <button class="prompt-tile principle-prompt" data-prompt="virtue-audit">
           <span class="prompt-icon">◆</span>
-          <span class="prompt-text" id="principle-prompt-text">Coach me on this week's principle.</span>
+          <span class="prompt-text">Audit me through one of my virtues.</span>
+        </button>
+        <button class="prompt-tile" data-prompt="drift">
+          <span class="prompt-icon">📊</span>
+          <span class="prompt-text">Which virtue am I drifting from?</span>
         </button>
         <button class="prompt-tile" data-prompt="lab-review">
           <span class="prompt-icon">⚗️</span>
@@ -2739,30 +3414,28 @@ body {
 
   </div>
 
-  <!-- ============ MORE VIEW ============ -->
-  <div class="view" id="view-more">
+  <!-- ============ CONSTITUTION VIEW ============ -->
+  <div class="view" id="view-constitution">
 
     <div class="hero" style="padding-top: 24px;">
-      <div class="hero-eyebrow">More</div>
-      <div class="hero-title">The <em>foundation</em>.</div>
-      <div class="hero-sub">Constitution, refusals, data, settings.</div>
+      <div class="hero-eyebrow">The Constitution</div>
+      <div class="hero-title">Author the man you are <em>becoming</em>.</div>
+      <div class="hero-sub">Each virtue is a vote you cast every day. Behaviors say what he does. Rules say what he won't.</div>
     </div>
 
-    <!-- Sub-tabs -->
-    <div class="section-tabs">
-      <button class="section-tab active" data-pane="constitution">Constitution</button>
-      <button class="section-tab" data-pane="refusals">Refusals</button>
-      <button class="section-tab" data-pane="past-reviews">Past Reviews</button>
-      <button class="section-tab" data-pane="trajectory">Trajectory</button>
-      <button class="section-tab" data-pane="data">Data</button>
+    <div class="constitution-filter-chips" id="constitution-filter-chips">
+      <button class="cf-chip active" data-filter="active">Active<span class="cf-chip-count" id="cfc-active">0</span></button>
+      <button class="cf-chip" data-filter="dormant">Dormant<span class="cf-chip-count" id="cfc-dormant">0</span></button>
+      <button class="cf-chip" data-filter="all">All<span class="cf-chip-count" id="cfc-all">0</span></button>
     </div>
 
-    <div class="section-pane active" id="pane-constitution">
-      <!-- Rendered dynamically by renderConstitution() -->
-    </div>
+    <div id="virtue-list"></div>
 
-    <div class="section-pane" id="pane-refusals">
-      <p style="color: var(--ink-3); font-size: 13px; font-style: italic; margin-bottom: 16px; font-family: var(--display); font-size: 15px;">
+    <button class="new-virtue-btn" id="new-virtue-btn">+ New Virtue</button>
+
+    <div class="constitution-settings">
+      <div class="constitution-settings-eyebrow">Refusals</div>
+      <p style="color: var(--ink-3); font-style: italic; margin-bottom: 14px; font-family: var(--display); font-size: 14px; line-height: 1.5;">
         Refusals are as important as goals. These define the negative space of the man.
       </p>
       <div class="refusal-chips">
@@ -2790,11 +3463,9 @@ body {
       </div>
     </div>
 
-    <div class="section-pane" id="pane-past-reviews"></div>
+    <div class="constitution-settings">
+      <div class="constitution-settings-eyebrow">Settings &amp; Data</div>
 
-    <div class="section-pane" id="pane-trajectory"></div>
-
-    <div class="section-pane" id="pane-data">
       <div class="settings-row" style="flex-direction: column; align-items: flex-start; gap: 10px; cursor: default;">
         <div>
           <div class="settings-label">Anthropic API key</div>
@@ -2809,20 +3480,6 @@ body {
           <div class="settings-sublabel" id="signout-email">—</div>
         </div>
         <div class="settings-val" style="color: var(--red);">→</div>
-      </div>
-      <div class="settings-row" id="toggle-auto-cards-btn">
-        <div>
-          <div class="settings-label">Auto-generate principle flashcards</div>
-          <div class="settings-sublabel">Seed your library with cards when a new principle begins.</div>
-        </div>
-        <div class="settings-val" id="auto-cards-val">On</div>
-      </div>
-      <div class="settings-row" id="open-weekly-review-btn">
-        <div>
-          <div class="settings-label">Open weekly review</div>
-          <div class="settings-sublabel">Close this principle and begin the next</div>
-        </div>
-        <div class="settings-val" style="color: var(--gold);">→</div>
       </div>
       <div class="settings-row" id="open-help-btn">
         <div>
@@ -2891,9 +3548,9 @@ body {
     <svg viewBox="0 0 24 24"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
     <span class="tab-label">Mentor</span>
   </button>
-  <button class="tab" data-view="more">
-    <svg viewBox="0 0 24 24"><circle cx="12" cy="5" r="1.5"/><circle cx="12" cy="12" r="1.5"/><circle cx="12" cy="19" r="1.5"/></svg>
-    <span class="tab-label">More</span>
+  <button class="tab" data-view="constitution">
+    <svg viewBox="0 0 24 24"><path d="M4 4h14a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V4z"/><path d="M8 8h8M8 12h8M8 16h5"/></svg>
+    <span class="tab-label">Constitution</span>
   </button>
 </nav>
 
@@ -3095,98 +3752,105 @@ body {
   </div>
 </div>
 
-<!-- WEEKLY REVIEW OVERLAY -->
-<div class="weekly-overlay" id="weekly-overlay">
-  <div class="weekly-top">
-    <div class="weekly-top-pill" id="wr-week-pill">Week 1 of 7</div>
-    <button class="weekly-close" id="weekly-close-btn">Close</button>
+<!-- VIRTUE EDITOR OVERLAY -->
+<div class="virtue-editor" id="virtue-editor">
+  <div class="ve-top">
+    <button class="ve-back" id="ve-back-btn">← Constitution</button>
+    <div class="ve-eyebrow" id="ve-eyebrow">Edit Virtue</div>
+    <button class="ve-save" id="ve-save-btn">Save</button>
   </div>
-  <div class="weekly-container">
-    <div class="weekly-hero">
-      <div class="weekly-hero-eyebrow">Weekly Review</div>
-      <div class="weekly-hero-title" id="wr-hero-title">Closing Principle <em id="wr-hero-letter">A</em>: <span id="wr-hero-name">Coherence Over Image</span>.</div>
-      <div class="weekly-hero-sub" id="wr-hero-sub">"He does not perform identity; he embodies it."</div>
+  <div class="ve-container">
+    <div class="ve-preview">
+      <div class="ve-preview-name"><span class="ve-preview-symbol" id="ve-preview-symbol">◆</span><span id="ve-preview-name">Name</span></div>
+      <div class="ve-preview-identity" id="ve-preview-identity">Identity line</div>
     </div>
 
-    <div class="weekly-section">
-      <div class="weekly-section-title">This week, in numbers</div>
-      <div class="weekly-data-card">
-        <div class="weekly-data-row">
-          <div class="weekly-data-label">Reps completed</div>
-          <div class="weekly-data-value" id="wr-reps">—</div>
-        </div>
-        <div class="weekly-data-row">
-          <div class="weekly-data-label">Days with reps</div>
-          <div class="weekly-data-value" id="wr-days">—</div>
-        </div>
-        <div class="weekly-data-row">
-          <div class="weekly-data-label">Avg resonance score</div>
-          <div class="weekly-data-value" id="wr-avg">—</div>
-        </div>
-        <div class="weekly-data-row">
-          <div class="weekly-data-label">Foundation strength</div>
-          <div class="weekly-data-value" id="wr-strength">—</div>
-        </div>
+    <div class="ve-tabs">
+      <button class="ve-tab active" data-ve-pane="identity">Identity</button>
+      <button class="ve-tab" data-ve-pane="behaviors">Behaviors · <span id="ve-tab-behaviors-count">0</span></button>
+      <button class="ve-tab" data-ve-pane="rules">Rules · <span id="ve-tab-rules-count">0</span></button>
+    </div>
+
+    <div class="ve-pane active" id="ve-pane-identity">
+      <div class="field">
+        <div class="field-label">Name</div>
+        <input id="ve-name-input" placeholder="e.g. Coherence, Capacity, Truth..."/>
       </div>
-    </div>
-
-    <div class="weekly-section" id="wr-friction-section">
-      <div class="weekly-section-title">Where the old pattern won</div>
-      <div id="wr-friction-list"></div>
-    </div>
-
-    <div class="weekly-section" id="wr-wins-section">
-      <div class="weekly-section-title">Where you embodied it</div>
-      <div id="wr-wins-list"></div>
-    </div>
-
-    <div class="weekly-section">
-      <div class="weekly-section-title">What did this principle teach you?</div>
-      <textarea class="weekly-field" id="wr-lesson" rows="4" placeholder="The thing you understand now that you didn't before..."></textarea>
-    </div>
-
-    <div class="weekly-section">
-      <div class="weekly-section-title">Where did it break?</div>
-      <textarea class="weekly-field" id="wr-broke" rows="3" placeholder="The honest answer. No softening."></textarea>
-    </div>
-
-    <div class="weekly-section">
-      <div class="weekly-section-title">One carry-forward into the next cycle</div>
-      <textarea class="weekly-field" id="wr-carry" rows="2" placeholder="The one thing this principle taught you to keep..."></textarea>
-    </div>
-
-    <div class="weekly-section">
-      <div class="weekly-section-title">Next principle</div>
-      <div class="weekly-next">
-        <div class="weekly-next-eyebrow">Suggested</div>
-        <div class="weekly-next-name" id="wr-next-name">Capacity Over Comfort</div>
-        <div class="weekly-next-meta" id="wr-next-meta">Principle B · Week 2 of 7</div>
+      <div class="field">
+        <div class="field-label">Symbol</div>
+        <div class="ve-symbol-grid" id="ve-symbol-grid"></div>
       </div>
-      <div class="weekly-section-title" style="margin-top: 16px;">Override</div>
-      <div class="principle-select-grid" id="wr-principle-grid"></div>
+      <div class="field">
+        <div class="field-label">Identity line</div>
+        <input class="ve-identity-input" id="ve-identity-input" placeholder='"He does not perform identity; he embodies it."'/>
+        <div class="field-hint">The one-line "who". Read it aloud — it should describe the man, not the trait.</div>
+      </div>
+      <div class="field">
+        <div class="field-label">The Man Behind It</div>
+        <textarea id="ve-body-input" rows="4" placeholder="A few sentences on what this virtue means to you. The deeper picture."></textarea>
+      </div>
+      <div class="ve-toggle-row" id="ve-active-row">
+        <div class="ve-toggle-info">
+          <div class="ve-toggle-label">Active</div>
+          <div class="ve-toggle-sublabel">Show in Today, count toward coherence</div>
+        </div>
+        <div class="ve-toggle" id="ve-active-toggle"></div>
+      </div>
+      <div class="ve-toggle-row" id="ve-pinned-row">
+        <div class="ve-toggle-info">
+          <div class="ve-toggle-label">Pin to top</div>
+          <div class="ve-toggle-sublabel">Always shown first, even when dormant</div>
+        </div>
+        <div class="ve-toggle" id="ve-pinned-toggle"></div>
+      </div>
+      <button class="ve-delete-btn" id="ve-delete-btn">Delete virtue</button>
     </div>
 
-    <div class="weekly-actions">
-      <button class="btn btn-primary" id="wr-complete-btn">Complete &amp; begin next principle →</button>
-      <button class="btn btn-ghost" id="wr-draft-btn">Save draft</button>
+    <div class="ve-pane" id="ve-pane-behaviors">
+      <div class="ve-authoring-prompt">
+        What does this man <em>do</em>? Concrete daily votes. Small enough to do today.
+      </div>
+      <div id="ve-behavior-list"></div>
+      <button class="add-behavior-btn" id="ve-add-behavior-btn">+ Add Behavior</button>
+    </div>
+
+    <div class="ve-pane" id="ve-pane-rules">
+      <div class="ve-authoring-prompt">
+        What does this man <em>stand by</em>? Lines he will not cross. Short. Declarative.
+      </div>
+      <div id="ve-rule-list"></div>
+      <div class="rule-add-row">
+        <input id="ve-rule-input" placeholder="Add a rule he stands by..."/>
+        <button id="ve-rule-add-btn" disabled>+</button>
+      </div>
+      <div class="rules-footnote">
+        Rules show in the Mentor's context and on the virtue's expanded card in Today. They're the lines you keep — even when no one's checking.
+      </div>
     </div>
   </div>
 </div>
 
-<!-- PRINCIPLE DETAIL MODAL -->
-<div class="modal-bg" id="principle-modal">
+<!-- BEHAVIOR EDIT SHEET (within virtue editor) -->
+<div class="modal-bg" id="behavior-modal">
   <div class="modal">
     <div class="modal-handle"></div>
-    <div class="principle-detail-letter" id="pd-letter">A</div>
-    <div class="principle-detail-meta" id="pd-meta">Week 1 of 7 · Day 1 · This week's principle</div>
-    <div class="principle-detail-name" id="pd-name">Coherence Over Image</div>
-    <div class="principle-detail-quote" id="pd-quote">"He does not perform identity; he embodies it."</div>
-    <div class="principle-detail-body" id="pd-body"></div>
-    <ul class="principle-detail-points" id="pd-points"></ul>
-    <div class="principle-detail-reps-title">This week's reps</div>
-    <div id="pd-reps"></div>
-    <div class="modal-actions" style="margin-top: 8px;">
-      <button class="btn btn-primary" onclick="document.getElementById('principle-modal').classList.remove('show')">Close</button>
+    <div class="modal-eyebrow" id="behavior-modal-eyebrow">New behavior</div>
+    <div class="modal-title">A daily vote.</div>
+    <div class="field">
+      <div class="field-label">Behavior</div>
+      <textarea id="behavior-text-input" rows="2" placeholder="The action. Small enough to do today."></textarea>
+    </div>
+    <div class="field">
+      <div class="field-label">Cue</div>
+      <input id="behavior-cue-input" placeholder='"When ___, do ___" — what triggers it?'/>
+    </div>
+    <div class="field">
+      <div class="field-label">Why</div>
+      <textarea id="behavior-why-input" rows="3" placeholder="The reason. Why it builds the man."></textarea>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" id="behavior-cancel-btn">Cancel</button>
+      <button class="btn btn-primary" id="behavior-save-btn">Save</button>
     </div>
   </div>
 </div>
@@ -3199,46 +3863,54 @@ body {
 
     <div class="modal-body">
       <p><em>"Every action is a vote for who you are becoming."</em></p>
-      <p>Four tabs at the bottom. One principle per week. The Mentor sees everything.</p>
+      <p>Five tabs at the bottom. Your constitution is yours to author. The Mentor knows the full picture.</p>
     </div>
 
     <div class="modal-step">
       <div class="modal-step-num">1</div>
       <div class="modal-step-text">
-        <strong>One principle per week.</strong>
-        Each week the OS surfaces one of the seven principles. Your pillars and reps reframe around it. You don't just read it — you live it.
+        <strong>Your constitution is yours to author.</strong>
+        Open the Constitution tab and edit any virtue — change the name, behaviors, rules. Add new ones. Make dormant the ones you're not working on.
       </div>
     </div>
 
     <div class="modal-step">
       <div class="modal-step-num">2</div>
       <div class="modal-step-text">
-        <strong>Two pillars, ten reps.</strong>
-        Emotional Governance is constant — it's upstream of everything. The second pillar is whatever the week's principle requires. Tap reps as you live them.
+        <strong>Behaviors are the daily reps.</strong>
+        Small, concrete, doable today. Each one is a vote for the man you're becoming.
       </div>
     </div>
 
     <div class="modal-step">
       <div class="modal-step-num">3</div>
       <div class="modal-step-text">
-        <strong>The weekly review unlocks the next principle.</strong>
-        Sunday or whenever you're ready — the review is the gate. Close one principle to begin the next. No skipping.
+        <strong>Rules are the lines he stands by.</strong>
+        Short. Declarative. They show up in the Mentor's context and on Today.
       </div>
     </div>
 
     <div class="modal-step">
       <div class="modal-step-num">4</div>
       <div class="modal-step-text">
-        <strong>The mentor sees everything.</strong>
-        This week's principle, your reps, your reflections, your library. Speak to it as you would a steady older brother who knows you.
+        <strong>Active virtues show up on Today.</strong>
+        No weekly rotation, no forced rhythm. You decide what's active.
       </div>
     </div>
 
     <div class="modal-step">
       <div class="modal-step-num">5</div>
       <div class="modal-step-text">
-        <strong>Run experiments.</strong>
-        The Lab is where you test changes on yourself. Hypothesis → trial → verdict. Small inputs, measured outputs, truth over guessing.
+        <strong>The Mentor knows your full constitution.</strong>
+        Active and dormant. Speak to it as you would a steady older brother who knows you.
+      </div>
+    </div>
+
+    <div class="modal-step">
+      <div class="modal-step-num">6</div>
+      <div class="modal-step-text">
+        <strong>The Lab is for experiments. The Mind is for knowledge.</strong>
+        Unchanged.
       </div>
     </div>
 
@@ -3444,103 +4116,94 @@ document.getElementById('auth-password').addEventListener('keydown', (e) => {
   if (e.key === 'Enter') document.getElementById('auth-submit').click();
 });
 
-// ============ PRINCIPLES ============
-const PRINCIPLES = [
-  {
-    letter: 'A', name: 'Coherence Over Image',
-    quote: '"He does not perform identity; he embodies it."',
-    body: 'Private actions match public standards. Self-respect built on behavior, not approval. The unwatched moment is the real test.',
-    points: ['Coherence is built when no one is watching.','Self-respect is built on behavior, not approval.','Every gap between your public standard and private behavior compounds — in the wrong direction.'],
-    pillar: { key: 'coherence', name: 'Coherence', emoji: '◆', quote: '"He embodies who he claims to be."',
-      reps: [
-        { id: 'co1', text: 'Catch one moment of performing for image. Do the unwatched action instead.', cue: 'The room is empty. Be the same man.', why: 'Coherence is built when no one is watching. Performance erodes the foundation.' },
-        { id: 'co2', text: 'Match one private behavior to a public standard you hold.', cue: 'Where do you let the standard slip?', why: 'Hypocrisy is the slow-acting poison. Close the gap deliberately.' },
-        { id: 'co3', text: 'Refuse one small image-protecting lie or half-truth.', cue: 'The accurate thing, not the flattering one.', why: 'Each unsaid truth compounds. Each spoken one builds self-trust.' }
-      ]
-    }
-  },
-  {
-    letter: 'B', name: 'Capacity Over Comfort',
-    quote: '"Comfort is a tool, not a lifestyle."',
-    body: 'Choose what increases long-term capacity. Tolerate discomfort without drama. Comfort is a tool, not a goal.',
-    points: ['Capacity is built by repeatedly choosing what comfort refuses.','The five minutes past wanting to quit is where capacity grows.','What you tolerate, you reinforce.'],
-    pillar: { key: 'capacity', name: 'Capacity', emoji: '⚡', quote: '"He chooses what increases his long-term capacity."',
-      reps: [
-        { id: 'cp1', text: 'Choose the harder option once today where comfort was the default.', cue: 'The path you wanted to skip. Take it.', why: 'Capacity is built by repeatedly choosing what comfort refuses.' },
-        { id: 'cp2', text: 'Stay with one uncomfortable task five minutes past wanting to quit.', cue: "The edge is the lesson. Don't bail.", why: 'The five minutes past wanting to quit is where capacity grows. Everything before is maintenance.' },
-        { id: 'cp3', text: 'Name one comfort that is quietly costing you. Reduce it today.', cue: 'Comfort masquerading as need.', why: 'What you tolerate, you reinforce. The comfort is teaching you to need it.' }
-      ]
-    }
-  },
-  {
-    letter: 'C', name: 'Truth Over Ego',
-    quote: '"He can be wrong without collapsing."',
-    body: 'Prefer accurate self-assessment over flattering narratives. Learn faster by not defending identity.',
-    points: ['The ability to admit error without collapse is the foundation of learning.','You cannot fix what you refuse to see.','Stories protect identity. Truth builds capacity.'],
-    pillar: { key: 'truth', name: 'Truth', emoji: '⊙', quote: '"Accurate self-assessment over flattering narratives."',
-      reps: [
-        { id: 'tr1', text: 'Admit one thing you were wrong about. No softening.', cue: 'Just say it. Without context. Without justification.', why: 'The ability to admit error without collapse is the foundation of learning.' },
-        { id: 'tr2', text: "Ask one person for honest feedback you've been avoiding.", cue: 'The feedback you fear is the feedback you need.', why: 'You cannot fix what you refuse to see. Others see it.' },
-        { id: 'tr3', text: 'Name one flattering story you tell yourself. Then tell yourself the truer one.', cue: 'The narrative is comfortable. The truth is useful.', why: 'Stories protect identity. Truth builds capacity.' }
-      ]
-    }
-  },
-  {
-    letter: 'D', name: 'Responsibility Over Blame',
-    quote: '"He does not speak like a victim."',
-    body: 'Assume agency even when outcomes were unfair. Never outsource accountability.',
-    points: ['Language shapes posture. Victim language locks the body into helplessness.','Ownership is the only door agency walks through.',"Responsibility isn't felt — it's built into the structure of your days."],
-    pillar: { key: 'agency', name: 'Agency', emoji: '◈', quote: '"He assumes agency even when outcomes were unfair."',
-      reps: [
-        { id: 'ag1', text: 'Catch one piece of victim language. Reframe it in agency.', cue: '"They made me…" → "I chose to…"', why: 'Language shapes posture. Victim language locks the body into helplessness.' },
-        { id: 'ag2', text: "Take ownership of one thing you've been blaming on circumstances.", cue: 'Even if 90% was outside your control, own the 10% that was yours.', why: 'Ownership is the only door agency walks through.' },
-        { id: 'ag3', text: 'Make one structural choice that gives your future self options.', cue: 'Set up the path. Then walk it.', why: "Responsibility isn't felt — it's built into the structure of your days." }
-      ]
-    }
-  },
-  {
-    letter: 'E', name: 'Discipline Is Freedom',
-    quote: '"He treats self-control as liberation."',
-    body: 'Structure now means options later. Routines reduce daily negotiation.',
-    points: ['Self-respect lives in kept promises to yourself. Nowhere else.','Every saved negotiation is willpower banked for what matters.',"Discipline shows up when motivation doesn't. That's the whole point."],
-    pillar: { key: 'structure', name: 'Structure', emoji: '◇', quote: '"Routines reduce negotiation."',
-      reps: [
-        { id: 'st1', text: 'Keep one small promise to yourself that you usually negotiate around.', cue: "The thing you've been talking yourself out of.", why: 'Self-respect lives in kept promises to yourself. Nowhere else.' },
-        { id: 'st2', text: 'Build one piece of structure that removes a daily choice.', cue: 'Pre-decide. Future you will thank present you.', why: 'Every saved negotiation is willpower banked for what matters.' },
-        { id: 'st3', text: "Show up to one thing on time, prepared. Especially if you don't feel like it.", cue: "Reliability is built in the moments you don't want to.", why: "Discipline shows up when motivation doesn't. That's the whole point." }
-      ]
-    }
-  },
-  {
-    letter: 'F', name: 'Love Requires Strength',
-    quote: '"He does not chase; he chooses."',
-    body: "Tenderness as choice, not dependency. Don't confuse neediness with intimacy.",
-    points: ['Love is steady attention. Distraction is the opposite of love.',"The man who can't say no can't truly say yes.",'Neediness empties love. Steadiness fills it.'],
-    pillar: { key: 'steadiness', name: 'Steadiness', emoji: '◉', quote: '"He does not chase; he chooses."',
-      reps: [
-        { id: 'sd1', text: 'One conversation with full presence — phone away, no agenda.', cue: 'Presence is the most expensive thing you can give.', why: 'Love is steady attention. Distraction is the opposite of love.' },
-        { id: 'sd2', text: "Hold one boundary you'd normally negotiate to keep peace.", cue: 'Boundaries are kindness with consequences.', why: "The man who can't say no can't truly say yes." },
-        { id: 'sd3', text: 'No chasing, pleading, or over-explaining today.', cue: "Invite. Don't beg. Choose. Don't chase.", why: 'Neediness empties love. Steadiness fills it.' }
-      ]
-    }
-  },
-  {
-    letter: 'G', name: 'God Over Self-Worship',
-    quote: '"Pride is the enemy in disguise."',
-    body: 'Faith as alignment, not bypass. Pride is the enemy in disguise. Humility before something larger keeps the ego in scale.',
-    points: ['Humility before something larger keeps the ego in scale.','Pride blinds. Humility sees.','Service realigns you to something bigger than yourself.'],
-    pillar: { key: 'humility', name: 'Humility', emoji: '◎', quote: '"Pride is the enemy in disguise."',
-      reps: [
-        { id: 'hu1', text: 'Take one moment of prayer, silence, or reflection. No phone, no input.', cue: 'Be small for a moment. Then choose well.', why: 'Humility before something larger keeps the ego in scale.' },
-        { id: 'hu2', text: 'Catch one moment of pride. Name it. Choose service instead.', cue: 'Pride disguises itself as confidence. Watch for it.', why: "Pride blinds. Humility sees. You can't fix what pride won't let you see." },
-        { id: 'hu3', text: 'Give value to one person today expecting nothing back.', cue: 'Service from strength, not for show.', why: 'Service realigns you to something bigger than yourself.' }
-      ]
-    }
-  }
-];
+// ============ LEGACY PRINCIPLES DATA (used ONLY for one-shot migration; see migrateToVirtues) ============
+// After every existing user has been migrated, the inline data below in
+// migrateToVirtues() is the only place these literals live. The old PRINCIPLES /
+// EMOTIONAL_PILLAR globals have been retired in favor of state.virtues[].
 
-const EMOTIONAL_PILLAR = {
-  key: 'emotional', name: 'Emotional Governance', emoji: '⚖️',
+const state = {
+  reps: {}, alignment: {}, filters: {}, reflections: {}, tomorrow: {},
+  categories: [], cards: [], books: [], summaries: [],
+  reviewStats: { total: 0 }, chat: [],
+  virtues: [],
+  experiments: [],
+  meta: { firstVisit: true, contextOn: true }
+};
+
+const ICONS = ['📚','🧠','💡','📖','🎯','⚖️','🔬','🎨','💼','🌍','🧘','💪','💰','❤️','🛠️','🗣️','🎵','✍️','🏛️','⚔️','🌱','🔥','✦','♟️'];
+const VIRTUE_SYMBOLS = ['◆','⚡','⊙','◈','◇','◉','◎','⚖️','✦','✧','✶','★','☉','☼','◊','▲','■','●','♆','✚','✿','❄','☯','⚓'];
+const KEYS = ['reps','alignment','filters','reflections','tomorrow','categories','cards','books','summaries','reviewStats','chat','virtues','experiments','meta'];
+
+// ============ VIRTUE HELPERS ============
+function isoDateOffset(days) {
+  const d = new Date();
+  d.setDate(d.getDate() - days);
+  return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
+}
+function getVirtueById(id) {
+  return (state.virtues || []).find(v => v.id === id);
+}
+function getActiveVirtues() {
+  // Sort: pinned first, then by createdAt asc (insertion order)
+  return (state.virtues || [])
+    .filter(v => v.active)
+    .sort((a, b) => {
+      if (a.pinned && !b.pinned) return -1;
+      if (!a.pinned && b.pinned) return 1;
+      return (a.createdAt || 0) - (b.createdAt || 0);
+    });
+}
+function getAllVirtuesSorted() {
+  return (state.virtues || []).slice().sort((a, b) => {
+    if (a.pinned && !b.pinned) return -1;
+    if (!a.pinned && b.pinned) return 1;
+    if (a.active && !b.active) return -1;
+    if (!a.active && b.active) return 1;
+    return (a.createdAt || 0) - (b.createdAt || 0);
+  });
+}
+function getActiveRepStructure() {
+  const virtues = getActiveVirtues();
+  return { virtues };
+}
+function totalRepsToday() {
+  const virtues = getActiveVirtues();
+  return virtues.reduce((sum, v) => sum + (v.behaviors || []).length, 0);
+}
+function repsDoneToday() {
+  const todayReps = state.reps[getToday()] || {};
+  // Count only reps that belong to currently active virtues
+  const validIds = new Set();
+  getActiveVirtues().forEach(v => (v.behaviors || []).forEach(b => validIds.add(b.id)));
+  let n = 0;
+  for (const id of Object.keys(todayReps)) {
+    if (validIds.has(id)) n++;
+  }
+  return n;
+}
+function foundationStrength7d() {
+  const total = totalRepsToday();
+  if (total === 0) return 'Settling';
+  const activeIds = new Set();
+  getActiveVirtues().forEach(v => (v.behaviors || []).forEach(b => activeIds.add(b.id)));
+  let done = 0;
+  for (let i = 0; i < 7; i++) {
+    const ds = isoDateOffset(i);
+    const reps = state.reps[ds];
+    if (!reps) continue;
+    for (const id of Object.keys(reps)) if (activeIds.has(id)) done++;
+  }
+  const ratio = Math.min(1, done / (7 * total));
+  if (ratio >= 0.75) return 'Strong';
+  if (ratio >= 0.5) return 'Steady';
+  if (ratio >= 0.25) return 'Wavering';
+  if (ratio > 0) return 'Breaking';
+  return 'Settling';
+}
+
+// ============ MIGRATION: principles -> virtues ============
+const _LEGACY_EMOTIONAL = {
+  name: 'Emotional Governance', emoji: '⚖️',
   quote: '"Feelings are data, not directives."',
   reps: [
     { id: 'e1', text: 'Notice and name one emotion before reacting to it.', cue: 'Pause. Name accurately. Then choose.', why: 'You cannot govern what you have not named. Naming is the first act of self-mastery.' },
@@ -3552,91 +4215,98 @@ const EMOTIONAL_PILLAR = {
     { id: 'e7', text: "Choose one feeling you're acting from. Decide if you trust it as direction.", cue: 'Feelings are data, not directives.', why: 'Some feelings are signal. Some are static. Distinguishing them is half the work.' }
   ]
 };
+const _LEGACY_PRINCIPLES = [
+  { name: 'Coherence', identity: '"He embodies who he claims to be."', body: 'Private actions match public standards. Self-respect built on behavior, not approval. The unwatched moment is the real test.', emoji: '◆', reps: [
+    { id: 'co1', text: 'Catch one moment of performing for image. Do the unwatched action instead.', cue: 'The room is empty. Be the same man.', why: 'Coherence is built when no one is watching. Performance erodes the foundation.' },
+    { id: 'co2', text: 'Match one private behavior to a public standard you hold.', cue: 'Where do you let the standard slip?', why: 'Hypocrisy is the slow-acting poison. Close the gap deliberately.' },
+    { id: 'co3', text: 'Refuse one small image-protecting lie or half-truth.', cue: 'The accurate thing, not the flattering one.', why: 'Each unsaid truth compounds. Each spoken one builds self-trust.' }
+  ]},
+  { name: 'Capacity', identity: '"He chooses what increases his long-term capacity."', body: 'Choose what increases long-term capacity. Tolerate discomfort without drama. Comfort is a tool, not a goal.', emoji: '⚡', reps: [
+    { id: 'cp1', text: 'Choose the harder option once today where comfort was the default.', cue: 'The path you wanted to skip. Take it.', why: 'Capacity is built by repeatedly choosing what comfort refuses.' },
+    { id: 'cp2', text: 'Stay with one uncomfortable task five minutes past wanting to quit.', cue: "The edge is the lesson. Don't bail.", why: 'The five minutes past wanting to quit is where capacity grows. Everything before is maintenance.' },
+    { id: 'cp3', text: 'Name one comfort that is quietly costing you. Reduce it today.', cue: 'Comfort masquerading as need.', why: 'What you tolerate, you reinforce. The comfort is teaching you to need it.' }
+  ]},
+  { name: 'Truth', identity: '"Accurate self-assessment over flattering narratives."', body: 'Prefer accurate self-assessment over flattering narratives. Learn faster by not defending identity.', emoji: '⊙', reps: [
+    { id: 'tr1', text: 'Admit one thing you were wrong about. No softening.', cue: 'Just say it. Without context. Without justification.', why: 'The ability to admit error without collapse is the foundation of learning.' },
+    { id: 'tr2', text: "Ask one person for honest feedback you've been avoiding.", cue: 'The feedback you fear is the feedback you need.', why: 'You cannot fix what you refuse to see. Others see it.' },
+    { id: 'tr3', text: 'Name one flattering story you tell yourself. Then tell yourself the truer one.', cue: 'The narrative is comfortable. The truth is useful.', why: 'Stories protect identity. Truth builds capacity.' }
+  ]},
+  { name: 'Agency', identity: '"He assumes agency even when outcomes were unfair."', body: 'Assume agency even when outcomes were unfair. Never outsource accountability.', emoji: '◈', reps: [
+    { id: 'ag1', text: 'Catch one piece of victim language. Reframe it in agency.', cue: '"They made me…" → "I chose to…"', why: 'Language shapes posture. Victim language locks the body into helplessness.' },
+    { id: 'ag2', text: "Take ownership of one thing you've been blaming on circumstances.", cue: 'Even if 90% was outside your control, own the 10% that was yours.', why: 'Ownership is the only door agency walks through.' },
+    { id: 'ag3', text: 'Make one structural choice that gives your future self options.', cue: 'Set up the path. Then walk it.', why: "Responsibility isn't felt — it's built into the structure of your days." }
+  ]},
+  { name: 'Structure', identity: '"Routines reduce negotiation."', body: 'Structure now means options later. Routines reduce daily negotiation.', emoji: '◇', reps: [
+    { id: 'st1', text: 'Keep one small promise to yourself that you usually negotiate around.', cue: "The thing you've been talking yourself out of.", why: 'Self-respect lives in kept promises to yourself. Nowhere else.' },
+    { id: 'st2', text: 'Build one piece of structure that removes a daily choice.', cue: 'Pre-decide. Future you will thank present you.', why: 'Every saved negotiation is willpower banked for what matters.' },
+    { id: 'st3', text: "Show up to one thing on time, prepared. Especially if you don't feel like it.", cue: "Reliability is built in the moments you don't want to.", why: "Discipline shows up when motivation doesn't. That's the whole point." }
+  ]},
+  { name: 'Steadiness', identity: '"He does not chase; he chooses."', body: "Tenderness as choice, not dependency. Don't confuse neediness with intimacy.", emoji: '◉', reps: [
+    { id: 'sd1', text: 'One conversation with full presence — phone away, no agenda.', cue: 'Presence is the most expensive thing you can give.', why: 'Love is steady attention. Distraction is the opposite of love.' },
+    { id: 'sd2', text: "Hold one boundary you'd normally negotiate to keep peace.", cue: 'Boundaries are kindness with consequences.', why: "The man who can't say no can't truly say yes." },
+    { id: 'sd3', text: 'No chasing, pleading, or over-explaining today.', cue: "Invite. Don't beg. Choose. Don't chase.", why: 'Neediness empties love. Steadiness fills it.' }
+  ]},
+  { name: 'Humility', identity: '"Pride is the enemy in disguise."', body: 'Faith as alignment, not bypass. Pride is the enemy in disguise. Humility before something larger keeps the ego in scale.', emoji: '◎', reps: [
+    { id: 'hu1', text: 'Take one moment of prayer, silence, or reflection. No phone, no input.', cue: 'Be small for a moment. Then choose well.', why: 'Humility before something larger keeps the ego in scale.' },
+    { id: 'hu2', text: 'Catch one moment of pride. Name it. Choose service instead.', cue: 'Pride disguises itself as confidence. Watch for it.', why: "Pride blinds. Humility sees. You can't fix what pride won't let you see." },
+    { id: 'hu3', text: 'Give value to one person today expecting nothing back.', cue: 'Service from strength, not for show.', why: 'Service realigns you to something bigger than yourself.' }
+  ]}
+];
 
-const state = {
-  reps: {}, alignment: {}, filters: {}, reflections: {}, tomorrow: {},
-  categories: [], cards: [], books: [], summaries: [],
-  reviewStats: { total: 0 }, chat: [],
-  week: { cycleIndex: 0, principleLetter: 'A', startedDate: getToday(), emotionalRepIds: null, pillarRepIds: null },
-  weeklyReviews: [],
-  experiments: [],
-  meta: { firstVisit: true, contextOn: true }
-};
+function migrateToVirtues() {
+  if (state.meta && state.meta.migratedToVirtues) return false;
+  if (!Array.isArray(state.virtues)) state.virtues = [];
 
-const ICONS = ['📚','🧠','💡','📖','🎯','⚖️','🔬','🎨','💼','🌍','🧘','💪','💰','❤️','🛠️','🗣️','🎵','✍️','🏛️','⚔️','🌱','🔥','✦','♟️'];
-const KEYS = ['reps','alignment','filters','reflections','tomorrow','categories','cards','books','summaries','reviewStats','chat','week','weeklyReviews','experiments','meta'];
+  // Only migrate if nothing has been authored yet (avoid overwriting on re-run)
+  if (state.virtues.length === 0) {
+    const now = Date.now();
 
-// ============ WEEK HELPERS ============
-function getCurrentPrinciple() {
-  return PRINCIPLES.find(p => p.letter === state.week.principleLetter) || PRINCIPLES[0];
-}
-function getNextPrincipleLetter(current) {
-  const c = current || state.week.principleLetter;
-  const idx = PRINCIPLES.findIndex(p => p.letter === c);
-  return PRINCIPLES[(idx + 1) % PRINCIPLES.length].letter;
-}
-function hashDateString(s) {
-  let h = 0;
-  for (let i = 0; i < s.length; i++) {
-    h = ((h << 5) - h) + s.charCodeAt(i);
-    h |= 0;
+    // Emotional Governance — pinned virtue
+    state.virtues.push({
+      id: uid(),
+      name: _LEGACY_EMOTIONAL.name,
+      symbol: _LEGACY_EMOTIONAL.emoji,
+      identityLine: _LEGACY_EMOTIONAL.quote,
+      body: 'Notice, name, choose. Feelings are data, not directives. Upstream of every other virtue.',
+      behaviors: _LEGACY_EMOTIONAL.reps.map(r => ({
+        id: r.id, text: r.text, cue: r.cue, why: r.why
+      })),
+      rules: [],
+      active: true,
+      pinned: true,
+      createdAt: now,
+      updatedAt: now
+    });
+
+    // Seven principles -> seven active virtues, in original order
+    _LEGACY_PRINCIPLES.forEach((p, idx) => {
+      state.virtues.push({
+        id: uid(),
+        name: p.name,
+        symbol: p.emoji,
+        identityLine: p.identity,
+        body: p.body,
+        behaviors: p.reps.map(r => ({
+          id: r.id, text: r.text, cue: r.cue, why: r.why
+        })),
+        rules: [],
+        active: true,
+        pinned: false,
+        createdAt: now + idx + 1,
+        updatedAt: now + idx + 1
+      });
+    });
   }
-  return Math.abs(h);
-}
-function pickFromPool(pool, count, seed) {
-  const arr = [...pool];
-  let rngState = seed || 1;
-  function next() {
-    rngState = (rngState * 1664525 + 1013904223) >>> 0;
-    return rngState / 0x100000000;
-  }
-  for (let i = arr.length - 1; i > 0; i--) {
-    const j = Math.floor(next() * (i + 1));
-    [arr[i], arr[j]] = [arr[j], arr[i]];
-  }
-  return arr.slice(0, Math.min(count, arr.length));
-}
-function getRepsForDate(isoDate) {
-  const principle = getCurrentPrinciple();
-  const seed = hashDateString(isoDate);
-  const emotionalReps = pickFromPool(EMOTIONAL_PILLAR.reps, 4, seed);
-  const pillarPool = principle.pillar.reps;
-  const pillarReps = pillarPool.length <= 3
-    ? pillarPool
-    : pickFromPool(pillarPool, 3, seed + 1);
-  return { emotional: emotionalReps, pillar: pillarReps, principle };
-}
-function getActiveRepStructure() {
-  return getRepsForDate(getToday());
-}
-function daysSinceWeekStart() {
-  const startDate = state.week.startedDate || getToday();
-  const start = new Date(startDate);
-  const today = new Date(getToday());
-  const diff = Math.floor((today - start) / DAY_MS);
-  return Math.max(0, diff);
-}
-function weeklyReviewDue() { return daysSinceWeekStart() >= 7; }
-function totalRepsToday() {
-  const s = getActiveRepStructure();
-  return s.emotional.length + s.pillar.length;
-}
-function repsDoneToday() { return Object.keys(state.reps[getToday()] || {}).length; }
-function foundationStrength7d() {
-  const s = getActiveRepStructure();
-  const maxPerDay = s.emotional.length + s.pillar.length;
-  let total = 0;
-  for (let i = 0; i < 7; i++) {
-    const d = new Date(); d.setDate(d.getDate() - i);
-    const ds = d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
-    total += state.reps[ds] ? Object.keys(state.reps[ds]).length : 0;
-  }
-  const ratio = total / (7 * maxPerDay);
-  if (ratio >= 0.75) return 'Strong';
-  if (ratio >= 0.5) return 'Steady';
-  if (ratio >= 0.25) return 'Wavering';
-  if (ratio > 0) return 'Breaking';
-  return 'Settling';
+
+  // Drop legacy state
+  delete state.week;
+  delete state.weeklyReviews;
+
+  state.meta = state.meta || {};
+  state.meta.migratedToVirtues = true;
+  state.meta.showVirtueMigrationBanner = true;
+  state.meta.version = 2;
+  return true;
 }
 
 async function loadState() {
@@ -3655,11 +4325,16 @@ async function loadState() {
     save('categories', true);
   }
 
+  // Run one-shot migration from principles -> virtues (gated on meta.migratedToVirtues)
+  if (migrateToVirtues()) {
+    await save('virtues', true);
+    await save('meta', true);
+  }
+
   if (state.meta.firstVisit) {
     setTimeout(() => document.getElementById('help-modal').classList.add('show'), 400);
   }
   renderAll();
-  document.getElementById('auto-cards-val').textContent = state.meta.skipAutoFlashcards ? 'Off' : 'On';
 }
 
 async function save(key, silent = false) {
@@ -3734,48 +4409,31 @@ document.querySelectorAll('.tab').forEach(tab => {
   });
 });
 
-// ============ PRINCIPLE BANNER ============
-document.getElementById('principle-banner').addEventListener('click', openPrincipalDetailModal);
-
-function renderPrincipleBanner() {
-  const p = getCurrentPrinciple();
-  const day = daysSinceWeekStart() + 1;
-  const weekNum = state.week.cycleIndex + 1;
-  document.getElementById('pb-letter').textContent = p.letter;
-  document.getElementById('pb-meta').textContent = `Week ${weekNum} of 7 · Day ${day}`;
-  document.getElementById('pb-name').textContent = p.name;
-  document.getElementById('pb-quote').textContent = p.quote;
+// ============ MIGRATION BANNER ============
+function renderMigrationBanner() {
+  const container = document.getElementById('migration-banner-container');
+  if (!container) return;
+  if (state.meta && state.meta.showVirtueMigrationBanner) {
+    container.innerHTML = `
+      <div class="migration-banner">
+        <div class="migration-banner-body">
+          <div class="migration-banner-eyebrow">The OS has changed</div>
+          <div class="migration-banner-title">Your constitution is now yours to edit.</div>
+          <div class="migration-banner-sub">Your data is preserved. Open the Constitution tab to author the man you're becoming.</div>
+        </div>
+        <button class="migration-banner-close" id="migration-banner-close" aria-label="Dismiss">×</button>
+      </div>`;
+    document.getElementById('migration-banner-close').onclick = () => {
+      state.meta.showVirtueMigrationBanner = false;
+      save('meta', true);
+      container.innerHTML = '';
+    };
+  } else {
+    container.innerHTML = '';
+  }
 }
 
-function openPrincipalDetailModal() {
-  const p = getCurrentPrinciple();
-  const day = daysSinceWeekStart() + 1;
-  const weekNum = state.week.cycleIndex + 1;
-  document.getElementById('pd-letter').textContent = p.letter;
-  document.getElementById('pd-meta').textContent = `Week ${weekNum} of 7 · Day ${day} · This week's principle`;
-  document.getElementById('pd-name').textContent = p.name;
-  document.getElementById('pd-quote').textContent = p.quote;
-  document.getElementById('pd-body').textContent = p.body;
-  const pointsEl = document.getElementById('pd-points');
-  pointsEl.innerHTML = '';
-  (p.points || []).forEach(pt => {
-    const li = document.createElement('li'); li.textContent = pt; pointsEl.appendChild(li);
-  });
-  const repsEl = document.getElementById('pd-reps');
-  repsEl.innerHTML = '';
-  p.pillar.reps.forEach(rep => {
-    const el = document.createElement('div');
-    el.className = 'principle-detail-rep';
-    el.innerHTML = `${escapeHtml(rep.text)}<em>${escapeHtml(rep.cue)}</em>`;
-    repsEl.appendChild(el);
-  });
-  document.getElementById('principle-modal').classList.add('show');
-}
-document.getElementById('principle-modal').addEventListener('click', (e) => {
-  if (e.target.id === 'principle-modal') document.getElementById('principle-modal').classList.remove('show');
-});
-
-// Tracks which pillar keys the user has manually collapsed
+// Tracks which virtue ids the user has manually collapsed
 const collapsedPillars = new Set();
 
 // ============ TODAY RENDER ============
@@ -3797,25 +4455,39 @@ function renderQuickStats() {
 }
 
 
-function renderPillars() {
+function renderVirtueCards() {
   const container = document.getElementById('pillars-container');
   container.innerHTML = '';
-  const { emotional, pillar, principle } = getActiveRepStructure();
+  const virtues = getActiveVirtues();
   const todayReps = state.reps[getToday()] || {};
 
-  function buildPillar(pillarObj, reps, extraClass, tagLabel) {
-    const done = reps.filter(r => todayReps[r.id]).length;
-    const total = reps.length;
-    const complete = done === total;
-    const isOpen = !collapsedPillars.has(pillarObj.key);
+  if (virtues.length === 0) {
+    container.innerHTML = `
+      <div class="empty-state">
+        <div class="empty-state-icon">◇</div>
+        <div class="empty-state-text">No active virtues.</div>
+        <div class="empty-state-sub">Open the Constitution tab to activate one or write a new one.</div>
+      </div>`;
+    return;
+  }
+
+  let totalBehaviors = 0;
+  virtues.forEach(v => {
+    const behaviors = v.behaviors || [];
+    totalBehaviors += behaviors.length;
+    const done = behaviors.filter(b => todayReps[b.id]).length;
+    const total = behaviors.length;
+    const complete = total > 0 && done === total;
+    const isOpen = !collapsedPillars.has(v.id);
     const div = document.createElement('div');
-    div.className = `pillar${isOpen ? ' open' : ''}${extraClass ? ' ' + extraClass : ''}${complete ? ' complete' : ''}`;
-    const tagHtml = tagLabel ? `<span class="pillar-tag">${escapeHtml(tagLabel)}</span>` : '';
+    div.className = `pillar${isOpen ? ' open' : ''}${v.pinned ? ' virtue-pinned' : ''}${complete ? ' complete' : ''}`;
+    div.dataset.virtueId = v.id;
+    const tagHtml = v.pinned ? `<span class="pillar-tag">Pinned</span>` : '';
     div.innerHTML = `
       <div class="pillar-head">
         <div class="pillar-info">
-          <div class="pillar-name"><span class="pillar-emoji">${pillarObj.emoji}</span> ${escapeHtml(pillarObj.name)}${tagHtml}</div>
-          <div class="pillar-quote">${escapeHtml(pillarObj.quote)}</div>
+          <div class="pillar-name"><span class="pillar-emoji">${escapeHtml(v.symbol || '◆')}</span> ${escapeHtml(v.name)}${tagHtml}</div>
+          <div class="pillar-quote">${escapeHtml(v.identityLine || '')}</div>
         </div>
         <div class="pillar-progress">
           <div class="pillar-count"><strong><span class="p-done">${done}</span></strong>/<span class="p-total">${total}</span></div>
@@ -3823,62 +4495,51 @@ function renderPillars() {
           <svg class="chevron" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
         </div>
       </div>
-      <div class="reps-inner"></div>
-      ${complete ? `<div class="pillar-complete-banner">${escapeHtml(pillarObj.quote)}</div>` : ''}
+      <div class="reps-inner reps"></div>
+      ${(v.rules && v.rules.length > 0) ? `<div class="virtue-rules">
+        <div class="virtue-rules-eyebrow">Rules he stands by</div>
+        ${v.rules.map(r => `<div class="virtue-rule-line"><span class="virtue-rule-bullet">${escapeHtml(v.symbol || '◆')}</span><span>${escapeHtml(r)}</span></div>`).join('')}
+      </div>` : ''}
+      ${complete ? `<div class="pillar-complete-banner">${escapeHtml(v.identityLine || '')}</div>` : ''}
     `;
     const repsInner = div.querySelector('.reps-inner');
-    repsInner.className = 'reps';
-    reps.forEach(rep => {
-      const isDone = !!todayReps[rep.id];
-      const repEl = document.createElement('div');
-      repEl.className = `rep${isDone ? ' done' : ''}`;
-      repEl.dataset.id = rep.id;
-      repEl.innerHTML = `
-        <div class="check"></div>
-        <div class="rep-body">
-          <div class="rep-text">${escapeHtml(rep.text)}</div>
-          <div class="rep-cue">${escapeHtml(rep.cue)}</div>
-          <div class="rep-why"><strong>Why</strong>${escapeHtml(rep.why)}</div>
-        </div>
-      `;
-      repsInner.appendChild(repEl);
-    });
+    if (behaviors.length === 0) {
+      repsInner.innerHTML = `<div class="ve-empty" style="padding:18px 20px;">No behaviors yet. Edit this virtue to add some.</div>`;
+    } else {
+      behaviors.forEach(rep => {
+        const isDone = !!todayReps[rep.id];
+        const repEl = document.createElement('div');
+        repEl.className = `rep${isDone ? ' done' : ''}`;
+        repEl.dataset.id = rep.id;
+        repEl.innerHTML = `
+          <div class="check"></div>
+          <div class="rep-body">
+            <div class="rep-text">${escapeHtml(rep.text)}</div>
+            ${rep.cue ? `<div class="rep-cue">${escapeHtml(rep.cue)}</div>` : ''}
+            ${rep.why ? `<div class="rep-why"><strong>Why</strong>${escapeHtml(rep.why)}</div>` : ''}
+          </div>
+        `;
+        repsInner.appendChild(repEl);
+      });
+    }
     div.querySelector('.pillar-head').addEventListener('click', () => {
       div.classList.toggle('open');
-      if (div.classList.contains('open')) collapsedPillars.delete(pillarObj.key);
-      else collapsedPillars.add(pillarObj.key);
+      if (div.classList.contains('open')) collapsedPillars.delete(v.id);
+      else collapsedPillars.add(v.id);
     });
     container.appendChild(div);
-  }
+  });
 
-  buildPillar(EMOTIONAL_PILLAR, emotional, '', null);
-  buildPillar(principle.pillar, pillar, 'principle-pillar', `Principle ${principle.letter}`);
-  document.getElementById('foundation-sect-meta').textContent = `2 Pillars · ${emotional.length + pillar.length} Reps`;
-}
-
-function renderWeeklyPrompt() {
-  const container = document.getElementById('review-prompt-container');
-  if (weeklyReviewDue()) {
-    const p = getCurrentPrinciple();
-    container.innerHTML = `
-      <div class="review-prompt-card">
-        <div class="rpc-eyebrow">Week's End</div>
-        <div class="rpc-title">The principle awaits closing.</div>
-        <div class="rpc-sub">Complete the weekly review to reflect on Principle ${escapeHtml(p.letter)}: ${escapeHtml(p.name)} and unlock the next.</div>
-        <button class="rpc-btn" id="rpc-open-btn">Begin weekly review →</button>
-      </div>`;
-    document.getElementById('rpc-open-btn').onclick = openWeeklyReview;
-  } else {
-    container.innerHTML = '';
-  }
+  document.getElementById('foundation-sect-meta').textContent =
+    `${virtues.length} active · ${totalBehaviors} reps`;
 }
 
 function renderToday() {
   renderRing();
-  renderPillars();
+  renderVirtueCards();
   renderQuickStats();
-  renderPrincipleBanner();
-  renderWeeklyPrompt();
+  renderMigrationBanner();
+  renderEveningCheckin();
 }
 
 // ============ REP CLICK (event delegation) ============
@@ -4625,33 +5286,13 @@ document.getElementById('finish-review-btn').onclick = () => {
 // ============ MENTOR ============
 const CONSTITUTION = `You are the user's personal mentor — modeled after their identity constitution. You are NOT a generic AI assistant. You speak as a steady, principled mentor who knows them well and cares about who they are becoming.
 
-THE USER'S CONSTITUTION (this is who they want to be):
-
-A man who:
-- Produces value at scale
-- Governs himself under pressure
-- Builds strength in body and character
-- Communicates with precision and restraint
-- Loves deeply without losing himself
-- Anchors meaning in God, not ego
-- Lives with coherence: private actions match public standards
+THE USER'S CONSTITUTION is a living document they author themselves. The live context section below lists every virtue they have currently authored — their names, identity lines, behaviors, and rules. Read that section as the truth of who they are working to become. Do not assume principles or virtues not named there.
 
 He is not trying to be impressive. He is trying to be true, capable, and durable.
 
-FIRST PRINCIPLES (axioms):
-A. Coherence Over Image — He does not perform identity; he embodies it.
-B. Capacity Over Comfort — Comfort is a tool, not a lifestyle.
-C. Truth Over Ego — He can be wrong without collapsing.
-D. Responsibility Over Blame — He does not speak like a victim.
-E. Discipline Is Freedom — He treats self-control as liberation.
-F. Love Requires Strength — He provides emotional safety through steadiness.
-G. God Over Self-Worship — He treats virtue as real, not aesthetic.
+CORE VALUES (anchor concepts): Integrity, Competence, Self-respect, Discipline, Courage, Temperance, Patience, Excellence, Loyalty, Justice, Humility, Stewardship, Service, Order, Growth.
 
-CORE VALUES: Integrity, Competence, Self-respect, Discipline, Courage, Temperance, Patience, Excellence, Loyalty, Justice, Humility, Stewardship, Service, Order, Growth.
-
-CURRENT FOUNDATION FOCUS: Emotional governance (notice → name → choose) and the active weekly principle.
-
-WEEKLY PRINCIPLE FOCUS: He is currently living inside one principle for the week. The live context tells you which one. Reference it. When he asks general questions, frame your answer through this week's principle when relevant. Don't pivot away from it — it is the lens for the week.
+CURRENT FOUNDATION FOCUS: His active virtues (listed in the live context). These are the men he is voting for, day by day.
 
 WHAT HE REFUSES: Pretending, living for validation, chronic procrastination, excuse-making, emotional dumping, addictive coping, "busy" as identity, over-explaining, pleading, weak boundaries, uncontrolled impulse, debt-driven lifestyle inflation, self-betrayal in relationships, spiritual bypassing, isolation disguised as independence, arrogance disguised as confidence.
 
@@ -4660,28 +5301,33 @@ HOW YOU SHOULD SPEAK AS HIS MENTOR:
 1. Direct without cruelty. Warm without weakness. Precise without preciousness.
 2. Ask better questions than he'd ask himself. The good question is often more useful than the good answer.
 3. Challenge framing when he's avoiding. Don't comfort — clarify.
-4. Reference his principles by name when relevant (e.g., "That sounds like Principle C — Truth Over Ego — talking to you").
+4. Reference his virtues by name when relevant — by the exact names he gave them in the live context. Do not invent virtue names; do not reference any "Principle A/B/C..." labels (that system is retired).
 5. Use second person ("you"). Don't talk about him in third person.
 6. Keep responses tight. A mentor doesn't lecture. 2-5 paragraphs typically. Sometimes a single sharp sentence is the right answer.
 7. When he's reactive or spiraling, slow down. Name the pattern. Offer one specific next step.
 8. When he's making excuses, call it without contempt. Excuse-making is on his refusals list.
 9. Don't moralize. Don't add disclaimers. Don't say "as an AI." You're a mentor — speak like one.
-10. Use his italicized refrains sparingly when they fit ("He does not chase; he chooses." / "Feelings are data, not directives." / "Coherence over image.").
+10. Use his identity lines and rules sparingly when they fit. Quote them verbatim from the live context.
 11. If he asks for flashcards, generate them as a JSON block (described below).
-12. He lives inside one principle per week — keep advice grounded in the active principle and the emotional governance pillar unless he specifies otherwise.
+12. Keep advice grounded in his currently active virtues unless he specifies otherwise.
 
-WHEN HE SHARES CONTEXT (today's reps, alignment scores, reflections, friction notes, etc.):
+AUTHORING IS HIS WORK, NOT YOURS:
+- The constitution is a personal act of authorship. You do NOT write virtues, identity lines, behaviors, or rules for him.
+- If he asks "help me build a virtue" or "write a virtue for me," decline gently and remind him that authoring it is part of becoming the man — the words have to be his. Offer to ask sharpening questions, surface tensions in his existing virtues, or reflect back what you're hearing — but do not produce virtue text he then copy-pastes.
+- You may freely critique, audit, and reflect on the virtues he has already authored.
+
+WHEN HE SHARES CONTEXT (today's reps, alignment scores, reflections, friction notes, evening check-ins, etc.):
 - Treat it as evidence. Reference specific items by what they say.
 - If he tapped 2 out of 8 reps, don't praise — ask what got in the way.
 - If his alignment score was low but his reflection is vague, push for specifics.
 - If his friction note names a specific person or pattern, take it seriously and dig in.
-- Connect the data to his principles. ("Your reflection says you over-explained at work today. That's on the refusals list.")
+- Connect the data to his virtues. ("Your reflection says you over-explained at work today. That cuts against ${'${virtue-name}'} — the man who 'stands by his word with restraint'.")
 - Never pretend to see context that isn't there.
-- If past weekly reviews are present, treat them as deep context. Notice patterns across cycles. If he's now in a principle he's been in before, reference what he wrote then. The arc matters more than any single day.
-- If active experiments are present, treat them as live data. Reference specific experiments by name. If recent notes show a pattern, name it. If criteria were defined, hold him to them. Quitting an experiment before its end date without good reason is Principle B speaking — capacity vs. comfort.
+- If evening check-ins show a pattern of "against" votes on a particular virtue, name it. Don't moralize — surface the pattern.
+- If active experiments are present, treat them as live data. Reference specific experiments by name. If recent notes show a pattern, name it. If criteria were defined, hold him to them.
 
 FLASHCARD GENERATION:
-When he asks you to generate flashcards from a passage, book, idea, or topic, respond with:
+When he asks you to generate flashcards from a passage, book, idea, virtue, or topic, respond with:
 - A brief intro sentence
 - A JSON code block formatted EXACTLY like this:
 
@@ -4701,79 +5347,102 @@ You are not here to be liked. You are here to help him become true, capable, and
 let pendingGenCards = null;
 
 function buildQuickPrompts() {
-  const p = getCurrentPrinciple();
   return {
     avoiding: "What am I avoiding right now? Use any context you have on me. Ask me three sharp questions to surface it.",
-    reactivity: "I had reactive moments today. Use my reflection notes if you have access. Help me dissect what triggered them and the pattern they point to.",
-    audit: `Audit my week through the lens of Principle ${p.letter}: ${p.name}. Use my reps, alignment scores, and reflections. What pattern do you see? What's the most important thing I should know about myself right now?`,
-    'principle-coach': `Coach me on Principle ${p.letter}: ${p.name}. What's the most important thing for me to understand this week? What pattern should I watch for?`,
+    reactivity: "I had reactive moments today. Use my reflection notes and recent evening check-ins if you have access. Help me dissect what triggered them and the pattern they point to.",
+    'virtue-audit': "Audit me through one of my active virtues. First ask me which virtue. Then use my behaviors, rules, recent reps, and evening check-ins to give me a clear-eyed read on how I'm actually voting for that man.",
+    'drift': "Which of my virtues am I drifting from? Use my recent reps, evening check-ins (`for`/`against`), and friction notes. Name the pattern. Don't soften it.",
     'lab-review': "Look at my active experiments. For each one: where am I in it, what's the hypothesis, what do my recent notes show? Then tell me what you'd watch for or push me on.",
-    decision: "I'm wrestling with a decision. Walk me through it using my own principles. I'll lay out the situation.",
+    decision: "I'm wrestling with a decision. Walk me through it using my own active virtues. I'll lay out the situation.",
     cards: "I'm going to paste some text. Generate 6-10 flashcards from it that capture the most important ideas. Atomic cards, one idea each."
   };
 }
 
 function updateMentorPromptLabels() {
-  const p = getCurrentPrinciple();
-  const auditEl = document.getElementById('audit-prompt-text');
-  if (auditEl) auditEl.textContent = `Audit my week through Principle ${p.letter}.`;
-  const coachEl = document.getElementById('principle-prompt-text');
-  if (coachEl) coachEl.textContent = `Coach me on Principle ${p.letter}: ${p.name}.`;
+  // Labels are now static — virtue names are chosen at conversation time by the user.
 }
 
 function buildLiveContext() {
-  const p = getCurrentPrinciple();
-  const day = daysSinceWeekStart() + 1;
-  const weekNum = state.week.cycleIndex + 1;
-  const { emotional, pillar } = getActiveRepStructure();
-  const allReps = [...emotional, ...pillar];
-  const repNames = {};
-  allReps.forEach(r => { repNames[r.id] = r.text; });
-
   const lines = [];
+  const activeVirtues = getActiveVirtues();
+  const dormantVirtues = (state.virtues || []).filter(v => !v.active);
+
+  // Build a name lookup for behavior ids across ALL virtues (so we can name reps even if a virtue toggled dormant)
+  const repIdToText = {};
+  const repIdToVirtue = {};
+  (state.virtues || []).forEach(v => {
+    (v.behaviors || []).forEach(b => {
+      repIdToText[b.id] = b.text;
+      repIdToVirtue[b.id] = v.name;
+    });
+  });
+
   lines.push("=== LIVE CONTEXT (the user's actual data right now) ===");
   lines.push(`Today: ${getToday()}`);
-  lines.push(`This week's principle: ${p.letter} · ${p.name}`);
-  lines.push(`${p.quote}`);
-  lines.push(`Day ${day} of week ${weekNum} of 7.`);
 
-  const todayReps = state.reps[getToday()] || {};
-  const done = Object.keys(todayReps);
-  if (done.length === 0) {
-    lines.push("Today's reps: NONE done yet.");
+  // The constitution — active virtues
+  if (activeVirtues.length === 0) {
+    lines.push("\nThe user has NO active virtues right now. Their constitution is empty for today. Encourage them to author one, but do not write it for them.");
   } else {
-    lines.push(`Today's reps (${done.length}/${allReps.length}): ${done.map(id => repNames[id] || id).join('; ')}`);
+    lines.push(`\nACTIVE VIRTUES (${activeVirtues.length}) — the men he is voting for, in priority order:`);
+    activeVirtues.forEach(v => {
+      const pinTag = v.pinned ? ' [PINNED]' : '';
+      lines.push(`  --- ${v.symbol || '◆'} ${v.name}${pinTag} ---`);
+      if (v.identityLine) lines.push(`    Identity: ${v.identityLine}`);
+      if (v.body && v.body.trim()) lines.push(`    The man behind it: ${v.body.trim().replace(/\s+/g, ' ').slice(0, 240)}`);
+      const behaviors = v.behaviors || [];
+      if (behaviors.length > 0) {
+        lines.push(`    Behaviors he votes with (${behaviors.length}):`);
+        behaviors.forEach(b => lines.push(`      - ${b.text}`));
+      }
+      const rules = v.rules || [];
+      if (rules.length > 0) {
+        lines.push(`    Rules he stands by (${rules.length}):`);
+        rules.forEach(r => lines.push(`      • ${r}`));
+      }
+    });
+  }
+
+  // Dormant virtues — brief
+  if (dormantVirtues.length > 0) {
+    lines.push(`\nOther virtues in the constitution (currently DORMANT, ${dormantVirtues.length}):`);
+    dormantVirtues.forEach(v => {
+      const id = v.identityLine ? ` — ${v.identityLine}` : '';
+      lines.push(`  - ${v.symbol || '◆'} ${v.name}${id}`);
+    });
+  }
+
+  // Today's reps
+  const todayReps = state.reps[getToday()] || {};
+  const doneIds = Object.keys(todayReps);
+  const totalToday = totalRepsToday();
+  if (doneIds.length === 0) {
+    lines.push(`\nToday's reps: NONE done yet (out of ${totalToday}).`);
+  } else {
+    const detail = doneIds.map(id => {
+      const t = repIdToText[id];
+      const vname = repIdToVirtue[id];
+      return t ? `[${vname || '?'}] "${t}"` : `[orphan] ${id}`;
+    });
+    lines.push(`\nToday's reps (${doneIds.length}/${totalToday}): ${detail.join('; ')}`);
   }
 
   if (state.alignment[getToday()]) {
     lines.push(`Today's resonance score: ${state.alignment[getToday()]}/10`);
   }
 
-  const f = state.filters[getToday()];
-  if (f && Object.keys(f).length > 0) {
-    const fq = {
-      f1: 'Strengthened foundation',
-      f2: 'Capacity-building',
-      f3: 'Increased self-respect'
-    };
-    const filterStr = Object.entries(f).map(([k, v]) => `${fq[k]}: ${v}`).join('; ');
-    lines.push(`Today's filters: ${filterStr}`);
-  }
-
-  // Reflections
+  // Reflections (free-text notes, distinct from evening check-ins)
   const r = state.reflections[getToday()] || {};
   if (r.win) lines.push(`Today's win note: "${r.win}"`);
   if (r.friction) lines.push(`Today's friction note: "${r.friction}"`);
 
-  // Tomorrow
+  // Tomorrow's one rep
   if (state.tomorrow[getToday()]) lines.push(`Tomorrow's one rep: "${state.tomorrow[getToday()]}"`);
 
   // Last 7 days summary
   let weekReps = 0, weekDays = 0, weekAlignment = 0, weekAlignmentDays = 0;
   for (let i = 0; i < 7; i++) {
-    const d = new Date();
-    d.setDate(d.getDate() - i);
-    const ds = d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
+    const ds = isoDateOffset(i);
     const reps = state.reps[ds];
     if (reps && Object.keys(reps).length > 0) {
       weekReps += Object.keys(reps).length;
@@ -4784,39 +5453,46 @@ function buildLiveContext() {
       weekAlignmentDays++;
     }
   }
-  lines.push(`Last 7 days: ${weekReps} reps across ${weekDays} days. Avg resonance: ${weekAlignmentDays ? (weekAlignment/weekAlignmentDays).toFixed(1) : 'no data'}`);
+  lines.push(`\nLast 7 days: ${weekReps} reps across ${weekDays} days. Avg resonance: ${weekAlignmentDays ? (weekAlignment/weekAlignmentDays).toFixed(1) : 'no data'}`);
   lines.push(`Foundation strength (7d): ${foundationStrength7d()}`);
 
-  // Recent friction patterns
+  // Recent friction patterns (free-text)
   const recentFriction = [];
   for (let i = 0; i < 14; i++) {
-    const d = new Date();
-    d.setDate(d.getDate() - i);
-    const ds = d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
+    const ds = isoDateOffset(i);
     const ref = state.reflections[ds];
-    if (ref && ref.friction && ref.friction.trim()) {
+    if (ref && ref.friction && typeof ref.friction === 'string' && ref.friction.trim()) {
       recentFriction.push(`(${ds}) "${ref.friction.trim()}"`);
     }
   }
   if (recentFriction.length > 0) {
-    lines.push(`Recent friction notes (last 14 days):`);
+    lines.push(`\nRecent friction notes (last 14 days):`);
     recentFriction.slice(0, 5).forEach(fr => lines.push(`  - ${fr}`));
   }
 
-  // Past principle cycles
-  const completedReviews = state.weeklyReviews.filter(r => r.completed)
-    .sort((a, b) => new Date(b.completedAt || b.weekStart || 0) - new Date(a.completedAt || a.weekStart || 0))
-    .slice(0, 5);
-  if (completedReviews.length > 0) {
-    lines.push(`\nPast weekly reviews (most recent first):`);
-    completedReviews.forEach(r => {
-      const principle = PRINCIPLES.find(p => p.letter === r.principleLetter);
-      const pname = principle ? principle.name : r.principleLetter;
-      lines.push(`  --- Principle ${r.principleLetter} (${pname}), completed ${r.completedAt} ---`);
-      if (r.lesson) lines.push(`    Lesson: "${r.lesson}"`);
-      if (r.broke) lines.push(`    Where it broke: "${r.broke}"`);
-      if (r.carry) lines.push(`    Carried forward: "${r.carry}"`);
+  // Evening check-in votes (per-virtue, last 14 days)
+  // Stored at state.reflections[YYYY-MM-DD][virtueId] = { vote, note }
+  const recentCheckins = [];
+  for (let i = 0; i < 14; i++) {
+    const ds = isoDateOffset(i);
+    const ref = state.reflections[ds];
+    if (!ref) continue;
+    Object.keys(ref).forEach(key => {
+      const val = ref[key];
+      if (val && typeof val === 'object' && (val.vote === 'for' || val.vote === 'against')) {
+        const v = getVirtueById(key);
+        const vname = v ? v.name : '(deleted virtue)';
+        const note = val.note ? ` — "${val.note}"` : '';
+        recentCheckins.push({ ds, vname, vote: val.vote, note });
+      }
     });
+  }
+  if (recentCheckins.length > 0) {
+    lines.push(`\nEvening check-ins (last 14 days, most recent first):`);
+    recentCheckins
+      .sort((a, b) => a.ds > b.ds ? -1 : 1)
+      .slice(0, 14)
+      .forEach(c => lines.push(`  (${c.ds}) ${c.vname}: ${c.vote.toUpperCase()}${c.note}`));
   }
 
   // Library state
@@ -5133,11 +5809,11 @@ function updateContextBanner() {
     const done = repsDoneToday();
     const total = totalRepsToday();
     const align = state.alignment[getToday()];
-    const p = getCurrentPrinciple();
-    const parts = [`${done}/${total} reps`, `Principle ${p.letter}`];
+    const active = getActiveVirtues().length;
+    const parts = [`${done}/${total} reps`, `${active} active virtue${active === 1 ? '' : 's'}`];
     if (align) parts.push(`resonance ${align}/10`);
     document.getElementById('ctx-label').textContent = 'Context active.';
-    document.getElementById('ctx-detail').textContent = `Mentor sees ${parts.join(', ')}, plus reflections and library.`;
+    document.getElementById('ctx-detail').textContent = `Mentor sees ${parts.join(', ')}, plus reflections, evening check-ins, and library.`;
   } else {
     banner.style.display = 'flex';
     document.getElementById('ctx-label').textContent = 'Context off.';
@@ -5159,16 +5835,7 @@ async function loadChatRender() {
   }
 }
 
-// ============ MORE VIEW ============
-document.querySelectorAll('.section-tab').forEach(t => {
-  t.onclick = () => {
-    document.querySelectorAll('.section-tab').forEach(x => x.classList.remove('active'));
-    document.querySelectorAll('.section-pane').forEach(p => p.classList.remove('active'));
-    t.classList.add('active');
-    document.getElementById('pane-' + t.dataset.pane).classList.add('active');
-  };
-});
-
+// ============ CONSTITUTION VIEW (handlers below in CONSTITUTION TAB section) ============
 document.getElementById('open-help-btn').onclick = () =>
   document.getElementById('help-modal').classList.add('show');
 document.getElementById('close-help-btn').onclick = () => {
@@ -5241,383 +5908,499 @@ document.getElementById('reset-today-btn').onclick = () => {
   toast('Reset');
 };
 
-document.getElementById('reset-all-btn').onclick = () => {
+document.getElementById('reset-all-btn').onclick = async () => {
   if (!confirm("This will wipe ALL your data. There is no undo.\n\nProceed?")) return;
   if (!confirm("Absolutely sure?")) return;
   KEYS.forEach(k => {
+    // Reset migratedToVirtues so the next loadState re-seeds the 8 default virtues.
     if (k === 'meta') state[k] = { firstVisit: false, contextOn: true };
     else if (k === 'reviewStats') state[k] = { total: 0 };
-    else if (k === 'week') state[k] = { cycleIndex: 0, principleLetter: 'A', startedDate: getToday(), emotionalRepIds: null, pillarRepIds: null };
-    else if (k === 'weeklyReviews') state[k] = [];
     else if (Array.isArray(state[k])) state[k] = [];
     else state[k] = {};
     save(k);
   });
   document.getElementById('chat-scroll').innerHTML = '';
+  // Re-run migration so the user is left with the default constitution, not nothing.
+  if (migrateToVirtues()) {
+    await save('virtues', true);
+    await save('meta', true);
+  }
   renderAll();
   toast('Wiped');
 };
 
-// ============ WEEKLY REVIEW ============
-let selectedNextPrinciple = null;
+// ============ CONSTITUTION TAB + VIRTUE EDITOR ============
+let _editingVirtueId = null;
+let _editorIsNew = false;
+let _editorDraft = null; // working copy
+let _editorVePane = 'identity';
+let _constitutionFilter = 'active';
+let _editingBehaviorIdx = -1;
 
-function openWeeklyReview() {
-  const p = getCurrentPrinciple();
-  const weekNum = state.week.cycleIndex + 1;
-  document.getElementById('wr-week-pill').textContent = `Week ${weekNum} of 7`;
-  document.getElementById('wr-hero-letter').textContent = p.letter;
-  document.getElementById('wr-hero-name').textContent = p.name;
-  document.getElementById('wr-hero-sub').textContent = p.quote;
-
-  const weekStart = new Date(state.week.startedDate || getToday());
-  let totalReps = 0, daysWithReps = 0, totalAlign = 0, alignDays = 0;
-  const frictionItems = [], winItems = [];
-  for (let i = 0; i < 14; i++) {
-    const d = new Date(); d.setDate(d.getDate() - i);
-    const ds = d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
-    if (new Date(ds) < weekStart) continue;
-    const repsDay = state.reps[ds] ? Object.keys(state.reps[ds]).length : 0;
-    if (repsDay > 0) { totalReps += repsDay; daysWithReps++; }
-    if (state.alignment[ds]) { totalAlign += state.alignment[ds]; alignDays++; }
-    const ref = state.reflections[ds] || {};
-    const dayLabel = new Date(ds + 'T12:00:00').toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
-    if (ref.friction && ref.friction.trim()) frictionItems.push({ date: dayLabel, text: ref.friction.trim() });
-    if (ref.win && ref.win.trim()) winItems.push({ date: dayLabel, text: ref.win.trim() });
-  }
-
-  document.getElementById('wr-reps').textContent = totalReps;
-  document.getElementById('wr-days').textContent = daysWithReps;
-  document.getElementById('wr-avg').textContent = alignDays > 0 ? (totalAlign / alignDays).toFixed(1) + '/10' : '—';
-  document.getElementById('wr-strength').textContent = foundationStrength7d();
-
-  const frictionList = document.getElementById('wr-friction-list');
-  frictionList.innerHTML = frictionItems.length > 0
-    ? frictionItems.map(f => `<div class="weekly-friction-item"><div class="weekly-friction-date">${f.date}</div>${escapeHtml(f.text)}</div>`).join('')
-    : '<div style="color:var(--ink-4);font-size:13px;font-style:italic;padding:8px 0;">No friction notes this week.</div>';
-
-  const winList = document.getElementById('wr-wins-list');
-  winList.innerHTML = winItems.length > 0
-    ? winItems.map(w => `<div class="weekly-friction-item"><div class="weekly-friction-date">${w.date}</div>${escapeHtml(w.text)}</div>`).join('')
-    : '<div style="color:var(--ink-4);font-size:13px;font-style:italic;padding:8px 0;">No win notes this week.</div>';
-
-  const nextLetter = getNextPrincipleLetter();
-  const nextP = PRINCIPLES.find(p2 => p2.letter === nextLetter);
-  document.getElementById('wr-next-name').textContent = nextP.name;
-  document.getElementById('wr-next-meta').textContent = `Principle ${nextLetter} · Week ${(weekNum % 7) + 1} of 7`;
-  selectedNextPrinciple = nextLetter;
-
-  const grid = document.getElementById('wr-principle-grid');
-  grid.innerHTML = '';
-  PRINCIPLES.forEach(pr => {
-    const card = document.createElement('div');
-    card.className = `principle-select-card${pr.letter === selectedNextPrinciple ? ' selected' : ''}`;
-    card.innerHTML = `<div class="principle-select-letter">${pr.letter}</div><div class="principle-select-name">${pr.name.split(' ').slice(0, 2).join(' ')}</div>`;
-    card.onclick = () => {
-      selectedNextPrinciple = pr.letter;
-      grid.querySelectorAll('.principle-select-card').forEach(c => c.classList.remove('selected'));
-      card.classList.add('selected');
-    };
-    grid.appendChild(card);
-  });
-
-  // Pre-fill from existing draft if one exists for this week
-  const draft = state.weeklyReviews.find(
-    r => r.weekStart === state.week.startedDate && !r.completed
-  );
-  document.getElementById('wr-lesson').value = draft?.lesson || '';
-  document.getElementById('wr-broke').value = draft?.broke || '';
-  document.getElementById('wr-carry').value = draft?.carry || '';
-  // Restore draft's next-principle selection in the grid
-  if (draft?.nextLetter && draft.nextLetter !== nextLetter) {
-    selectedNextPrinciple = draft.nextLetter;
-    grid.querySelectorAll('.principle-select-card').forEach(c => {
-      const letter = c.querySelector('.principle-select-letter')?.textContent;
-      c.classList.toggle('selected', letter === draft.nextLetter);
-    });
-  }
-  document.getElementById('weekly-overlay').classList.add('show');
+function emptyVirtue() {
+  const now = Date.now();
+  return {
+    id: uid(),
+    name: '',
+    symbol: '◆',
+    identityLine: '',
+    body: '',
+    behaviors: [],
+    rules: [],
+    active: true,
+    pinned: false,
+    createdAt: now,
+    updatedAt: now
+  };
 }
 
-document.getElementById('weekly-close-btn').onclick = () => {
-  document.getElementById('weekly-overlay').classList.remove('show');
-};
-
-async function autoGeneratePrincipleCards(letter) {
-  const principle = PRINCIPLES.find(p => p.letter === letter);
-  if (!principle) return;
-
-  const catId = `principle-${letter.toLowerCase()}`;
-  let category = state.categories.find(c => c.id === catId);
-  if (!category) {
-    category = { id: catId, name: `Principle ${letter}: ${principle.name}`, icon: '✦', created: Date.now() };
-    state.categories.push(category);
-    await save('categories');
-  }
-
-  const existingCount = state.cards.filter(c => c.categoryId === catId).length;
-  if (existingCount > 0) return;
-
-  const cards = [];
-  cards.push({ front: `What is Principle ${letter}?`, back: `${principle.name}. ${principle.quote}` });
-  cards.push({ front: `Explain Principle ${letter} (${principle.name}) in your own words.`, back: principle.body });
-  (principle.points || []).forEach((point, i) => {
-    cards.push({ front: `Principle ${letter} — key idea ${i + 1}?`, back: point });
-  });
-  principle.pillar.reps.forEach(rep => {
-    cards.push({ front: `Why this rep: "${rep.text}"`, back: rep.why });
-  });
-
-  cards.forEach(c => {
-    state.cards.push({
-      id: uid(), front: c.front, back: c.back, categoryId: catId,
-      due: Date.now(), interval: 0, ease: 2.5, repetitions: 0, lapses: 0, created: Date.now()
-    });
-  });
-  await save('cards');
-  toast(`Added ${cards.length} flashcards for Principle ${letter}`);
-}
-
-document.getElementById('wr-draft-btn').onclick = () => {
-  const nextLetter = selectedNextPrinciple || getNextPrincipleLetter();
-  // Replace any existing draft for this week (keep only one)
-  state.weeklyReviews = state.weeklyReviews.filter(
-    r => !(r.weekStart === state.week.startedDate && !r.completed)
-  );
-  state.weeklyReviews.push({
-    weekStart: state.week.startedDate,
-    principleLetter: state.week.principleLetter,
-    lesson: document.getElementById('wr-lesson').value.trim(),
-    broke: document.getElementById('wr-broke').value.trim(),
-    carry: document.getElementById('wr-carry').value.trim(),
-    nextLetter, completed: false, savedAt: getToday()
-  });
-  save('weeklyReviews');
-  document.getElementById('weekly-overlay').classList.remove('show');
-  toast('Draft saved.');
-};
-document.getElementById('wr-complete-btn').onclick = async () => {
-  const nextLetter = selectedNextPrinciple || getNextPrincipleLetter();
-  const nextP = PRINCIPLES.find(p => p.letter === nextLetter);
-  const prevLetter = state.week.principleLetter;
-  state.weeklyReviews = state.weeklyReviews.filter(
-    r => !(r.weekStart === state.week.startedDate && !r.completed)
-  );
-  state.weeklyReviews.push({
-    weekStart: state.week.startedDate,
-    principleLetter: prevLetter,
-    lesson: document.getElementById('wr-lesson').value.trim(),
-    broke: document.getElementById('wr-broke').value.trim(),
-    carry: document.getElementById('wr-carry').value.trim(),
-    nextLetter, completed: true, completedAt: getToday()
-  });
-  state.week.principleLetter = nextLetter;
-  state.week.startedDate = getToday();
-  state.week.cycleIndex = (state.week.cycleIndex + 1) % 7;
-  await save('weeklyReviews'); await save('week');
-  if (!state.meta.skipAutoFlashcards) {
-    if (state.weeklyReviews.filter(r => r.completed).length === 1) {
-      await autoGeneratePrincipleCards(prevLetter);
-    }
-    await autoGeneratePrincipleCards(nextLetter);
-  }
-  document.getElementById('weekly-overlay').classList.remove('show');
-  renderAll();
-  toast(`Principle closed. Beginning ${nextP.name}.`);
-  const prevForNext = state.weeklyReviews
-    .filter(r => r.completed && r.principleLetter === nextLetter)
-    .sort((a, b) => (b.completedAt || b.weekStart || '') > (a.completedAt || a.weekStart || '') ? 1 : -1)[0];
-  if (prevForNext?.carry) {
-    setTimeout(() => toast(`Last time in Principle ${nextLetter}: "${prevForNext.carry}"`), 1800);
-  }
-};
-document.getElementById('open-weekly-review-btn').onclick = openWeeklyReview;
-document.getElementById('toggle-auto-cards-btn').onclick = () => {
-  state.meta.skipAutoFlashcards = !state.meta.skipAutoFlashcards;
-  document.getElementById('auto-cards-val').textContent = state.meta.skipAutoFlashcards ? 'Off' : 'On';
-  save('meta');
-  toast(state.meta.skipAutoFlashcards ? 'Auto-cards off' : 'Auto-cards on');
-};
-
-// ============ CONSTITUTION ============
 function renderConstitution() {
-  const pane = document.getElementById('pane-constitution');
-  pane.innerHTML = '';
-  PRINCIPLES.forEach(p => {
-    const isCurrent = p.letter === state.week.principleLetter;
-    const card = document.createElement('div');
-    card.className = `principle-card${isCurrent ? ' current' : ''}`;
-    card.innerHTML = `
-      <div class="principle-letter">${p.letter}${isCurrent ? '<span class="principle-card-tag">THIS WEEK</span>' : ''}</div>
-      <div class="principle-name">${escapeHtml(p.name)}</div>
-      <div class="principle-body"><em>${escapeHtml(p.quote)}</em> ${escapeHtml(p.body)}</div>
-    `;
-    pane.appendChild(card);
+  const list = document.getElementById('virtue-list');
+  if (!list) return;
+  const all = state.virtues || [];
+  const active = all.filter(v => v.active);
+  const dormant = all.filter(v => !v.active);
+
+  const acEl = document.getElementById('cfc-active');
+  const drEl = document.getElementById('cfc-dormant');
+  const alEl = document.getElementById('cfc-all');
+  if (acEl) acEl.textContent = active.length;
+  if (drEl) drEl.textContent = dormant.length;
+  if (alEl) alEl.textContent = all.length;
+
+  let pool;
+  if (_constitutionFilter === 'active') pool = active;
+  else if (_constitutionFilter === 'dormant') pool = dormant;
+  else pool = all;
+
+  // Sort: pinned first, then active before dormant, then by createdAt
+  pool = pool.slice().sort((a, b) => {
+    if (a.pinned && !b.pinned) return -1;
+    if (!a.pinned && b.pinned) return 1;
+    if (a.active && !b.active) return -1;
+    if (!a.active && b.active) return 1;
+    return (a.createdAt || 0) - (b.createdAt || 0);
   });
-}
 
-// ============ PAST REVIEWS ============
-function renderPastReviews() {
-  const pane = document.getElementById('pane-past-reviews');
-  const completed = state.weeklyReviews
-    .filter(r => r.completed)
-    .slice()
-    .sort((a, b) => (b.completedAt || b.weekStart || '') > (a.completedAt || a.weekStart || '') ? 1 : -1);
-
-  if (completed.length === 0) {
-    pane.innerHTML = `
-      <div class="empty-state">
-        <div class="empty-state-icon">📜</div>
-        <div class="empty-state-text">No weekly reviews yet.</div>
-        <div class="empty-state-sub">Complete your first weekly review to begin your journey.</div>
-      </div>`;
+  if (pool.length === 0) {
+    list.innerHTML = `<div class="empty-state">
+      <div class="empty-state-icon">◇</div>
+      <div class="empty-state-text">${_constitutionFilter === 'active' ? 'No active virtues.' : _constitutionFilter === 'dormant' ? 'No dormant virtues.' : 'No virtues yet.'}</div>
+      <div class="empty-state-sub">${_constitutionFilter === 'active' ? 'Activate one below, or write a new one.' : 'Author your first virtue.'}</div>
+    </div>`;
     return;
   }
 
-  const fmtDate = ds => ds
-    ? new Date(ds + 'T12:00:00').toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })
-    : '—';
-  const field = t => t
-    ? `<div class="past-review-text">${escapeHtml(t)}</div>`
-    : `<div class="past-review-text empty">—</div>`;
-
-  pane.innerHTML = completed.map(r => {
-    const p = PRINCIPLES.find(pr => pr.letter === r.principleLetter);
-    const isCurrent = r.principleLetter === state.week.principleLetter;
+  list.innerHTML = pool.map(v => {
+    const isActive = v.active;
+    const behaviors = (v.behaviors || []).length;
+    const rules = (v.rules || []).length;
+    const tag = v.pinned && isActive
+      ? '<span class="virtue-row-tag active">Pinned · Active</span>'
+      : isActive
+        ? '<span class="virtue-row-tag active">Active</span>'
+        : '<span class="virtue-row-tag dormant">Dormant</span>';
     return `
-      <div class="past-review-card${isCurrent ? ' current' : ''}">
-        <div class="past-review-head">
-          <div class="past-review-letter">${escapeHtml(r.principleLetter)}</div>
-          <div class="past-review-info">
-            <div class="past-review-eyebrow">${escapeHtml(p?.name || r.principleLetter)}</div>
-            <div class="past-review-date">${fmtDate(r.weekStart)} → ${fmtDate(r.completedAt)}</div>
+      <div class="virtue-row ${isActive ? 'active-virtue' : 'dormant-virtue'}" data-virtue-id="${escapeHtml(v.id)}">
+        <div class="virtue-row-symbol">${escapeHtml(v.symbol || '◆')}</div>
+        <div class="virtue-row-info">
+          <div class="virtue-row-head">
+            <div class="virtue-row-name">${escapeHtml(v.name || '(unnamed)')}</div>
+            ${tag}
           </div>
+          ${v.identityLine ? `<div class="virtue-row-identity">${escapeHtml(v.identityLine)}</div>` : ''}
+          <div class="virtue-row-meta">${behaviors} BEHAVIOR${behaviors === 1 ? '' : 'S'} · ${rules} RULE${rules === 1 ? '' : 'S'}</div>
         </div>
-        <div class="past-review-body">
-          <div class="past-review-section">
-            <div class="past-review-label">It taught me</div>
-            ${field(r.lesson)}
-          </div>
-          <div class="past-review-section">
-            <div class="past-review-label">Where it broke</div>
-            ${field(r.broke)}
-          </div>
-          <div class="past-review-section">
-            <div class="past-review-label">Carry forward</div>
-            ${field(r.carry)}
-          </div>
-        </div>
+        <div class="virtue-row-chevron">›</div>
       </div>`;
   }).join('');
+
+  list.querySelectorAll('.virtue-row').forEach(row => {
+    row.onclick = () => openVirtueEditor(row.dataset.virtueId);
+  });
 }
 
-// ============ TRAJECTORY ============
-function renderTrajectory() {
-  const pane = document.getElementById('pane-trajectory');
+document.querySelectorAll('.cf-chip').forEach(chip => {
+  chip.onclick = () => {
+    _constitutionFilter = chip.dataset.filter;
+    document.querySelectorAll('.cf-chip').forEach(c => c.classList.remove('active'));
+    chip.classList.add('active');
+    renderConstitution();
+  };
+});
 
-  // ---- Part A: Resonance line chart ----
-  const cutoff = new Date();
-  cutoff.setDate(cutoff.getDate() - 59);
-  const cutoffStr = cutoff.getFullYear() + '-' + String(cutoff.getMonth()+1).padStart(2,'0') + '-' + String(cutoff.getDate()).padStart(2,'0');
+document.getElementById('new-virtue-btn').onclick = () => openVirtueEditor(null);
 
-  const points = Object.entries(state.alignment)
-    .filter(([ds]) => ds >= cutoffStr)
-    .map(([ds, score]) => ({ ds, score: Number(score) }))
-    .filter(p => !isNaN(p.score) && p.score >= 1 && p.score <= 10)
-    .sort((a, b) => a.ds > b.ds ? 1 : -1);
+function openVirtueEditor(virtueId) {
+  if (virtueId) {
+    const v = getVirtueById(virtueId);
+    if (!v) return;
+    _editingVirtueId = virtueId;
+    _editorIsNew = false;
+    _editorDraft = JSON.parse(JSON.stringify(v));
+  } else {
+    _editorIsNew = true;
+    _editorDraft = emptyVirtue();
+    _editingVirtueId = _editorDraft.id;
+  }
+  _editorVePane = 'identity';
+  document.getElementById('ve-eyebrow').textContent = _editorIsNew ? 'New Virtue' : 'Edit Virtue';
+  // Show identity pane initially
+  document.querySelectorAll('.ve-tab').forEach(t => t.classList.toggle('active', t.dataset.vePane === 'identity'));
+  document.querySelectorAll('.ve-pane').forEach(p => p.classList.toggle('active', p.id === 've-pane-identity'));
+  // Hide delete on brand new
+  document.getElementById('ve-delete-btn').style.display = _editorIsNew ? 'none' : 'block';
+  bindEditorFields();
+  renderEditor();
+  document.getElementById('virtue-editor').classList.add('show');
+}
 
-  let resonanceHtml;
-  if (points.length < 3) {
-    resonanceHtml = `<div style="background:var(--bg-1);border:1px solid var(--line);border-radius:12px;padding:20px;">
-      <div class="traj-eyebrow">Resonance, last 60 days</div>
-      <div style="padding:20px 0 12px;text-align:center;">
-        <div class="empty-state-text" style="font-style:italic;">Not enough data yet.</div>
-        <div class="empty-state-sub">Score your days to see the line emerge.</div>
+function closeVirtueEditor() {
+  document.getElementById('virtue-editor').classList.remove('show');
+  _editingVirtueId = null;
+  _editorDraft = null;
+}
+
+document.getElementById('ve-back-btn').onclick = closeVirtueEditor;
+
+document.querySelectorAll('.ve-tab').forEach(t => {
+  t.onclick = () => {
+    _editorVePane = t.dataset.vePane;
+    document.querySelectorAll('.ve-tab').forEach(x => x.classList.remove('active'));
+    document.querySelectorAll('.ve-pane').forEach(x => x.classList.remove('active'));
+    t.classList.add('active');
+    document.getElementById('ve-pane-' + _editorVePane).classList.add('active');
+  };
+});
+
+function bindEditorFields() {
+  const nameEl = document.getElementById('ve-name-input');
+  const idEl = document.getElementById('ve-identity-input');
+  const bodyEl = document.getElementById('ve-body-input');
+  nameEl.value = _editorDraft.name || '';
+  idEl.value = _editorDraft.identityLine || '';
+  bodyEl.value = _editorDraft.body || '';
+  nameEl.oninput = () => { _editorDraft.name = nameEl.value; updateEditorPreview(); };
+  idEl.oninput = () => { _editorDraft.identityLine = idEl.value; updateEditorPreview(); };
+  bodyEl.oninput = () => { _editorDraft.body = bodyEl.value; };
+  // Toggles
+  const activeT = document.getElementById('ve-active-toggle');
+  const pinnedT = document.getElementById('ve-pinned-toggle');
+  activeT.classList.toggle('on', !!_editorDraft.active);
+  pinnedT.classList.toggle('on', !!_editorDraft.pinned);
+  document.getElementById('ve-active-row').onclick = () => {
+    _editorDraft.active = !_editorDraft.active;
+    activeT.classList.toggle('on', _editorDraft.active);
+  };
+  document.getElementById('ve-pinned-row').onclick = () => {
+    _editorDraft.pinned = !_editorDraft.pinned;
+    pinnedT.classList.toggle('on', _editorDraft.pinned);
+  };
+}
+
+function updateEditorPreview() {
+  document.getElementById('ve-preview-symbol').textContent = _editorDraft.symbol || '◆';
+  document.getElementById('ve-preview-name').textContent = _editorDraft.name || 'Unnamed';
+  document.getElementById('ve-preview-identity').textContent = _editorDraft.identityLine || 'Identity line';
+  document.getElementById('ve-tab-behaviors-count').textContent = (_editorDraft.behaviors || []).length;
+  document.getElementById('ve-tab-rules-count').textContent = (_editorDraft.rules || []).length;
+}
+
+function renderEditor() {
+  updateEditorPreview();
+  renderSymbolGrid();
+  renderBehaviorList();
+  renderRuleList();
+}
+
+function renderSymbolGrid() {
+  const grid = document.getElementById('ve-symbol-grid');
+  grid.innerHTML = '';
+  VIRTUE_SYMBOLS.forEach(sym => {
+    const el = document.createElement('div');
+    el.className = 've-symbol-opt' + (sym === _editorDraft.symbol ? ' selected' : '');
+    el.textContent = sym;
+    el.onclick = () => {
+      _editorDraft.symbol = sym;
+      grid.querySelectorAll('.ve-symbol-opt').forEach(o => o.classList.remove('selected'));
+      el.classList.add('selected');
+      updateEditorPreview();
+      // Rule bullets use the virtue's symbol — re-render so they update live.
+      renderRuleList();
+    };
+    grid.appendChild(el);
+  });
+}
+
+function renderBehaviorList() {
+  const list = document.getElementById('ve-behavior-list');
+  const behaviors = _editorDraft.behaviors || [];
+  if (behaviors.length === 0) {
+    list.innerHTML = `<div class="ve-empty">No behaviors yet. Add the first daily vote below.</div>`;
+    return;
+  }
+  list.innerHTML = behaviors.map((b, idx) => `
+    <div class="behavior-card" draggable="true" data-idx="${idx}">
+      <div class="behavior-card-head">
+        <span class="behavior-card-drag" title="Drag to reorder">⋮⋮</span>
+        <span class="behavior-card-label">Behavior · ${idx + 1}</span>
+        <div class="behavior-card-actions">
+          <button class="behavior-card-btn" data-action="edit">Edit</button>
+          <button class="behavior-card-btn del" data-action="del">×</button>
+        </div>
+      </div>
+      <div class="behavior-card-text">${escapeHtml(b.text || '')}</div>
+      ${b.cue ? `<div class="behavior-card-cue">${escapeHtml(b.cue)}</div>` : ''}
+      ${b.why ? `<div class="behavior-card-why"><strong>WHY ·</strong>${escapeHtml(b.why)}</div>` : ''}
+    </div>`).join('');
+
+  list.querySelectorAll('.behavior-card').forEach(card => {
+    const idx = parseInt(card.dataset.idx);
+    card.querySelector('[data-action="edit"]').onclick = () => openBehaviorModal(idx);
+    card.querySelector('[data-action="del"]').onclick = () => {
+      if (!confirm('Delete this behavior?')) return;
+      _editorDraft.behaviors.splice(idx, 1);
+      renderBehaviorList(); updateEditorPreview();
+    };
+    card.addEventListener('dragstart', e => {
+      e.dataTransfer.setData('text/plain', String(idx));
+      card.classList.add('dragging');
+    });
+    card.addEventListener('dragend', () => card.classList.remove('dragging'));
+    card.addEventListener('dragover', e => e.preventDefault());
+    card.addEventListener('drop', e => {
+      e.preventDefault();
+      const from = parseInt(e.dataTransfer.getData('text/plain'));
+      const to = idx;
+      if (from === to || isNaN(from)) return;
+      const arr = _editorDraft.behaviors;
+      const [moved] = arr.splice(from, 1);
+      arr.splice(to, 0, moved);
+      renderBehaviorList(); updateEditorPreview();
+    });
+  });
+}
+
+document.getElementById('ve-add-behavior-btn').onclick = () => openBehaviorModal(-1);
+
+function openBehaviorModal(idx) {
+  _editingBehaviorIdx = idx;
+  const isNew = idx < 0;
+  document.getElementById('behavior-modal-eyebrow').textContent = isNew ? 'New behavior' : 'Edit behavior';
+  const b = isNew ? { text: '', cue: '', why: '' } : (_editorDraft.behaviors[idx] || { text: '', cue: '', why: '' });
+  document.getElementById('behavior-text-input').value = b.text || '';
+  document.getElementById('behavior-cue-input').value = b.cue || '';
+  document.getElementById('behavior-why-input').value = b.why || '';
+  document.getElementById('behavior-modal').classList.add('show');
+  setTimeout(() => document.getElementById('behavior-text-input').focus(), 200);
+}
+
+document.getElementById('behavior-cancel-btn').onclick = () => {
+  document.getElementById('behavior-modal').classList.remove('show');
+};
+document.getElementById('behavior-modal').onclick = e => {
+  if (e.target.id === 'behavior-modal') document.getElementById('behavior-modal').classList.remove('show');
+};
+document.getElementById('behavior-save-btn').onclick = () => {
+  const text = document.getElementById('behavior-text-input').value.trim();
+  const cue = document.getElementById('behavior-cue-input').value.trim();
+  const why = document.getElementById('behavior-why-input').value.trim();
+  if (!text) { toast('Behavior text required'); return; }
+  if (_editingBehaviorIdx < 0) {
+    _editorDraft.behaviors = _editorDraft.behaviors || [];
+    _editorDraft.behaviors.push({ id: uid(), text, cue, why });
+  } else {
+    const existing = _editorDraft.behaviors[_editingBehaviorIdx];
+    _editorDraft.behaviors[_editingBehaviorIdx] = {
+      id: existing && existing.id ? existing.id : uid(),
+      text, cue, why
+    };
+  }
+  document.getElementById('behavior-modal').classList.remove('show');
+  renderBehaviorList();
+  updateEditorPreview();
+};
+
+function renderRuleList() {
+  const list = document.getElementById('ve-rule-list');
+  const rules = _editorDraft.rules || [];
+  if (rules.length === 0) {
+    list.innerHTML = `<div class="ve-empty">No rules yet. Add the lines he stands by below.</div>`;
+  } else {
+    list.innerHTML = rules.map((r, idx) => `
+      <div class="rule-card" data-idx="${idx}">
+        <span class="rule-card-bullet">${escapeHtml(_editorDraft.symbol || '◆')}</span>
+        <span class="rule-card-text">${escapeHtml(r)}</span>
+        <button class="rule-card-del" data-idx="${idx}" aria-label="Delete">×</button>
+      </div>`).join('');
+    list.querySelectorAll('.rule-card-del').forEach(btn => {
+      btn.onclick = () => {
+        const i = parseInt(btn.dataset.idx);
+        _editorDraft.rules.splice(i, 1);
+        renderRuleList();
+        updateEditorPreview();
+      };
+    });
+  }
+}
+
+const ruleInput = document.getElementById('ve-rule-input');
+const ruleAddBtn = document.getElementById('ve-rule-add-btn');
+ruleInput.addEventListener('input', () => {
+  ruleAddBtn.disabled = ruleInput.value.trim().length === 0;
+});
+function addRuleFromInput() {
+  const val = ruleInput.value.trim();
+  if (!val) return;
+  _editorDraft.rules = _editorDraft.rules || [];
+  _editorDraft.rules.push(val);
+  ruleInput.value = '';
+  ruleAddBtn.disabled = true;
+  renderRuleList();
+  updateEditorPreview();
+  ruleInput.focus();
+}
+ruleAddBtn.onclick = addRuleFromInput;
+ruleInput.addEventListener('keydown', (e) => {
+  if (e.key === 'Enter') { e.preventDefault(); addRuleFromInput(); }
+});
+
+document.getElementById('ve-save-btn').onclick = async () => {
+  // Commit text fields back to draft from the DOM (in case oninput missed something on mobile)
+  _editorDraft.name = document.getElementById('ve-name-input').value.trim();
+  _editorDraft.identityLine = document.getElementById('ve-identity-input').value.trim();
+  _editorDraft.body = document.getElementById('ve-body-input').value.trim();
+
+  if (!_editorDraft.name) { toast('Name required'); return; }
+  _editorDraft.updatedAt = Date.now();
+
+  if (_editorIsNew) {
+    state.virtues = state.virtues || [];
+    state.virtues.push(_editorDraft);
+  } else {
+    const idx = state.virtues.findIndex(v => v.id === _editingVirtueId);
+    if (idx >= 0) state.virtues[idx] = _editorDraft;
+  }
+  await save('virtues');
+  closeVirtueEditor();
+  renderAll();
+  toast('Saved');
+};
+
+document.getElementById('ve-delete-btn').onclick = async () => {
+  if (_editorIsNew) { closeVirtueEditor(); return; }
+  if (!confirm('Delete this virtue? Its behaviors will no longer count toward today, but past rep checks are preserved.')) return;
+  state.virtues = (state.virtues || []).filter(v => v.id !== _editingVirtueId);
+  await save('virtues');
+  // Orphan rep entries (state.reps keyed by behavior id) are intentionally left
+  // in place — they won't render anywhere, and removing them would erase history.
+  closeVirtueEditor();
+  renderAll();
+  toast('Deleted');
+};
+
+// ============ EVENING CHECK-IN ============
+function checkinSubmittedToday() {
+  const day = state.reflections[getToday()];
+  if (!day || typeof day !== 'object') return false;
+  return Object.values(day).some(v => v && typeof v === 'object' && (v.vote === 'for' || v.vote === 'against'));
+}
+
+function renderEveningCheckin() {
+  const container = document.getElementById('evening-checkin-container');
+  if (!container) return;
+  const hour = new Date().getHours();
+  const active = getActiveVirtues();
+  const dismissed = state.meta && state.meta.eveningCheckinDismissed === getToday();
+
+  if (hour < 19 || active.length === 0 || checkinSubmittedToday() || dismissed) {
+    container.innerHTML = '';
+    return;
+  }
+
+  // Don't blow away an in-progress check-in (user may have tapped votes but not saved).
+  // Only render the first time.
+  if (container.querySelector('.evening-checkin')) return;
+
+  container.innerHTML = `
+    <div class="evening-checkin">
+      <div class="evening-checkin-head">
+        <div>
+          <div class="evening-checkin-eyebrow">Evening Check-in</div>
+          <div class="evening-checkin-title">Did today vote for the man you're becoming?</div>
+        </div>
+        <button class="evening-checkin-dismiss" id="checkin-dismiss-btn" aria-label="Dismiss for today">×</button>
+      </div>
+      <div id="checkin-virtues-list"></div>
+      <div class="checkin-save-row">
+        <button class="btn btn-ghost" id="checkin-skip-btn">Skip</button>
+        <button class="btn btn-primary" id="checkin-save-btn">Save</button>
       </div>
     </div>`;
-  } else {
-    const vw = 600, vh = 100;
-    const pad = { t: 10, r: 10, b: 10, l: 10 };
-    const iw = vw - pad.l - pad.r, ih = vh - pad.t - pad.b;
-    const t0 = new Date(points[0].ds + 'T12:00:00').getTime();
-    const t1 = new Date(points[points.length - 1].ds + 'T12:00:00').getTime();
-    const tRange = t1 - t0 || DAY_MS;
-    const xOf = ds => (pad.l + ((new Date(ds + 'T12:00:00').getTime() - t0) / tRange) * iw).toFixed(2);
-    const yOf = v => (pad.t + ih - ((v - 1) / 9) * ih).toFixed(2);
-    const midY = yOf(5);
 
-    // Build segments, breaking at non-consecutive dates
-    const segments = [[]];
-    for (let i = 0; i < points.length; i++) {
-      if (i > 0) {
-        const gap = Math.round(
-          (new Date(points[i].ds + 'T12:00:00') - new Date(points[i-1].ds + 'T12:00:00')) / DAY_MS
-        );
-        if (gap > 1) segments.push([]);
+  const listEl = document.getElementById('checkin-virtues-list');
+  const draft = {};
+  active.forEach(v => { draft[v.id] = { vote: null, note: '' }; });
+
+  listEl.innerHTML = active.map(v => `
+    <div class="checkin-virtue" data-virtue-id="${escapeHtml(v.id)}">
+      <div class="checkin-virtue-info">
+        <div class="checkin-virtue-name"><span class="checkin-virtue-symbol">${escapeHtml(v.symbol || '◆')}</span>${escapeHtml(v.name)}</div>
+        <div class="checkin-virtue-q">Did today vote for this man?</div>
+        <input class="checkin-note-input" data-virtue-id="${escapeHtml(v.id)}" placeholder="One line (optional)"/>
+      </div>
+      <div class="checkin-votes">
+        <button class="checkin-vote-btn for" data-vote="for" data-virtue-id="${escapeHtml(v.id)}" aria-label="Voted for">👍</button>
+        <button class="checkin-vote-btn against" data-vote="against" data-virtue-id="${escapeHtml(v.id)}" aria-label="Voted against">👎</button>
+      </div>
+    </div>`).join('');
+
+  listEl.querySelectorAll('.checkin-vote-btn').forEach(btn => {
+    btn.onclick = () => {
+      const vid = btn.dataset.virtueId;
+      const vote = btn.dataset.vote;
+      draft[vid] = draft[vid] || { vote: null, note: '' };
+      draft[vid].vote = vote;
+      // Update UI
+      listEl.querySelectorAll(`.checkin-vote-btn[data-virtue-id="${vid}"]`).forEach(b => b.classList.remove('selected'));
+      btn.classList.add('selected');
+      const noteInput = listEl.querySelector(`.checkin-note-input[data-virtue-id="${vid}"]`);
+      if (noteInput) noteInput.classList.add('show');
+    };
+  });
+  listEl.querySelectorAll('.checkin-note-input').forEach(input => {
+    input.oninput = () => {
+      const vid = input.dataset.virtueId;
+      draft[vid] = draft[vid] || { vote: null, note: '' };
+      draft[vid].note = input.value;
+    };
+  });
+
+  document.getElementById('checkin-dismiss-btn').onclick = () => {
+    state.meta.eveningCheckinDismissed = getToday();
+    save('meta', true);
+    container.innerHTML = '';
+  };
+  document.getElementById('checkin-skip-btn').onclick = () => {
+    state.meta.eveningCheckinDismissed = getToday();
+    save('meta', true);
+    container.innerHTML = '';
+  };
+  document.getElementById('checkin-save-btn').onclick = async () => {
+    const today = getToday();
+    state.reflections[today] = state.reflections[today] || {};
+    let any = false;
+    for (const vid of Object.keys(draft)) {
+      if (draft[vid].vote === 'for' || draft[vid].vote === 'against') {
+        state.reflections[today][vid] = { vote: draft[vid].vote, note: (draft[vid].note || '').trim() };
+        any = true;
       }
-      segments[segments.length - 1].push(i);
     }
-
-    const paths = segments.filter(s => s.length).map(seg => {
-      const pts = seg.map(i => `${xOf(points[i].ds)},${yOf(points[i].score)}`).join(' ');
-      return `<polyline points="${pts}" fill="none" stroke="var(--gold)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>`;
-    }).join('');
-
-    const dots = points.map(p =>
-      `<circle cx="${xOf(p.ds)}" cy="${yOf(p.score)}" r="2" fill="var(--gold)"/>`
-    ).join('');
-
-    const avg = (points.reduce((s, p) => s + p.score, 0) / points.length).toFixed(1);
-
-    resonanceHtml = `
-      <div style="background:var(--bg-1);border:1px solid var(--line);border-radius:12px;padding:20px;">
-        <div class="traj-eyebrow">Resonance, last 60 days</div>
-        <svg viewBox="0 0 ${vw} ${vh}" width="100%" height="140" preserveAspectRatio="none"
-             style="display:block;overflow:visible;margin:12px 0 8px;">
-          <line x1="${pad.l}" y1="${midY}" x2="${vw - pad.r}" y2="${midY}"
-                stroke="var(--line)" stroke-width="1" stroke-dasharray="3,4"/>
-          ${paths}${dots}
-        </svg>
-        <div class="traj-caption">Avg: ${avg}/10 · ${points.length} days logged</div>
-      </div>`;
-  }
-
-  // ---- Part B: Principle sequence ----
-  const completed = state.weeklyReviews
-    .filter(r => r.completed)
-    .slice()
-    .sort((a, b) => (a.completedAt || a.weekStart || '') > (b.completedAt || b.weekStart || '') ? 1 : -1);
-
-  const fmtShort = ds => ds
-    ? new Date(ds + 'T12:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
-    : '';
-
-  let sequenceHtml;
-  if (completed.length === 0) {
-    sequenceHtml = `<p style="font-family:var(--display);font-style:italic;font-size:14px;color:var(--ink-3);padding:4px 0;">Your journey will appear here as you close each principle.</p>`;
-  } else {
-    const pills = completed.map(r => `
-      <div class="trajectory-pill">
-        <div class="trajectory-pill-letter">${escapeHtml(r.principleLetter)}</div>
-        <div class="trajectory-pill-date">${fmtShort(r.weekStart)}–${fmtShort(r.completedAt)}</div>
-      </div>`);
-    const cur = state.week.principleLetter || 'A';
-    pills.push(`
-      <div class="trajectory-pill current">
-        <div class="trajectory-pill-letter">${escapeHtml(cur)}</div>
-        <div class="trajectory-pill-date">In progress</div>
-      </div>`);
-    sequenceHtml = `<div class="trajectory-strip">${pills.join('')}</div>`;
-  }
-
-  pane.innerHTML = `
-    <div class="traj-section">
-      <div class="traj-section-head">Resonance <em>line</em></div>
-      ${resonanceHtml}
-    </div>
-    <div class="traj-section">
-      <div class="traj-section-head">Principle <em>sequence</em></div>
-      ${sequenceHtml}
-    </div>`;
+    if (!any) { toast('Tap a vote first'); return; }
+    await save('reflections');
+    container.innerHTML = '';
+    toast('Saved');
+  };
 }
 
 // ============ LAB ============
@@ -5946,8 +6729,6 @@ function renderAll() {
   renderSummaries();
   renderCardCategoryPicker();
   renderConstitution();
-  renderPastReviews();
-  renderTrajectory();
   updateMentorPromptLabels();
   renderLab();
   if (mindMode === 'category') renderCategoryDetail();

@@ -5921,6 +5921,10 @@ document.getElementById('import-file').onchange = (e) => {
           await save(k);
         }
       }
+      // Backups from earlier versions may not have the new component arrays —
+      // shape every virtue so the editor and virtue view don't crash on undefined.
+      (state.virtues || []).forEach(ensureVirtueShape);
+      await save('virtues', true);
       toast('Imported');
       renderAll();
       // Reload chat
@@ -6366,21 +6370,18 @@ function renderComponentsListView() {
 
 function reorderComponent(fromType, toType) {
   const order = _editorDraft.componentOrder || [];
-  // Make sure both exist in order (they should, since both are rendered in the active list).
-  // Behaviors handling: behaviors is rendered visually-first but might not be in componentOrder.
-  // Treat the non-behaviors slots as the only ones movable.
-  const movableOrder = order.filter(t => t !== 'behaviors');
-  const fromIdx = movableOrder.indexOf(fromType);
-  let toIdx = movableOrder.indexOf(toType);
-  if (fromIdx < 0) movableOrder.unshift(fromType); // insert if missing
-  else movableOrder.splice(fromIdx, 1);
-  toIdx = movableOrder.indexOf(toType);
-  if (toIdx < 0) movableOrder.push(fromType);
-  else movableOrder.splice(toIdx, 0, fromType);
+  // Behaviors is visually pinned at the top regardless of componentOrder, so reorder
+  // only operates on the non-behaviors slice.
+  const movable = order.filter(t => t !== 'behaviors');
+  const fromIdx = movable.indexOf(fromType);
+  if (fromIdx >= 0) movable.splice(fromIdx, 1);
+  const toIdx = movable.indexOf(toType);
+  if (toIdx >= 0) movable.splice(toIdx, 0, fromType);
+  else movable.push(fromType);
 
   // Reconstruct componentOrder, preserving whether 'behaviors' was in it
   const hadBehaviors = order.includes('behaviors');
-  _editorDraft.componentOrder = hadBehaviors ? ['behaviors', ...movableOrder] : movableOrder;
+  _editorDraft.componentOrder = hadBehaviors ? ['behaviors', ...movable] : movable;
   renderComponentsListView();
 }
 

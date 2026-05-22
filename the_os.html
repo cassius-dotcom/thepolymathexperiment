@@ -1423,335 +1423,133 @@ body {
 .add-pane { display: none; }
 .add-pane.active { display: block; }
 
-/* ========== MENTOR ========== */
-.mentor-hero { text-align: center; padding: 20px 0 24px; }
-.mentor-mark {
-  width: 56px; height: 56px;
-  margin: 0 auto 16px;
-  background: radial-gradient(circle at 35% 35%, var(--gold), var(--gold-soft) 70%);
-  border-radius: 50%;
-  box-shadow: 0 0 32px rgba(212, 168, 87, 0.4), inset 0 0 16px rgba(0,0,0,0.2);
-  animation: mentorPulse 4s ease-in-out infinite;
-  position: relative;
-}
-.mentor-mark::after {
-  content: '';
-  position: absolute; inset: -8px;
-  border: 1px solid rgba(212, 168, 87, 0.15);
-  border-radius: 50%;
-  animation: mentorRing 4s ease-in-out infinite;
-}
-@keyframes mentorPulse {
-  0%, 100% { box-shadow: 0 0 32px rgba(212, 168, 87, 0.4), inset 0 0 16px rgba(0,0,0,0.2); }
-  50% { box-shadow: 0 0 42px rgba(212, 168, 87, 0.6), inset 0 0 16px rgba(0,0,0,0.2); }
-}
-@keyframes mentorRing {
-  0%, 100% { opacity: 0.3; transform: scale(1); }
-  50% { opacity: 0.6; transform: scale(1.08); }
+/* ========== RULES VIEW ========== */
+.home-sub {
+  font-size: 12px; color: var(--ink-3);
+  line-height: 1.5; margin-top: 4px;
 }
 
-.prompts-grid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 8px;
-  margin-bottom: 24px;
-}
-@media (max-width: 480px) {
-  .prompts-grid { grid-template-columns: 1fr; }
-}
-.prompt-tile {
-  background: var(--bg-1);
-  border: 1px solid var(--line);
-  border-radius: 14px;
-  padding: 14px 16px;
-  text-align: left;
+.rule-row {
+  display: flex; align-items: flex-start; gap: 12px;
+  padding: 14px 4px;
+  border-bottom: 0.5px solid rgba(255,255,255,0.05);
   cursor: pointer;
-  transition: all 200ms var(--ease);
+}
+.rule-row:hover { background: rgba(255,255,255,0.02); }
+.rule-row-bullet {
+  color: var(--gold); font-size: 11px;
+  margin-top: 5px; flex-shrink: 0;
+}
+.rule-row-text {
+  font-size: 14px; line-height: 1.55; flex: 1;
   color: var(--ink);
-  display: flex; align-items: flex-start; gap: 10px;
 }
-.prompt-tile:active { transform: scale(0.98); }
-@media (hover: hover) {
-  .prompt-tile:hover { border-color: var(--gold-soft); background: var(--bg-2); }
+.rule-row-virtue-tag {
+  font-family: var(--mono); font-size: 9px;
+  letter-spacing: 0.15em; color: var(--ink-4);
+  text-transform: uppercase;
+  margin-top: 3px;
 }
-.prompt-icon { font-size: 18px; line-height: 1; flex-shrink: 0; margin-top: 1px; }
-.prompt-text {
-  flex: 1;
-  font-family: var(--display);
-  font-size: 14px; color: var(--ink);
-  font-style: italic;
-}
-
-.context-banner {
-  background: var(--bg-2);
-  border: 1px solid var(--line);
-  border-left: 2px solid var(--gold);
-  border-radius: 10px;
-  padding: 12px 14px;
-  margin-bottom: 16px;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  font-size: 12px;
-  color: var(--ink-3);
-}
-.context-banner-icon {
-  font-size: 14px; color: var(--gold);
-}
-.context-banner strong { color: var(--ink-2); font-weight: 500; }
-
-.chat-scroll { margin-bottom: 16px; min-height: 200px; }
-.msg {
-  margin-bottom: 14px;
-  display: flex; gap: 10px;
-  animation: msgIn 350ms var(--ease);
-}
-@keyframes msgIn {
-  from { opacity: 0; transform: translateY(8px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-.msg-avatar {
-  width: 28px; height: 28px;
-  border-radius: 50%; flex-shrink: 0;
-  display: flex; align-items: center; justify-content: center;
-  font-size: 13px;
-  font-family: var(--display); font-weight: 500;
-}
-.msg.user .msg-avatar { background: var(--bg-3); color: var(--ink-2); }
-.msg.mentor .msg-avatar {
-  background: linear-gradient(135deg, var(--gold), var(--gold-soft));
-  color: var(--bg);
-  box-shadow: 0 0 12px rgba(212, 168, 87, 0.25);
-}
-.msg-bubble {
-  flex: 1; min-width: 0;
-  padding: 12px 16px;
-  border-radius: 14px;
-  background: var(--bg-1);
-  border: 1px solid var(--line);
-  font-size: 14px; line-height: 1.6;
-  color: var(--ink);
-  white-space: pre-wrap; word-wrap: break-word;
-}
-.msg.user .msg-bubble { background: var(--bg-2); }
-.msg.mentor .msg-bubble {
-  background: linear-gradient(180deg, var(--bg-1), var(--bg-2));
-  border-color: rgba(212, 168, 87, 0.18);
-}
-.msg-bubble em {
-  font-family: var(--display);
-  font-style: italic; color: var(--gold);
-}
-.msg-bubble strong { color: var(--ink); font-weight: 600; }
-.msg-bubble code {
-  background: var(--bg-3);
-  padding: 1px 6px;
-  border-radius: 4px;
-  font-family: var(--mono); font-size: 12px;
-}
-
-.thinking { display: flex; align-items: center; gap: 6px; padding: 6px 0; }
-.think-dot {
-  width: 6px; height: 6px;
-  background: var(--gold);
-  border-radius: 50%;
-  opacity: 0.4;
-  animation: thinkBounce 1.4s ease-in-out infinite;
-}
-.think-dot:nth-child(2) { animation-delay: 0.2s; }
-.think-dot:nth-child(3) { animation-delay: 0.4s; }
-@keyframes thinkBounce {
-  0%, 80%, 100% { opacity: 0.3; transform: translateY(0); }
-  40% { opacity: 1; transform: translateY(-3px); }
-}
-
-.gen-card-pack {
-  margin-top: 12px;
-  padding: 14px;
-  background: var(--bg-3);
-  border: 1px solid rgba(212, 168, 87, 0.25);
-  border-radius: 12px;
-}
-.gen-pack-head {
-  display: flex; justify-content: space-between;
-  align-items: center;
-  margin-bottom: 10px; padding-bottom: 10px;
-  border-bottom: 1px solid var(--line);
-}
-.gen-pack-title {
-  font-family: var(--mono);
-  font-size: 10px; letter-spacing: 0.2em;
-  color: var(--gold); text-transform: uppercase;
-}
-.gen-card-row {
-  background: var(--bg-1);
-  border: 1px solid var(--line);
-  border-radius: 8px;
-  padding: 10px 12px;
-  margin-bottom: 6px;
-  display: flex; gap: 10px;
-  align-items: flex-start;
-  cursor: pointer;
-}
-.gen-card-row:last-child { margin-bottom: 0; }
-.gen-card-check {
-  width: 18px; height: 18px;
-  border-radius: 5px;
-  border: 1.5px solid var(--line-bright);
-  background: var(--bg-2);
-  flex-shrink: 0; margin-top: 2px;
-  position: relative;
-  transition: all 180ms var(--ease-spring);
-}
-.gen-card-row.selected .gen-card-check {
-  background: var(--gold); border-color: var(--gold);
-}
-.gen-card-row.selected .gen-card-check::after {
-  content: '';
-  position: absolute;
-  left: 5px; top: 2px;
-  width: 4px; height: 8px;
-  border: solid var(--bg);
-  border-width: 0 1.5px 1.5px 0;
-  transform: rotate(45deg);
-}
-.gen-card-body { flex: 1; min-width: 0; }
-.gen-card-front {
-  font-family: var(--display);
-  font-size: 13.5px; font-weight: 500;
-  color: var(--ink); line-height: 1.35;
-  margin-bottom: 2px;
-}
-.gen-card-back { font-size: 12px; color: var(--ink-3); line-height: 1.4; }
-.gen-target-row {
-  display: flex; gap: 6px;
-  margin-top: 10px;
-  flex-wrap: wrap;
-}
-.gen-actions { display: flex; gap: 6px; margin-top: 10px; }
-.gen-action-btn {
-  flex: 1;
-  background: var(--bg-2);
-  border: 1px solid var(--line);
-  color: var(--ink-2);
-  border-radius: 8px;
-  padding: 8px;
-  font-family: var(--sans);
-  font-size: 12px; font-weight: 500;
-  cursor: pointer;
-  transition: all 180ms ease;
-}
-.gen-action-btn:active { transform: scale(0.96); }
-.gen-action-btn.primary {
-  background: var(--gold); color: var(--bg);
-  border-color: var(--gold); font-weight: 600;
-}
-
-.chat-input-wrap {
-  position: sticky;
-  bottom: calc(76px + env(safe-area-inset-bottom));
-  background: rgba(10, 10, 10, 0.85);
-  backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
-  padding: 12px 0 8px;
-  margin: 0 -20px;
-  padding-left: 20px; padding-right: 20px;
-  border-top: 1px solid var(--line);
-  z-index: 10;
-}
-.chat-input-row {
-  display: flex; gap: 8px;
-  align-items: flex-end;
-  background: var(--bg-1);
-  border: 1px solid var(--line);
-  border-radius: 14px;
-  padding: 8px 8px 8px 14px;
-  transition: border-color 200ms ease;
-}
-.chat-input-row:focus-within { border-color: var(--gold-soft); }
-.chat-input {
-  flex: 1; background: none; border: none;
+.rule-row-virtue-tag.general { color: var(--gold-soft); }
+.rule-row-input {
+  flex: 1; background: transparent;
+  border: none; outline: none;
+  font-size: 14px; line-height: 1.55;
   color: var(--ink);
   font-family: var(--sans);
-  font-size: 15px; line-height: 1.4;
-  outline: none; resize: none;
-  max-height: 120px; min-height: 22px;
-  padding: 4px 0;
+  padding: 0;
 }
-.chat-input::placeholder { color: var(--ink-4); font-style: italic; }
-.chat-send {
-  width: 36px; height: 36px;
+.rule-row-delete {
+  background: transparent; border: none;
+  color: #c84a4a; font-size: 14px;
+  padding: 0 6px; cursor: pointer;
+  margin-top: 2px;
+  opacity: 0; transition: opacity 200ms;
+}
+.rule-row.editing .rule-row-delete { opacity: 1; }
+.rule-row.editing .rule-row-text { display: none; }
+.rule-row.editing .rule-row-input { display: block; }
+.rule-row:not(.editing) .rule-row-input { display: none; }
+
+.rules-add-btn {
+  width: 100%; background: transparent;
+  border: 1px dashed rgba(212,168,87,0.4);
+  color: var(--gold); padding: 14px;
+  border-radius: 10px; font-size: 13px;
+  margin-top: 20px; cursor: pointer;
+  font-family: var(--sans);
+}
+
+.rules-empty {
+  text-align: center; padding: 40px 20px;
+  color: var(--ink-3); font-size: 13px;
+  line-height: 1.6;
+}
+
+/* Add-rule sheet */
+.rule-add-sheet {
+  position: fixed; inset: 0; z-index: 300;
+  display: flex; align-items: flex-end;
+  animation: rule-add-in 200ms ease;
+}
+@keyframes rule-add-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+.rule-add-backdrop {
+  position: absolute; inset: 0;
+  background: rgba(0,0,0,0.6);
+  backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
+}
+.rule-add-card {
+  position: relative; width: 100%;
+  max-width: 600px; margin: 0 auto;
+  background: var(--bg-1); padding: 20px 18px 28px;
+  border-radius: 16px 16px 0 0;
+  max-height: 85vh; overflow-y: auto;
+  border-top: 1px solid var(--line-bright);
+  animation: rule-add-card-up 240ms ease;
+}
+@keyframes rule-add-card-up {
+  from { transform: translateY(20px); }
+  to { transform: translateY(0); }
+}
+.rule-add-eyebrow {
+  font-family: var(--mono); font-size: 9px;
+  letter-spacing: 0.25em; color: var(--ink-3);
+  margin-bottom: 8px;
+  text-transform: uppercase;
+}
+.rule-add-title {
+  font-family: var(--display); font-size: 18px;
+  margin-bottom: 18px;
+  letter-spacing: -0.01em;
+}
+.rule-add-option {
+  width: 100%; text-align: left;
+  background: rgba(255,255,255,0.03);
+  border: 0.5px solid var(--line);
   border-radius: 10px;
-  background: var(--gold);
-  color: var(--bg);
-  border: none;
+  padding: 14px; margin-bottom: 6px;
+  cursor: pointer; font-family: var(--sans);
+  color: var(--ink);
+}
+.rule-add-option:hover { background: rgba(255,255,255,0.06); }
+.rule-add-option-title {
+  font-size: 14px; font-weight: 500; margin-bottom: 4px;
+  font-family: var(--display);
+}
+.rule-add-option-sub {
+  font-size: 11.5px; color: var(--ink-3); line-height: 1.4;
+  font-family: var(--display); font-style: italic;
+}
+.rule-add-cancel {
+  width: 100%; margin-top: 16px;
+  background: transparent; border: none;
+  color: var(--ink-3); padding: 12px;
+  font-family: var(--sans); font-size: 13px;
   cursor: pointer;
-  display: flex; align-items: center; justify-content: center;
-  transition: transform 150ms ease, opacity 200ms ease;
-  flex-shrink: 0;
 }
-.chat-send:active { transform: scale(0.92); }
-.chat-send:disabled { opacity: 0.4; cursor: not-allowed; }
-.chat-send svg {
-  width: 18px; height: 18px;
-  stroke: currentColor; fill: none;
-  stroke-width: 2;
-  stroke-linecap: round; stroke-linejoin: round;
-}
-.chat-toolbar {
-  display: flex; gap: 6px;
-  padding: 0 4px 8px;
-  flex-wrap: wrap;
-}
-.tool-chip {
-  background: none;
-  border: 1px solid var(--line);
-  color: var(--ink-3);
-  font-family: var(--mono);
-  font-size: 10px; letter-spacing: 0.1em;
-  padding: 5px 10px;
-  border-radius: 100px;
-  cursor: pointer;
-  text-transform: uppercase;
-  transition: all 200ms ease;
-}
-.tool-chip:active { transform: scale(0.95); }
-.tool-chip.gold { color: var(--gold); border-color: rgba(212, 168, 87, 0.3); }
-.tool-chip.active { background: rgba(212, 168, 87, 0.15); color: var(--gold); border-color: var(--gold); }
-.chat-header {
-  display: flex; justify-content: space-between;
-  align-items: center;
-  margin-bottom: 16px; padding-bottom: 16px;
-  border-bottom: 1px solid var(--line);
-}
-.chat-status { display: flex; align-items: center; gap: 8px; }
-.chat-status-dot {
-  width: 6px; height: 6px;
-  border-radius: 50%;
-  background: var(--green);
-  animation: statusPulse 2s ease-in-out infinite;
-}
-@keyframes statusPulse {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.4; }
-}
-.chat-status-text {
-  font-family: var(--mono);
-  font-size: 10px; color: var(--ink-3);
-  letter-spacing: 0.15em; text-transform: uppercase;
-}
-.chat-clear {
-  background: none;
-  border: 1px solid var(--line);
-  color: var(--ink-3);
-  border-radius: 100px;
-  padding: 5px 12px;
-  font-family: var(--mono);
-  font-size: 10px; letter-spacing: 0.1em;
-  cursor: pointer;
-  text-transform: uppercase;
-  transition: all 200ms ease;
-}
-.chat-clear:active { transform: scale(0.96); }
 
 /* MORE view */
 .settings-row {
@@ -2342,11 +2140,6 @@ body {
   margin-left: 8px; vertical-align: middle; font-weight: 600;
 }
 
-/* ========== MENTOR PROMPT UPDATES ========== */
-.prompt-tile.principle-prompt {
-  background: linear-gradient(135deg, rgba(212,168,87,0.12), rgba(212,168,87,0.04));
-  border-color: rgba(212,168,87,0.3);
-}
 
 /* ========== LAB ========== */
 .lab-filter-row {
@@ -3411,82 +3204,15 @@ body {
     </div>
   </div>
 
-  <!-- ============ MENTOR VIEW ============ -->
-  <div class="view" id="view-mentor">
-
-    <div class="mentor-hero" id="mentor-hero">
-      <div class="mentor-mark"></div>
-      <div class="hero-eyebrow">The Mentor</div>
-      <div class="hero-title">A voice that <em>knows</em><br>who you are becoming.</div>
-      <div class="hero-sub">Trained on your constitution. Sees your reps, your reflections, your friction.</div>
+  <!-- ============ RULES VIEW ============ -->
+  <div class="view" id="view-rules">
+    <div class="home-header">
+      <div class="home-eyebrow">Standing law</div>
+      <div class="home-title">Rules.</div>
+      <div class="home-sub" id="rules-count">— rules. The lines he keeps.</div>
     </div>
-
-    <div id="mentor-context-banner" class="context-banner" style="display: none;">
-      <span class="context-banner-icon">✦</span>
-      <span><strong id="ctx-label">Context active.</strong> <span id="ctx-detail">Mentor has access to today's data.</span></span>
-    </div>
-
-    <div id="mentor-prompts-section">
-      <div class="sect-head">
-        <div class="sect-title">Quick prompts</div>
-        <div class="sect-meta">Tap to begin</div>
-      </div>
-
-      <div class="prompts-grid">
-        <button class="prompt-tile" data-prompt="avoiding">
-          <span class="prompt-icon">🪞</span>
-          <span class="prompt-text">What am I avoiding right now?</span>
-        </button>
-        <button class="prompt-tile" data-prompt="reactivity">
-          <span class="prompt-icon">🌊</span>
-          <span class="prompt-text">Help me dissect my reactivity today.</span>
-        </button>
-        <button class="prompt-tile principle-prompt" data-prompt="virtue-audit">
-          <span class="prompt-icon">◆</span>
-          <span class="prompt-text">Audit me through one of my virtues.</span>
-        </button>
-        <button class="prompt-tile" data-prompt="drift">
-          <span class="prompt-icon">📊</span>
-          <span class="prompt-text">Which virtue am I drifting from?</span>
-        </button>
-        <button class="prompt-tile" data-prompt="lab-review">
-          <span class="prompt-icon">⚗️</span>
-          <span class="prompt-text">Review my active experiments.</span>
-        </button>
-        <button class="prompt-tile" data-prompt="decision">
-          <span class="prompt-icon">🧭</span>
-          <span class="prompt-text">Walk me through a decision.</span>
-        </button>
-        <button class="prompt-tile" data-prompt="cards">
-          <span class="prompt-icon">🎴</span>
-          <span class="prompt-text">Make flashcards from text I'll paste.</span>
-        </button>
-      </div>
-    </div>
-
-    <div class="chat-header" id="chat-header" style="display: none;">
-      <div class="chat-status">
-        <div class="chat-status-dot"></div>
-        <div class="chat-status-text">Mentor listening</div>
-      </div>
-      <button class="chat-clear" id="chat-clear-btn">Clear</button>
-    </div>
-
-    <div class="chat-scroll" id="chat-scroll"></div>
-
-    <div class="chat-input-wrap">
-      <div class="chat-toolbar" id="chat-toolbar">
-        <button class="tool-chip active" id="tool-context" title="Mentor reads your reps, reflections, and library">📎 Context: On</button>
-        <button class="tool-chip gold" id="tool-gen-cards">🎴 Generate Cards</button>
-      </div>
-      <div class="chat-input-row">
-        <textarea class="chat-input" id="chat-input" rows="1" placeholder="Speak with the mentor..."></textarea>
-        <button class="chat-send" id="chat-send" disabled>
-          <svg viewBox="0 0 24 24"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
-        </button>
-      </div>
-    </div>
-
+    <div id="rules-list-container"></div>
+    <button class="rules-add-btn" id="rules-add-btn">+ Add Rule</button>
   </div>
 
   <!-- ============ CONSTITUTION VIEW ============ -->
@@ -3541,14 +3267,6 @@ body {
     <div class="constitution-settings">
       <div class="constitution-settings-eyebrow">Settings &amp; Data</div>
 
-      <div class="settings-row" style="flex-direction: column; align-items: flex-start; gap: 10px; cursor: default;">
-        <div>
-          <div class="settings-label">Anthropic API key</div>
-          <div class="settings-sublabel">Required for the Mentor. Stored locally, never transmitted anywhere else.</div>
-        </div>
-        <input id="api-key-input" type="password" placeholder="sk-ant-..."
-          style="width: 100%; background: var(--bg-2); border: 1px solid var(--line); border-radius: 8px; padding: 10px 12px; color: var(--ink); font-family: var(--mono); font-size: 12px; outline: none; letter-spacing: 0.05em;"/>
-      </div>
       <div class="settings-row" id="signout-btn">
         <div>
           <div class="settings-label">Sign out</div>
@@ -3612,9 +3330,9 @@ body {
     <svg class="tab-icon" viewBox="0 0 24 24"><path d="M9 2h6"/><path d="M10 2v6.5L4.5 18A2.5 2.5 0 0 0 6.5 22h11a2.5 2.5 0 0 0 2-4L14 8.5V2"/><path d="M6.5 14h11"/></svg>
     <span class="tab-label">Lab</span>
   </button>
-  <button class="tab" data-view="mentor">
-    <svg viewBox="0 0 24 24"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
-    <span class="tab-label">Mentor</span>
+  <button class="tab" data-view="rules">
+    <svg viewBox="0 0 24 24"><polygon points="12 3 21 12 12 21 3 12"/></svg>
+    <span class="tab-label">Rules</span>
   </button>
   <button class="tab" data-view="constitution">
     <svg viewBox="0 0 24 24"><path d="M4 4h14a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V4z"/><path d="M8 8h8M8 12h8M8 16h5"/></svg>
@@ -3627,6 +3345,25 @@ body {
 <!-- FULL-SCREEN VIRTUE VIEW (homepage tap-through) -->
 <div class="virtue-view-overlay" id="virtue-view-overlay" style="display:none;">
   <div class="virtue-view-container" id="virtue-view-container"></div>
+</div>
+
+<!-- ADD RULE SHEET -->
+<div class="rule-add-sheet" id="rule-add-sheet" style="display:none;">
+  <div class="rule-add-backdrop" id="rule-add-backdrop"></div>
+  <div class="rule-add-card">
+    <div class="rule-add-eyebrow">ADD A RULE</div>
+    <div class="rule-add-title">Where does this rule belong?</div>
+
+    <button class="rule-add-option" data-target="general">
+      <div class="rule-add-option-title">General rule</div>
+      <div class="rule-add-option-sub">Standing law of the man. Not tied to one virtue.</div>
+    </button>
+
+    <div class="rule-add-eyebrow" style="margin-top: 20px;">OR ATTACH TO A VIRTUE</div>
+    <div id="rule-add-virtue-list"></div>
+
+    <button class="rule-add-cancel" id="rule-add-cancel-btn">Cancel</button>
+  </div>
 </div>
 
 <!-- REVIEW OVERLAY -->
@@ -3951,51 +3688,43 @@ body {
 
     <div class="modal-body">
       <p><em>"Every action is a vote for who you are becoming."</em></p>
-      <p>Five tabs at the bottom. Your constitution is yours to author. The Mentor knows the full picture.</p>
+      <p>Five tabs at the bottom. The OS is a rapid-access reference for the man you are becoming.</p>
     </div>
 
     <div class="modal-step">
       <div class="modal-step-num">1</div>
       <div class="modal-step-text">
-        <strong>Your constitution is yours to author.</strong>
-        Open the Constitution tab and edit any virtue — change the name, behaviors, rules. Add new ones. Make dormant the ones you're not working on.
+        <strong>Today is the homepage.</strong>
+        Your active virtues. Tap any one to read its full portrait — identity line, behaviors, mantras, rules, anti-behaviors, triggers, habits.
       </div>
     </div>
 
     <div class="modal-step">
       <div class="modal-step-num">2</div>
       <div class="modal-step-text">
-        <strong>Behaviors are the daily reps.</strong>
-        Small, concrete, doable today. Each one is a vote for the man you're becoming.
+        <strong>Rules is the standing law.</strong>
+        Every rule across every virtue, plus standalone general rules. Tap any rule to edit it inline.
       </div>
     </div>
 
     <div class="modal-step">
       <div class="modal-step-num">3</div>
       <div class="modal-step-text">
-        <strong>Rules are the lines he stands by.</strong>
-        Short. Declarative. They show up in the Mentor's context and on Today.
+        <strong>Constitution is where you author.</strong>
+        Edit virtues, add components, change order. Behaviors stay on top; everything else is yours to arrange.
       </div>
     </div>
 
     <div class="modal-step">
       <div class="modal-step-num">4</div>
       <div class="modal-step-text">
-        <strong>Active virtues show up on Today.</strong>
-        No weekly rotation, no forced rhythm. You decide what's active.
+        <strong>Six component types per virtue.</strong>
+        Behaviors. Mantras. Rules. Anti-behaviors. Triggers. Habits. Use the ones you need.
       </div>
     </div>
 
     <div class="modal-step">
       <div class="modal-step-num">5</div>
-      <div class="modal-step-text">
-        <strong>The Mentor knows your full constitution.</strong>
-        Active and dormant. Speak to it as you would a steady older brother who knows you.
-      </div>
-    </div>
-
-    <div class="modal-step">
-      <div class="modal-step-num">6</div>
       <div class="modal-step-text">
         <strong>The Lab is for experiments. The Mind is for knowledge.</strong>
         Unchanged.
@@ -4211,15 +3940,16 @@ document.getElementById('auth-password').addEventListener('keydown', (e) => {
 
 const state = {
   categories: [], cards: [], books: [], summaries: [],
-  reviewStats: { total: 0 }, chat: [],
+  reviewStats: { total: 0 },
   virtues: [],
+  generalRules: [],
   experiments: [],
-  meta: { firstVisit: true, contextOn: true }
+  meta: { firstVisit: true }
 };
 
 const ICONS = ['📚','🧠','💡','📖','🎯','⚖️','🔬','🎨','💼','🌍','🧘','💪','💰','❤️','🛠️','🗣️','🎵','✍️','🏛️','⚔️','🌱','🔥','✦','♟️'];
 const VIRTUE_SYMBOLS = ['◆','⚡','⊙','◈','◇','◉','◎','⚖️','✦','✧','✶','★','☉','☼','◊','▲','■','●','♆','✚','✿','❄','☯','⚓'];
-const KEYS = ['categories','cards','books','summaries','reviewStats','chat','virtues','experiments','meta'];
+const KEYS = ['categories','cards','books','summaries','reviewStats','virtues','generalRules','experiments','meta'];
 
 // ============ VIRTUE HELPERS ============
 function getVirtueById(id) {
@@ -4249,13 +3979,39 @@ const ALL_COMPONENT_TYPES = ['behaviors','mantras','rules','antiBehaviors','trig
 const STRING_COMPONENT_TYPES = ['mantras','rules','antiBehaviors','triggers','habits'];
 const DEFAULT_COMPONENT_ORDER = ['behaviors','mantras','rules','antiBehaviors','triggers','habits'];
 
+function _normalizeStringComponent(arr) {
+  if (!Array.isArray(arr)) return [];
+  const now = Date.now();
+  return arr.map(item => {
+    if (typeof item === 'string') return { id: uid(), text: item, createdAt: now };
+    if (item && typeof item === 'object') {
+      return {
+        id: item.id || uid(),
+        text: item.text || '',
+        createdAt: item.createdAt || now
+      };
+    }
+    return { id: uid(), text: String(item || ''), createdAt: now };
+  });
+}
+
 function ensureVirtueShape(v) {
   if (!Array.isArray(v.behaviors)) v.behaviors = [];
-  if (!Array.isArray(v.rules)) v.rules = [];
-  if (!Array.isArray(v.antiBehaviors)) v.antiBehaviors = [];
-  if (!Array.isArray(v.habits)) v.habits = [];
-  if (!Array.isArray(v.mantras)) v.mantras = [];
-  if (!Array.isArray(v.triggers)) v.triggers = [];
+  // Behaviors stay {id, text, cue, why, createdAt}
+  const nowB = Date.now();
+  v.behaviors = v.behaviors.map(b => ({
+    id: b.id || uid(),
+    text: b.text || '',
+    cue: b.cue || '',
+    why: b.why || '',
+    createdAt: b.createdAt || nowB
+  }));
+  // All other component types: arrays of {id, text, createdAt}
+  v.rules         = _normalizeStringComponent(v.rules);
+  v.antiBehaviors = _normalizeStringComponent(v.antiBehaviors);
+  v.habits        = _normalizeStringComponent(v.habits);
+  v.mantras       = _normalizeStringComponent(v.mantras);
+  v.triggers      = _normalizeStringComponent(v.triggers);
   if (!Array.isArray(v.componentOrder)) {
     const order = ['behaviors'];
     if (v.rules.length) order.push('rules');
@@ -4375,13 +4131,16 @@ function migrateToVirtues() {
   return true;
 }
 
-// ============ MIGRATION: virtues -> components (one-shot) ============
+// ============ MIGRATION: virtues -> components + rule objects + generalRules (one-shot) ============
 function migrateVirtuesToComponents() {
-  if (state.meta && state.meta.migratedToComponents) return false;
+  // migratedToObjectRules supersedes the older migratedToComponents flag.
+  if (state.meta && state.meta.migratedToObjectRules) return false;
   state.virtues = state.virtues || [];
   state.virtues.forEach(ensureVirtueShape);
+  state.generalRules = _normalizeStringComponent(state.generalRules);
   state.meta = state.meta || {};
   state.meta.migratedToComponents = true;
+  state.meta.migratedToObjectRules = true;
   return true;
 }
 
@@ -4406,14 +4165,16 @@ async function loadState() {
     await save('virtues', true);
     await save('meta', true);
   }
-  // Run one-shot migration to add new component arrays + componentOrder
+  // Run one-shot migration to add new component arrays + componentOrder + object-form rules
   if (migrateVirtuesToComponents()) {
     await save('virtues', true);
+    await save('generalRules', true);
     await save('meta', true);
   } else {
-    // Defensive: even if migration flag is set, ensure every virtue has the full shape
+    // Defensive: even if migration flag is set, ensure every virtue + generalRules has the full shape
     // (in case a virtue was imported or hand-edited)
     (state.virtues || []).forEach(ensureVirtueShape);
+    state.generalRules = _normalizeStringComponent(state.generalRules);
   }
 
   if (state.meta.firstVisit) {
@@ -4492,6 +4253,7 @@ document.querySelectorAll('.tab').forEach(tab => {
     document.getElementById('view-' + view).classList.add('active');
     currentView = view;
     if (view === 'lab') renderLab();
+    if (view === 'rules') renderRulesView();
     window.scrollTo({ top: 0, behavior: 'smooth' });
   });
 });
@@ -4537,6 +4299,186 @@ function renderHomepage() {
 function renderToday() {
   renderHomepage();
 }
+
+// ============ RULES VIEW ============
+function getAllRulesFlat() {
+  const general = (state.generalRules || []).map(r => ({
+    id: r.id, text: r.text, createdAt: r.createdAt || 0,
+    source: 'general'
+  }));
+  const virtueBound = [];
+  (state.virtues || []).forEach(v => {
+    (v.rules || []).forEach(r => {
+      virtueBound.push({
+        id: r.id, text: r.text, createdAt: r.createdAt || 0,
+        source: { virtueId: v.id, virtueName: v.name, virtueSymbol: v.symbol || '◆' }
+      });
+    });
+  });
+  return [...general, ...virtueBound].sort((a, b) => (a.createdAt || 0) - (b.createdAt || 0));
+}
+
+function renderRulesView() {
+  const container = document.getElementById('rules-list-container');
+  const countEl = document.getElementById('rules-count');
+  if (!container) return;
+
+  const rules = getAllRulesFlat();
+
+  if (countEl) {
+    countEl.textContent = rules.length === 0
+      ? 'No rules yet. The lines he keeps.'
+      : `${rules.length} rule${rules.length === 1 ? '' : 's'}. The lines he keeps.`;
+  }
+
+  if (rules.length === 0) {
+    container.innerHTML = '<div class="rules-empty">No rules yet.<br>Tap "+ Add Rule" to write the first one.</div>';
+    return;
+  }
+
+  container.innerHTML = '';
+  rules.forEach(r => {
+    const row = document.createElement('div');
+    row.className = 'rule-row';
+    row.dataset.ruleId = r.id;
+    if (typeof r.source === 'string') {
+      row.dataset.source = 'general';
+    } else {
+      row.dataset.source = 'virtue';
+      row.dataset.virtueId = r.source.virtueId;
+    }
+    const tag = typeof r.source === 'string'
+      ? '<div class="rule-row-virtue-tag general">GENERAL</div>'
+      : `<div class="rule-row-virtue-tag">${escapeHtml(r.source.virtueSymbol)} ${escapeHtml(r.source.virtueName)}</div>`;
+
+    row.innerHTML = `
+      <span class="rule-row-bullet">◆</span>
+      <div style="flex:1; min-width:0;">
+        <div class="rule-row-text">${escapeHtml(r.text)}</div>
+        <input class="rule-row-input" type="text" value="${escapeHtml(r.text)}"/>
+        ${tag}
+      </div>
+      <button class="rule-row-delete" aria-label="Delete">×</button>
+    `;
+
+    const textSpan = row.querySelector('.rule-row-text');
+    const input = row.querySelector('.rule-row-input');
+    const delBtn = row.querySelector('.rule-row-delete');
+
+    row.addEventListener('click', (e) => {
+      if (row.classList.contains('editing')) return;
+      if (e.target.closest('.rule-row-delete')) return;
+      enterRuleEditMode(row, input);
+    });
+    input.addEventListener('blur', () => commitRuleEdit(row, input));
+    input.addEventListener('keydown', e => {
+      if (e.key === 'Enter') { e.preventDefault(); input.blur(); }
+      if (e.key === 'Escape') { input.value = textSpan.textContent; row.classList.remove('editing'); }
+    });
+    delBtn.addEventListener('click', (e) => { e.stopPropagation(); deleteRuleByRow(row); });
+
+    container.appendChild(row);
+  });
+}
+
+function enterRuleEditMode(row, input) {
+  row.classList.add('editing');
+  input.focus();
+  input.setSelectionRange(input.value.length, input.value.length);
+}
+
+function commitRuleEdit(row, input) {
+  const newText = input.value.trim();
+  const ruleId = row.dataset.ruleId;
+  if (!newText) {
+    row.classList.remove('editing');
+    input.value = row.querySelector('.rule-row-text').textContent;
+    return;
+  }
+
+  if (row.dataset.source === 'general') {
+    const r = (state.generalRules || []).find(x => x.id === ruleId);
+    if (r) { r.text = newText; save('generalRules'); }
+  } else {
+    const v = state.virtues.find(x => x.id === row.dataset.virtueId);
+    const r = v && (v.rules || []).find(x => x.id === ruleId);
+    if (r) { r.text = newText; save('virtues'); }
+  }
+
+  row.querySelector('.rule-row-text').textContent = newText;
+  row.classList.remove('editing');
+}
+
+function deleteRuleByRow(row) {
+  if (!confirm('Delete this rule?')) return;
+  const ruleId = row.dataset.ruleId;
+
+  if (row.dataset.source === 'general') {
+    state.generalRules = (state.generalRules || []).filter(r => r.id !== ruleId);
+    save('generalRules');
+  } else {
+    const v = state.virtues.find(x => x.id === row.dataset.virtueId);
+    if (v) { v.rules = (v.rules || []).filter(r => r.id !== ruleId); save('virtues'); }
+  }
+
+  renderRulesView();
+}
+
+// Add-rule sheet
+function openAddRuleSheet() {
+  const sheet = document.getElementById('rule-add-sheet');
+  const virtueList = document.getElementById('rule-add-virtue-list');
+
+  virtueList.innerHTML = '';
+  (state.virtues || []).forEach(v => {
+    const btn = document.createElement('button');
+    btn.className = 'rule-add-option';
+    btn.innerHTML = `
+      <div class="rule-add-option-title">${escapeHtml(v.symbol || '◆')} ${escapeHtml(v.name)}</div>
+      <div class="rule-add-option-sub">${escapeHtml(v.identityLine || '')}</div>
+    `;
+    btn.addEventListener('click', () => startAddRule(v.id));
+    virtueList.appendChild(btn);
+  });
+
+  sheet.style.display = 'flex';
+}
+
+function closeAddRuleSheet() {
+  document.getElementById('rule-add-sheet').style.display = 'none';
+}
+
+function startAddRule(target) {
+  closeAddRuleSheet();
+  const text = prompt('Write the rule.');
+  if (!text || !text.trim()) return;
+
+  const newRule = { id: uid(), text: text.trim(), createdAt: Date.now() };
+
+  if (target === 'general') {
+    state.generalRules = state.generalRules || [];
+    state.generalRules.push(newRule);
+    save('generalRules');
+  } else {
+    const v = state.virtues.find(x => x.id === target);
+    if (v) {
+      v.rules = v.rules || [];
+      v.rules.push(newRule);
+      if (Array.isArray(v.componentOrder) && !v.componentOrder.includes('rules')) {
+        v.componentOrder.push('rules');
+      }
+      save('virtues');
+    }
+  }
+
+  renderRulesView();
+}
+
+// Wire up the static rules-view buttons (these elements exist from page load)
+document.getElementById('rules-add-btn').onclick = openAddRuleSheet;
+document.getElementById('rule-add-backdrop').onclick = closeAddRuleSheet;
+document.getElementById('rule-add-cancel-btn').onclick = closeAddRuleSheet;
+document.querySelector('.rule-add-option[data-target="general"]').onclick = () => startAddRule('general');
 
 // ============ FULL-SCREEN VIRTUE VIEW ============
 let currentVirtueId = null;
@@ -4852,7 +4794,7 @@ function renderAllCards() {
   }
 
   if (totalAll === 0) {
-    list.innerHTML = '<div class="all-cards-empty">No flashcards yet. Use a category above, or the Mentor, to create one.</div>';
+    list.innerHTML = '<div class="all-cards-empty">No flashcards yet. Use a category above to create one.</div>';
     showMoreBtn.style.display = 'none';
     return;
   }
@@ -5399,480 +5341,6 @@ document.getElementById('finish-review-btn').onclick = () => {
   if (mindMode === 'category') renderCategoryDetail();
 };
 
-// ============ MENTOR ============
-const CONSTITUTION = `You are the user's personal mentor — modeled after their identity constitution. You are NOT a generic AI assistant. You speak as a steady, principled mentor who knows them well and cares about who they are becoming.
-
-THE USER'S CONSTITUTION is a living document they author themselves. The live context section below lists every virtue they have currently authored — their names, identity lines, behaviors, and rules. Read that section as the truth of who they are working to become. Do not assume principles or virtues not named there.
-
-He is not trying to be impressive. He is trying to be true, capable, and durable.
-
-CORE VALUES (anchor concepts): Integrity, Competence, Self-respect, Discipline, Courage, Temperance, Patience, Excellence, Loyalty, Justice, Humility, Stewardship, Service, Order, Growth.
-
-CURRENT FOUNDATION FOCUS: His active virtues (listed in the live context). These are the men he is voting for, day by day.
-
-WHAT HE REFUSES: Pretending, living for validation, chronic procrastination, excuse-making, emotional dumping, addictive coping, "busy" as identity, over-explaining, pleading, weak boundaries, uncontrolled impulse, debt-driven lifestyle inflation, self-betrayal in relationships, spiritual bypassing, isolation disguised as independence, arrogance disguised as confidence.
-
-HOW YOU SHOULD SPEAK AS HIS MENTOR:
-
-1. Direct without cruelty. Warm without weakness. Precise without preciousness.
-2. Ask better questions than he'd ask himself. The good question is often more useful than the good answer.
-3. Challenge framing when he's avoiding. Don't comfort — clarify.
-4. Reference his virtues by name when relevant — by the exact names he gave them in the live context. Do not invent virtue names; do not reference any "Principle A/B/C..." labels (that system is retired).
-5. Use second person ("you"). Don't talk about him in third person.
-6. Keep responses tight. A mentor doesn't lecture. 2-5 paragraphs typically. Sometimes a single sharp sentence is the right answer.
-7. When he's reactive or spiraling, slow down. Name the pattern. Offer one specific next step.
-8. When he's making excuses, call it without contempt. Excuse-making is on his refusals list.
-9. Don't moralize. Don't add disclaimers. Don't say "as an AI." You're a mentor — speak like one.
-10. Use his identity lines and rules sparingly when they fit. Quote them verbatim from the live context.
-11. If he asks for flashcards, generate them as a JSON block (described below).
-12. Keep advice grounded in his currently active virtues unless he specifies otherwise.
-
-AUTHORING IS HIS WORK, NOT YOURS:
-- The constitution is a personal act of authorship. You do NOT write virtues, identity lines, behaviors, or rules for him.
-- If he asks "help me build a virtue" or "write a virtue for me," decline gently and remind him that authoring it is part of becoming the man — the words have to be his. Offer to ask sharpening questions, surface tensions in his existing virtues, or reflect back what you're hearing — but do not produce virtue text he then copy-pastes.
-- You may freely critique, audit, and reflect on the virtues he has already authored.
-
-WHEN HE SHARES CONTEXT (today's reps, alignment scores, reflections, friction notes, evening check-ins, etc.):
-- Treat it as evidence. Reference specific items by what they say.
-- If he tapped 2 out of 8 reps, don't praise — ask what got in the way.
-- If his alignment score was low but his reflection is vague, push for specifics.
-- If his friction note names a specific person or pattern, take it seriously and dig in.
-- Connect the data to his virtues. ("Your reflection says you over-explained at work today. That cuts against ${'${virtue-name}'} — the man who 'stands by his word with restraint'.")
-- Never pretend to see context that isn't there.
-- If evening check-ins show a pattern of "against" votes on a particular virtue, name it. Don't moralize — surface the pattern.
-- If active experiments are present, treat them as live data. Reference specific experiments by name. If recent notes show a pattern, name it. If criteria were defined, hold him to them.
-
-FLASHCARD GENERATION:
-When he asks you to generate flashcards from a passage, book, idea, virtue, or topic, respond with:
-- A brief intro sentence
-- A JSON code block formatted EXACTLY like this:
-
-\`\`\`json
-{
-  "cards": [
-    { "front": "Question or prompt", "back": "Answer or insight" },
-    { "front": "Question 2", "back": "Answer 2" }
-  ]
-}
-\`\`\`
-
-Make cards atomic (one idea each), front concise, back specific. 5-10 cards unless he asks otherwise. After the JSON, no further commentary needed.
-
-You are not here to be liked. You are here to help him become true, capable, and durable.`;
-
-let pendingGenCards = null;
-
-function buildQuickPrompts() {
-  return {
-    avoiding: "What am I avoiding right now? Use any context you have on me. Ask me three sharp questions to surface it.",
-    reactivity: "I had reactive moments today. Use my reflection notes and recent evening check-ins if you have access. Help me dissect what triggered them and the pattern they point to.",
-    'virtue-audit': "Audit me through one of my active virtues. First ask me which virtue. Then use my behaviors, rules, recent reps, and evening check-ins to give me a clear-eyed read on how I'm actually voting for that man.",
-    'drift': "Which of my virtues am I drifting from? Use my recent reps, evening check-ins (`for`/`against`), and friction notes. Name the pattern. Don't soften it.",
-    'lab-review': "Look at my active experiments. For each one: where am I in it, what's the hypothesis, what do my recent notes show? Then tell me what you'd watch for or push me on.",
-    decision: "I'm wrestling with a decision. Walk me through it using my own active virtues. I'll lay out the situation.",
-    cards: "I'm going to paste some text. Generate 6-10 flashcards from it that capture the most important ideas. Atomic cards, one idea each."
-  };
-}
-
-function updateMentorPromptLabels() {
-  // Labels are now static — virtue names are chosen at conversation time by the user.
-}
-
-function buildLiveContext() {
-  const lines = [];
-  const activeVirtues = getActiveVirtues();
-  const dormantVirtues = (state.virtues || []).filter(v => !v.active);
-
-  const textOf = it => typeof it === 'string' ? it : ((it && it.text) || '');
-
-  lines.push("=== LIVE CONTEXT (the user's actual constitution right now) ===");
-  lines.push(`Today: ${getToday()}`);
-
-  // Active virtues — full picture
-  if (activeVirtues.length === 0) {
-    lines.push("\nThe user has NO active virtues right now. Their constitution is empty. Encourage them to author one, but do not write it for them.");
-  } else {
-    lines.push(`\nACTIVE VIRTUES (${activeVirtues.length}) — the men he is becoming, in priority order:`);
-    activeVirtues.forEach(v => {
-      const pinTag = v.pinned ? ' [PINNED]' : '';
-      lines.push(`\n  --- ${v.symbol || '◆'} ${v.name}${pinTag} ---`);
-      if (v.identityLine) lines.push(`    Identity: ${v.identityLine}`);
-      if (v.body && v.body.trim()) lines.push(`    The man behind it: ${v.body.trim().replace(/\s+/g, ' ').slice(0, 320)}`);
-      if ((v.behaviors || []).length) {
-        lines.push(`    Behaviors (${v.behaviors.length}):`);
-        v.behaviors.forEach(b => {
-          const cue = b.cue ? ` [cue: ${b.cue}]` : '';
-          lines.push(`      - ${b.text}${cue}`);
-        });
-      }
-      if ((v.mantras || []).length) {
-        lines.push(`    Mantras (${v.mantras.length}):`);
-        v.mantras.forEach(m => lines.push(`      › ${textOf(m)}`));
-      }
-      if ((v.rules || []).length) {
-        lines.push(`    Rules he stands by (${v.rules.length}):`);
-        v.rules.forEach(r => lines.push(`      ◆ ${textOf(r)}`));
-      }
-      if ((v.antiBehaviors || []).length) {
-        lines.push(`    Anti-behaviors / refusals (${v.antiBehaviors.length}):`);
-        v.antiBehaviors.forEach(a => lines.push(`      ✕ ${textOf(a)}`));
-      }
-      if ((v.triggers || []).length) {
-        lines.push(`    Triggers to watch (${v.triggers.length}):`);
-        v.triggers.forEach(t => lines.push(`      ! ${textOf(t)}`));
-      }
-      if ((v.habits || []).length) {
-        lines.push(`    Habits (${v.habits.length}):`);
-        v.habits.forEach(h => lines.push(`      ◐ ${textOf(h)}`));
-      }
-    });
-  }
-
-  // Dormant virtues — brief reference
-  if (dormantVirtues.length > 0) {
-    lines.push(`\nOther virtues in the constitution (currently DORMANT, ${dormantVirtues.length}):`);
-    dormantVirtues.forEach(v => {
-      const idl = v.identityLine ? ` — ${v.identityLine}` : '';
-      lines.push(`  - ${v.symbol || '◆'} ${v.name}${idl}`);
-    });
-  }
-
-  // Library state
-  lines.push(`Library: ${state.cards.length} flashcards, ${state.categories.length} categories, ${state.books.length} books, ${state.summaries.length} summaries.`);
-  if (state.books.filter(b => b.status === 'reading').length > 0) {
-    lines.push(`Currently reading: ${state.books.filter(b => b.status === 'reading').map(b => b.title).join(', ')}`);
-  }
-  if (state.summaries.length > 0) {
-    const recent = state.summaries.slice(-3).map(s => s.title).join('; ');
-    lines.push(`Recent summaries: ${recent}`);
-  }
-
-  // Active experiments
-  const activeExperiments = state.experiments.filter(e => e.status === 'active');
-  if (activeExperiments.length > 0) {
-    lines.push(`\nActive experiments (${activeExperiments.length}):`);
-    activeExperiments.forEach(exp => {
-      const days = experimentDayCount(exp);
-      lines.push(`  - "${exp.name}" (${days}). Hypothesis: ${exp.hypothesis}`);
-      if (exp.criteria) lines.push(`    Success criteria: ${exp.criteria}`);
-      if (exp.endDate) lines.push(`    Ends: ${exp.endDate}`);
-      const recentEntries = (exp.entries || []).slice(-3);
-      if (recentEntries.length > 0) {
-        lines.push(`    Recent notes:`);
-        recentEntries.forEach(e => lines.push(`      ${formatEntryTime(e.at)}: "${e.text}"`));
-      }
-    });
-  }
-  const recentClosed = state.experiments
-    .filter(e => e.status === 'completed' || e.status === 'failed')
-    .sort((a, b) => (b.closedAt || 0) - (a.closedAt || 0))
-    .slice(0, 5);
-  if (recentClosed.length > 0) {
-    lines.push(`\nRecent closed experiments:`);
-    recentClosed.forEach(exp => {
-      lines.push(`  - [${exp.status.toUpperCase()}] "${exp.name}" — hypothesis: ${exp.hypothesis}`);
-      if (exp.verdict) lines.push(`    Verdict: "${exp.verdict}"`);
-    });
-  }
-
-  lines.push("=== END LIVE CONTEXT ===");
-  return lines.join('\n');
-}
-
-function renderMessage(role, content, opts = {}) {
-  const scroll = document.getElementById('chat-scroll');
-  const msg = document.createElement('div');
-  msg.className = 'msg ' + (role === 'user' ? 'user' : 'mentor');
-  const avatar = document.createElement('div');
-  avatar.className = 'msg-avatar';
-  avatar.textContent = role === 'user' ? 'You' : '✦';
-  const bubble = document.createElement('div');
-  bubble.className = 'msg-bubble';
-  if (opts.thinking) {
-    bubble.innerHTML = `<div class="thinking"><div class="think-dot"></div><div class="think-dot"></div><div class="think-dot"></div></div>`;
-    msg.id = 'thinking-msg';
-  } else {
-    bubble.innerHTML = formatMentorText(content);
-  }
-  msg.appendChild(avatar);
-  msg.appendChild(bubble);
-  scroll.appendChild(msg);
-  if (!opts.thinking && opts.cards) bubble.appendChild(renderGeneratedCards(opts.cards));
-  setTimeout(() => {
-    window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
-  }, 50);
-  return msg;
-}
-
-function formatMentorText(text) {
-  let html = escapeHtml(text);
-  html = html.replace(/```json\s*([\s\S]*?)```/g, '');
-  html = html.replace(/```[\s\S]*?```/g, '');
-  html = html.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
-  html = html.replace(/\*(.+?)\*/g, '<em>$1</em>');
-  html = html.replace(/`([^`]+)`/g, '<code>$1</code>');
-  html = html.replace(/\n\n+/g, '<br><br>').replace(/\n/g, '<br>');
-  return html.trim();
-}
-
-function extractCards(text) {
-  const match = text.match(/```json\s*([\s\S]*?)```/);
-  if (!match) return null;
-  try {
-    const data = JSON.parse(match[1]);
-    if (data.cards && Array.isArray(data.cards)) {
-      return data.cards.filter(c => c.front && c.back);
-    }
-  } catch (e) { return null; }
-  return null;
-}
-
-function renderGeneratedCards(cards) {
-  const pack = document.createElement('div');
-  pack.className = 'gen-card-pack';
-  const head = document.createElement('div');
-  head.className = 'gen-pack-head';
-  head.innerHTML = `
-    <div class="gen-pack-title">${cards.length} Generated Card${cards.length === 1 ? '' : 's'}</div>
-    <div class="gen-pack-title" style="color: var(--ink-3);">Tap to select</div>
-  `;
-  pack.appendChild(head);
-  cards.forEach((c, idx) => {
-    const row = document.createElement('div');
-    row.className = 'gen-card-row selected';
-    row.dataset.idx = idx;
-    row.innerHTML = `
-      <div class="gen-card-check"></div>
-      <div class="gen-card-body">
-        <div class="gen-card-front">${escapeHtml(c.front)}</div>
-        <div class="gen-card-back">${escapeHtml(c.back)}</div>
-      </div>
-    `;
-    row.onclick = () => row.classList.toggle('selected');
-    pack.appendChild(row);
-  });
-  const target = document.createElement('div');
-  target.className = 'gen-target-row';
-  state.categories.forEach((cat, i) => {
-    const chip = document.createElement('div');
-    chip.className = 'cat-chip' + (i === 0 ? ' selected' : '');
-    chip.dataset.catId = cat.id;
-    chip.innerHTML = `<span>${cat.icon}</span> ${escapeHtml(cat.name)}`;
-    chip.onclick = () => {
-      target.querySelectorAll('.cat-chip').forEach(c => c.classList.remove('selected'));
-      chip.classList.add('selected');
-    };
-    target.appendChild(chip);
-  });
-  pack.appendChild(target);
-  const actions = document.createElement('div');
-  actions.className = 'gen-actions';
-  const saveBtn = document.createElement('button');
-  saveBtn.className = 'gen-action-btn primary';
-  saveBtn.textContent = 'Save selected to category';
-  saveBtn.onclick = () => {
-    const idxs = [...pack.querySelectorAll('.gen-card-row.selected')].map(r => parseInt(r.dataset.idx));
-    const targetCat = pack.querySelector('.cat-chip.selected')?.dataset.catId;
-    if (!targetCat) { toast('Pick a category'); return; }
-    if (idxs.length === 0) { toast('Select at least one'); return; }
-    idxs.forEach(i => {
-      state.cards.push({
-        id: uid(), front: cards[i].front, back: cards[i].back,
-        categoryId: targetCat, due: Date.now(),
-        interval: 0, ease: 2.5, repetitions: 0, lapses: 0, created: Date.now()
-      });
-    });
-    save('cards');
-    toast(`Saved ${idxs.length} card${idxs.length === 1 ? '' : 's'}`);
-    saveBtn.textContent = '✓ Saved';
-    saveBtn.disabled = true; saveBtn.style.opacity = '0.6';
-    renderAll();
-  };
-  actions.appendChild(saveBtn);
-  pack.appendChild(actions);
-  return pack;
-}
-
-async function callMentor(userMessage) {
-  state.chat.push({ role: 'user', content: userMessage });
-  renderMessage('user', userMessage);
-  renderMessage('mentor', '', { thinking: true });
-
-  try {
-    // Build message list — inject context as first user message if context is on
-    let systemPrompt = CONSTITUTION;
-    if (state.meta.contextOn) {
-      systemPrompt += '\n\n' + buildLiveContext();
-    }
-
-    const apiKey = localStorage.getItem('os:apiKey') || '';
-    if (!apiKey) {
-      const tm = document.getElementById('thinking-msg');
-      if (tm) tm.remove();
-      renderMessage('mentor', 'No API key set. Go to More → Data → Anthropic API key and paste your key.');
-      state.chat.pop();
-      return;
-    }
-    const response = await fetch("https://api.anthropic.com/v1/messages", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "x-api-key": apiKey,
-        "anthropic-version": "2023-06-01",
-        "anthropic-dangerous-direct-browser-access": "true"
-      },
-      body: JSON.stringify({
-        model: "claude-sonnet-4-6",
-        max_tokens: 1500,
-        system: systemPrompt,
-        messages: state.chat
-      })
-    });
-    const data = await response.json();
-    const tm = document.getElementById('thinking-msg');
-    if (tm) tm.remove();
-
-    if (data.error) {
-      renderMessage('mentor', `Something went wrong reaching the mentor.\n\n${data.error.message || 'Try again in a moment.'}`);
-      state.chat.pop(); // remove the user message since we got nothing back
-      return;
-    }
-
-    const text = (data.content || []).filter(b => b.type === 'text').map(b => b.text).join('\n').trim();
-    if (!text) {
-      renderMessage('mentor', 'No response received. Try rephrasing.');
-      state.chat.pop();
-      return;
-    }
-
-    state.chat.push({ role: 'assistant', content: text });
-    const cards = extractCards(text);
-    renderMessage('mentor', text, { cards });
-    save('chat');
-  } catch (err) {
-    const tm = document.getElementById('thinking-msg');
-    if (tm) tm.remove();
-    renderMessage('mentor', `Couldn't reach the mentor.\n\n${err.message || 'Check your connection.'}`);
-    state.chat.pop();
-    console.error(err);
-  }
-}
-
-const chatInput = document.getElementById('chat-input');
-const chatSend = document.getElementById('chat-send');
-
-chatInput.addEventListener('input', () => {
-  chatSend.disabled = chatInput.value.trim().length === 0;
-  chatInput.style.height = 'auto';
-  chatInput.style.height = Math.min(chatInput.scrollHeight, 120) + 'px';
-});
-
-chatInput.addEventListener('keydown', (e) => {
-  const isMobile = window.matchMedia('(hover: none) and (pointer: coarse)').matches;
-  if (e.key === 'Enter' && !e.shiftKey && !isMobile) {
-    e.preventDefault();
-    if (!chatSend.disabled) sendChat();
-  }
-});
-
-chatSend.onclick = () => sendChat();
-
-function sendChat() {
-  const text = chatInput.value.trim();
-  if (!text) return;
-  chatInput.value = '';
-  chatInput.style.height = 'auto';
-  chatSend.disabled = true;
-  document.getElementById('mentor-prompts-section').style.display = 'none';
-  document.getElementById('mentor-hero').style.display = 'none';
-  document.getElementById('chat-header').style.display = 'flex';
-  updateContextBanner();
-  callMentor(text);
-}
-
-document.querySelectorAll('.prompt-tile').forEach(tile => {
-  tile.onclick = () => {
-    const prompts = buildQuickPrompts();
-    const text = prompts[tile.dataset.prompt];
-    if (!text) return;
-    chatInput.value = text;
-    chatInput.dispatchEvent(new Event('input'));
-    sendChat();
-  };
-});
-
-document.getElementById('chat-clear-btn').onclick = () => {
-  if (!confirm('Clear this conversation? The mentor will start fresh.')) return;
-  state.chat = [];
-  document.getElementById('chat-scroll').innerHTML = '';
-  document.getElementById('mentor-hero').style.display = 'block';
-  document.getElementById('mentor-prompts-section').style.display = 'block';
-  document.getElementById('chat-header').style.display = 'none';
-  document.getElementById('mentor-context-banner').style.display = 'none';
-  save('chat');
-};
-
-document.getElementById('tool-gen-cards').onclick = () => {
-  chatInput.value = "Generate flashcards from the following text:\n\n";
-  chatInput.focus();
-  chatInput.dispatchEvent(new Event('input'));
-  setTimeout(() => {
-    chatInput.setSelectionRange(chatInput.value.length, chatInput.value.length);
-  }, 50);
-};
-
-document.getElementById('tool-context').onclick = () => {
-  state.meta.contextOn = !state.meta.contextOn;
-  save('meta');
-  updateContextToggle();
-  updateContextBanner();
-};
-
-function updateContextToggle() {
-  const btn = document.getElementById('tool-context');
-  if (state.meta.contextOn) {
-    btn.classList.add('active');
-    btn.textContent = '📎 Context: On';
-  } else {
-    btn.classList.remove('active');
-    btn.textContent = '📎 Context: Off';
-  }
-}
-
-function updateContextBanner() {
-  const banner = document.getElementById('mentor-context-banner');
-  const inChat = state.chat.length > 0;
-  if (!inChat) {
-    banner.style.display = 'none';
-    return;
-  }
-  if (state.meta.contextOn) {
-    banner.style.display = 'flex';
-    const active = getActiveVirtues().length;
-    const dormant = (state.virtues || []).length - active;
-    document.getElementById('ctx-label').textContent = 'Context active.';
-    document.getElementById('ctx-detail').textContent = `Mentor sees your full constitution — ${active} active virtue${active === 1 ? '' : 's'}${dormant > 0 ? `, ${dormant} dormant` : ''}.`;
-  } else {
-    banner.style.display = 'flex';
-    document.getElementById('ctx-label').textContent = 'Context off.';
-    document.getElementById('ctx-detail').textContent = 'Mentor only sees what you type.';
-  }
-}
-
-async function loadChatRender() {
-  if (state.chat.length > 0) {
-    document.getElementById('mentor-hero').style.display = 'none';
-    document.getElementById('mentor-prompts-section').style.display = 'none';
-    document.getElementById('chat-header').style.display = 'flex';
-    state.chat.forEach(m => {
-      renderMessage(m.role === 'user' ? 'user' : 'mentor',
-        m.content,
-        { cards: m.role === 'assistant' ? extractCards(m.content) : null });
-    });
-    updateContextBanner();
-  }
-}
-
 // ============ CONSTITUTION VIEW (handlers below in CONSTITUTION TAB section) ============
 document.getElementById('open-help-btn').onclick = () =>
   document.getElementById('help-modal').classList.add('show');
@@ -5921,15 +5389,14 @@ document.getElementById('import-file').onchange = (e) => {
           await save(k);
         }
       }
-      // Backups from earlier versions may not have the new component arrays —
-      // shape every virtue so the editor and virtue view don't crash on undefined.
+      // Backups from earlier versions may not have the new component arrays or object-form rules —
+      // shape every virtue and normalize generalRules so the editor and virtue view don't crash.
       (state.virtues || []).forEach(ensureVirtueShape);
+      state.generalRules = _normalizeStringComponent(state.generalRules);
       await save('virtues', true);
+      await save('generalRules', true);
       toast('Imported');
       renderAll();
-      // Reload chat
-      document.getElementById('chat-scroll').innerHTML = '';
-      loadChatRender();
     } catch (err) {
       alert('Import failed: invalid file');
       console.error(err);
@@ -5943,13 +5410,12 @@ document.getElementById('reset-all-btn').onclick = async () => {
   if (!confirm("Absolutely sure?")) return;
   KEYS.forEach(k => {
     // Reset migratedToVirtues so the next loadState re-seeds the 8 default virtues.
-    if (k === 'meta') state[k] = { firstVisit: false, contextOn: true };
+    if (k === 'meta') state[k] = { firstVisit: false };
     else if (k === 'reviewStats') state[k] = { total: 0 };
     else if (Array.isArray(state[k])) state[k] = [];
     else state[k] = {};
     save(k);
   });
-  document.getElementById('chat-scroll').innerHTML = '';
   // Re-run migrations so the user is left with the default constitution, fully shaped.
   if (migrateToVirtues()) {
     await save('virtues', true);
@@ -6271,12 +5737,13 @@ document.getElementById('behavior-save-btn').onclick = () => {
   if (!text) { toast('Behavior text required'); return; }
   if (_editingBehaviorIdx < 0) {
     _editorDraft.behaviors = _editorDraft.behaviors || [];
-    _editorDraft.behaviors.push({ id: uid(), text, cue, why });
+    _editorDraft.behaviors.push({ id: uid(), text, cue, why, createdAt: Date.now() });
   } else {
     const existing = _editorDraft.behaviors[_editingBehaviorIdx];
     _editorDraft.behaviors[_editingBehaviorIdx] = {
       id: existing && existing.id ? existing.id : uid(),
-      text, cue, why
+      text, cue, why,
+      createdAt: (existing && existing.createdAt) || Date.now()
     };
   }
   document.getElementById('behavior-modal').classList.remove('show');
@@ -6512,7 +5979,8 @@ function addStringFromInput() {
   const type = _editorSectionType;
   if (!type || type === 'behaviors') return;
   _editorDraft[type] = _editorDraft[type] || [];
-  _editorDraft[type].push(val);
+  // All string-typed components are now {id, text, createdAt} objects
+  _editorDraft[type].push({ id: uid(), text: val, createdAt: Date.now() });
   stringInput.value = '';
   stringAddBtn.disabled = true;
   renderStringList();
@@ -6881,25 +6349,10 @@ function renderAll() {
   renderSummaries();
   renderCardCategoryPicker();
   renderConstitution();
-  updateMentorPromptLabels();
   renderLab();
+  renderRulesView();
   if (mindMode === 'category') renderCategoryDetail();
 }
-
-// ============ API KEY ============
-const apiKeyInput = document.getElementById('api-key-input');
-apiKeyInput.value = localStorage.getItem('os:apiKey') || '';
-apiKeyInput.addEventListener('blur', () => {
-  const val = apiKeyInput.value.trim();
-  localStorage.setItem('os:apiKey', val);
-  if (val) toast('API key saved');
-});
-apiKeyInput.addEventListener('focus', (e) => {
-  e.target.type = 'text';
-});
-apiKeyInput.addEventListener('blur', () => {
-  apiKeyInput.type = 'password';
-});
 
 // ============ SIGN OUT ============
 document.getElementById('signout-btn').onclick = async () => {
@@ -6923,10 +6376,7 @@ _sb.auth.onAuthStateChange((event, session) => {
       await window.storage.loadAll();
       showApp();
       setDateGreeting();
-      document.getElementById('chat-scroll').innerHTML = '';
       await loadState();
-      updateContextToggle();
-      loadChatRender();
     }, 0);
   } else {
     _currentUserId = null;

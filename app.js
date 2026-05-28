@@ -8,11 +8,15 @@ window.storage = {
     const v = localStorage.getItem(key);
     return v != null ? { value: v } : null;
   },
+  // Returns true ONLY when this user's rows were successfully fetched (possibly
+  // empty). A false return means "could not load" — callers must NOT treat that
+  // as "new/empty user", or they will overwrite real data via last-write-wins.
   loadAll: async () => {
-    if (!_currentUserId) return;
+    if (!_currentUserId) return false;
     const { data, error } = await _sb.from('user_data').select('key, value').eq('user_id', _currentUserId);
-    if (error) { console.error('Supabase load error:', error); return; }
+    if (error) { console.error('Supabase load error:', error); return false; }
     if (data) data.forEach(row => localStorage.setItem(row.key, row.value));
+    return true;
   }
 };
 
@@ -297,13 +301,24 @@ function migrateVirtuesToComponents() {
   return true;
 }
 
-async function loadState() {
+async function loadState(loadOk = true) {
   for (const k of KEYS) {
     try {
       const r = await window.storage.get('os:' + k);
       if (r && r.value) state[k] = JSON.parse(r.value);
     } catch (e) {}
   }
+
+  // CRITICAL: only seed defaults / run one-shot migrations / persist when we
+  // positively know the server's state for this user. If the remote load failed,
+  // an empty `state` means "couldn't fetch", NOT "new user" — seeding and saving
+  // here would overwrite the user's real (unloaded) data via last-write-wins.
+  if (!loadOk) {
+    renderAll();
+    toast("Couldn't load your data — retrying. Your data is safe.");
+    return;
+  }
+
   if (state.categories.length === 0) {
     state.categories = [
       { id: 'general', name: 'General', icon: '🧠', created: NOW },
@@ -2567,18 +2582,24 @@ document.getElementById('signout-btn').onclick = async () => {
 setDateGreeting();
 showAuth(); // hidden until session confirmed
 
+// Defer remote work out of the auth callback (awaiting supabase calls directly
+// inside onAuthStateChange can deadlock). Retry a few times on failure so a
+// transient load error never falls through to the destructive seed path.
+async function attemptLoad(retriesLeft = 3) {
+  const ok = await window.storage.loadAll();
+  showApp();
+  setDateGreeting();
+  await loadState(ok);
+  if (!ok && retriesLeft > 0) setTimeout(() => attemptLoad(retriesLeft - 1), 3000);
+}
+
 _sb.auth.onAuthStateChange((event, session) => {
   if (session?.user) {
     _currentUserId = session.user.id;
     const emailEl = document.getElementById('signout-email');
     if (emailEl) emailEl.textContent = session.user.email;
     if (event === 'TOKEN_REFRESHED') return;
-    setTimeout(async () => {
-      await window.storage.loadAll();
-      showApp();
-      setDateGreeting();
-      await loadState();
-    }, 0);
+    setTimeout(() => attemptLoad(), 0);
   } else {
     _currentUserId = null;
     showAuth();

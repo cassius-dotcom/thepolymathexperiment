@@ -4,7 +4,13 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
 <meta name="theme-color" content="#0a0a0a">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="The OS">
 <title>The Load-Bearing OS</title>
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="icon.svg">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <link rel="stylesheet" href="styles.css">
 </head>
@@ -308,25 +314,25 @@
 </div>
 
 <!-- TAB BAR -->
-<nav class="tabbar">
+<nav class="tabbar" aria-label="Main navigation">
   <button class="tab active" data-view="today">
-    <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="3" fill="currentColor"/></svg>
+    <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="3" fill="currentColor"/></svg>
     <span class="tab-label">Today</span>
   </button>
   <button class="tab" data-view="mind">
-    <svg viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
     <span class="tab-label">Mind</span>
   </button>
   <button class="tab" data-view="lab">
-    <svg class="tab-icon" viewBox="0 0 24 24"><path d="M9 2h6"/><path d="M10 2v6.5L4.5 18A2.5 2.5 0 0 0 6.5 22h11a2.5 2.5 0 0 0 2-4L14 8.5V2"/><path d="M6.5 14h11"/></svg>
+    <svg class="tab-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 2h6"/><path d="M10 2v6.5L4.5 18A2.5 2.5 0 0 0 6.5 22h11a2.5 2.5 0 0 0 2-4L14 8.5V2"/><path d="M6.5 14h11"/></svg>
     <span class="tab-label">Lab</span>
   </button>
   <button class="tab" data-view="rules">
-    <svg viewBox="0 0 24 24"><polygon points="12 3 21 12 12 21 3 12"/></svg>
+    <svg viewBox="0 0 24 24" aria-hidden="true"><polygon points="12 3 21 12 12 21 3 12"/></svg>
     <span class="tab-label">Rules</span>
   </button>
   <button class="tab" data-view="constitution">
-    <svg viewBox="0 0 24 24"><path d="M4 4h14a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V4z"/><path d="M8 8h8M8 12h8M8 16h5"/></svg>
+    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 4h14a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V4z"/><path d="M8 8h8M8 12h8M8 16h5"/></svg>
     <span class="tab-label">Constitution</span>
   </button>
 </nav>
@@ -334,31 +340,47 @@
 </div><!-- #app-wrap -->
 
 <!-- FULL-SCREEN VIRTUE VIEW (homepage tap-through) -->
-<div class="virtue-view-overlay" id="virtue-view-overlay" style="display:none;">
+<div class="virtue-view-overlay" id="virtue-view-overlay" role="dialog" aria-modal="true" aria-label="Virtue portrait" style="display:none;">
   <div class="virtue-view-container" id="virtue-view-container"></div>
 </div>
 
 <!-- ADD RULE SHEET -->
-<div class="rule-add-sheet" id="rule-add-sheet" style="display:none;">
+<div class="rule-add-sheet" id="rule-add-sheet" role="dialog" aria-modal="true" aria-label="Add a rule" style="display:none;">
   <div class="rule-add-backdrop" id="rule-add-backdrop"></div>
   <div class="rule-add-card">
-    <div class="rule-add-eyebrow">ADD A RULE</div>
-    <div class="rule-add-title">Where does this rule belong?</div>
+    <!-- Step 1: pick where the rule belongs -->
+    <div id="rule-add-step-target">
+      <div class="rule-add-eyebrow">ADD A RULE</div>
+      <div class="rule-add-title">Where does this rule belong?</div>
 
-    <button class="rule-add-option" data-target="general">
-      <div class="rule-add-option-title">General rule</div>
-      <div class="rule-add-option-sub">Standing law of the man. Not tied to one virtue.</div>
-    </button>
+      <button class="rule-add-option" data-target="general">
+        <div class="rule-add-option-title">General rule</div>
+        <div class="rule-add-option-sub">Standing law of the man. Not tied to one virtue.</div>
+      </button>
 
-    <div class="rule-add-eyebrow" style="margin-top: 20px;">OR ATTACH TO A VIRTUE</div>
-    <div id="rule-add-virtue-list"></div>
+      <div class="rule-add-eyebrow" style="margin-top: 20px;">OR ATTACH TO A VIRTUE</div>
+      <div id="rule-add-virtue-list"></div>
 
-    <button class="rule-add-cancel" id="rule-add-cancel-btn">Cancel</button>
+      <button class="rule-add-cancel" id="rule-add-cancel-btn">Cancel</button>
+    </div>
+
+    <!-- Step 2: write the rule text -->
+    <div id="rule-add-step-write" style="display:none;">
+      <div class="rule-add-eyebrow" id="rule-add-write-eyebrow">WRITE THE RULE</div>
+      <div class="rule-add-title" id="rule-add-write-title">A line he will not cross.</div>
+      <div class="field">
+        <textarea id="rule-add-text-input" rows="3" placeholder="The rule..."></textarea>
+      </div>
+      <div class="modal-actions">
+        <button class="btn btn-ghost" id="rule-add-back-btn">← Back</button>
+        <button class="btn btn-primary" id="rule-add-save-btn">Save Rule</button>
+      </div>
+    </div>
   </div>
 </div>
 
 <!-- REVIEW OVERLAY -->
-<div class="review-overlay" id="review-overlay">
+<div class="review-overlay" id="review-overlay" role="dialog" aria-modal="true" aria-label="Flashcard review">
   <div class="review-top">
     <button class="review-close" id="review-close-btn">Close</button>
     <div class="review-cat-pill" id="review-cat-pill">All</div>
@@ -418,7 +440,7 @@
 </div>
 
 <!-- ADD MODAL -->
-<div class="modal-bg" id="add-modal">
+<div class="modal-bg" id="add-modal" role="dialog" aria-modal="true" aria-label="Add to library">
   <div class="modal">
     <div class="modal-handle"></div>
     <div class="modal-eyebrow">Capture</div>
@@ -499,7 +521,7 @@
 </div>
 
 <!-- CATEGORY MODAL -->
-<div class="modal-bg" id="cat-modal">
+<div class="modal-bg" id="cat-modal" role="dialog" aria-modal="true" aria-label="Category">
   <div class="modal">
     <div class="modal-handle"></div>
     <div class="modal-eyebrow" id="cat-modal-eyebrow">New category</div>
@@ -523,7 +545,7 @@
 </div>
 
 <!-- DETAIL MODAL -->
-<div class="modal-bg" id="detail-modal">
+<div class="modal-bg" id="detail-modal" role="dialog" aria-modal="true" aria-label="Item detail">
   <div class="modal">
     <div class="modal-handle"></div>
     <div class="modal-eyebrow" id="detail-eyebrow">Card</div>
@@ -540,7 +562,7 @@
 </div>
 
 <!-- EDIT MODAL -->
-<div class="modal-bg" id="edit-modal">
+<div class="modal-bg" id="edit-modal" role="dialog" aria-modal="true" aria-label="Edit">
   <div class="modal">
     <div class="modal-handle"></div>
     <div class="modal-eyebrow">Edit</div>
@@ -554,7 +576,7 @@
 </div>
 
 <!-- VIRTUE EDITOR OVERLAY -->
-<div class="virtue-editor" id="virtue-editor">
+<div class="virtue-editor" id="virtue-editor" role="dialog" aria-modal="true" aria-label="Edit virtue">
   <div class="ve-top">
     <button class="ve-back" id="ve-back-btn">← Constitution</button>
     <div class="ve-eyebrow" id="ve-eyebrow">Edit Virtue</div>
@@ -647,7 +669,7 @@
 </div>
 
 <!-- BEHAVIOR EDIT SHEET (within virtue editor) -->
-<div class="modal-bg" id="behavior-modal">
+<div class="modal-bg" id="behavior-modal" role="dialog" aria-modal="true" aria-label="Behavior">
   <div class="modal">
     <div class="modal-handle"></div>
     <div class="modal-eyebrow" id="behavior-modal-eyebrow">New behavior</div>
@@ -672,7 +694,7 @@
 </div>
 
 <!-- HELP MODAL -->
-<div class="modal-bg" id="help-modal">
+<div class="modal-bg" id="help-modal" role="dialog" aria-modal="true" aria-label="How to use The OS">
   <div class="modal">
     <div class="modal-handle"></div>
     <div class="modal-title">How to use The OS.</div>
@@ -727,7 +749,7 @@
 </div>
 
 <!-- ============ NEW/EDIT EXPERIMENT MODAL ============ -->
-<div class="modal-bg" id="exp-new-modal">
+<div class="modal-bg" id="exp-new-modal" role="dialog" aria-modal="true" aria-label="Experiment">
   <div class="modal">
     <div class="modal-handle"></div>
     <div class="modal-eyebrow" id="exp-modal-eyebrow">New Experiment</div>
@@ -767,7 +789,7 @@
 </div>
 
 <!-- ============ EXPERIMENT DETAIL MODAL ============ -->
-<div class="modal-bg" id="exp-detail-modal">
+<div class="modal-bg" id="exp-detail-modal" role="dialog" aria-modal="true" aria-label="Experiment detail">
   <div class="modal">
     <div class="modal-handle"></div>
 
@@ -820,9 +842,20 @@
 </div>
 
 <!-- Toast -->
-<div class="toast" id="toast"><span class="toast-dot"></span><span id="toast-text">Saved</span></div>
+<div class="toast" id="toast" role="status" aria-live="polite"><span class="toast-dot" aria-hidden="true"></span><span id="toast-text">Saved</span></div>
 
 <script src="app.js"></script>
+<script>
+  // PWA: register the service worker so the OS installs and works offline.
+  // Requires HTTPS or localhost; silently skipped on file:// or unsupported browsers.
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('/sw.js').catch(err => {
+        console.warn('SW registration failed', err);
+      });
+    });
+  }
+</script>
 
 </body>
 </html>

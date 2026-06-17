@@ -245,6 +245,7 @@ body {
 .virtue-behavior-text {
   font-size: 13px; line-height: 1.5;
   color: var(--ink);
+  white-space: pre-wrap; word-break: break-word;
 }
 .virtue-behavior-text.has-cue { margin-bottom: 6px; }
 .virtue-behavior-cue {
@@ -2136,6 +2137,7 @@ body {
 .behavior-card-text {
   font-size: 13px;
   color: var(--ink); line-height: 1.45;
+  white-space: pre-wrap; word-break: break-word;
 }
 .behavior-card-cue {
   font-family: var(--display);
@@ -2150,6 +2152,7 @@ body {
   border-top: 1px dashed var(--line);
   font-size: 12px; color: var(--ink-3);
   line-height: 1.45;
+  white-space: pre-wrap; word-break: break-word;
 }
 .behavior-card-why strong {
   font-family: var(--mono);

@@ -626,7 +626,9 @@ function deleteRuleByRow(row) {
   renderRulesView();
 }
 
-// Add-rule sheet
+// Add-rule sheet (two steps: pick target, then write the rule text)
+let _addRuleTarget = null; // 'general' or a virtue id
+
 function openAddRuleSheet() {
   const sheet = document.getElementById('rule-add-sheet');
   const virtueList = document.getElementById('rule-add-virtue-list');
@@ -643,26 +645,59 @@ function openAddRuleSheet() {
     virtueList.appendChild(btn);
   });
 
+  showAddRuleStep('target');
   sheet.style.display = 'flex';
 }
 
 function closeAddRuleSheet() {
   document.getElementById('rule-add-sheet').style.display = 'none';
+  _addRuleTarget = null;
+}
+
+function showAddRuleStep(step) {
+  document.getElementById('rule-add-step-target').style.display = step === 'target' ? 'block' : 'none';
+  document.getElementById('rule-add-step-write').style.display = step === 'write' ? 'block' : 'none';
 }
 
 function startAddRule(target) {
-  closeAddRuleSheet();
-  const text = prompt('Write the rule.');
-  if (!text || !text.trim()) return;
+  // Step 2: collect the rule text in-sheet (no native prompt).
+  _addRuleTarget = target;
 
-  const newRule = { id: uid(), text: text.trim(), createdAt: Date.now() };
+  let eyebrow = 'WRITE THE RULE';
+  let title = 'A line he will not cross.';
+  if (target !== 'general') {
+    const v = state.virtues.find(x => x.id === target);
+    if (v) {
+      eyebrow = `RULE · ${(v.name || '').toUpperCase()}`;
+      title = `A line ${v.name || 'he'} will not cross.`;
+    }
+  } else {
+    eyebrow = 'GENERAL RULE';
+    title = 'Standing law of the man.';
+  }
+  document.getElementById('rule-add-write-eyebrow').textContent = eyebrow;
+  document.getElementById('rule-add-write-title').textContent = title;
 
-  if (target === 'general') {
+  const input = document.getElementById('rule-add-text-input');
+  input.value = '';
+  showAddRuleStep('write');
+  setTimeout(() => input.focus(), 60);
+}
+
+function commitAddRule() {
+  const input = document.getElementById('rule-add-text-input');
+  const text = input.value.trim();
+  if (!text) { toast('Write the rule first'); input.focus(); return; }
+  if (!_addRuleTarget) { closeAddRuleSheet(); return; }
+
+  const newRule = { id: uid(), text, createdAt: Date.now() };
+
+  if (_addRuleTarget === 'general') {
     state.generalRules = state.generalRules || [];
     state.generalRules.push(newRule);
     save('generalRules');
   } else {
-    const v = state.virtues.find(x => x.id === target);
+    const v = state.virtues.find(x => x.id === _addRuleTarget);
     if (v) {
       v.rules = v.rules || [];
       v.rules.push(newRule);
@@ -673,6 +708,7 @@ function startAddRule(target) {
     }
   }
 
+  closeAddRuleSheet();
   renderRulesView();
 }
 
@@ -681,6 +717,12 @@ document.getElementById('rules-add-btn').onclick = openAddRuleSheet;
 document.getElementById('rule-add-backdrop').onclick = closeAddRuleSheet;
 document.getElementById('rule-add-cancel-btn').onclick = closeAddRuleSheet;
 document.querySelector('.rule-add-option[data-target="general"]').onclick = () => startAddRule('general');
+document.getElementById('rule-add-back-btn').onclick = () => showAddRuleStep('target');
+document.getElementById('rule-add-save-btn').onclick = commitAddRule;
+document.getElementById('rule-add-text-input').addEventListener('keydown', (e) => {
+  // Enter saves; Shift+Enter inserts a newline.
+  if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); commitAddRule(); }
+});
 
 // ============ FULL-SCREEN VIRTUE VIEW ============
 let currentVirtueId = null;
@@ -1473,11 +1515,21 @@ function predictInterval(card, grade) {
 // ============ REVIEW SESSION ============
 let reviewQueue = [], reviewIdx = 0, reviewCorrect = 0;
 
+// Uniform in-place Fisher-Yates shuffle. `pool.sort(() => Math.random() - 0.5)`
+// uses a non-transitive comparator and produces a biased distribution.
+function shuffleInPlace(arr) {
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+  return arr;
+}
+
 function startReview(categoryId) {
   let pool = state.cards.filter(c => c.due <= Date.now());
   if (categoryId !== null) pool = pool.filter(c => c.categoryId === categoryId);
   if (pool.length === 0) { toast('No cards due'); return; }
-  reviewQueue = pool.sort(() => Math.random() - 0.5);
+  reviewQueue = shuffleInPlace(pool.slice());
   reviewIdx = 0; reviewCorrect = 0;
   const catName = categoryId ? getCategoryById(categoryId)?.name : 'All categories';
   document.getElementById('review-cat-pill').textContent = catName;
@@ -1526,6 +1578,34 @@ document.querySelectorAll('.grade-btn').forEach(btn => {
         Math.round((reviewCorrect / reviewQueue.length) * 100) + '%';
     } else showCard();
   };
+});
+
+// Keyboard shortcuts: Space flips, 1-4 grade. Only while the review overlay
+// is on screen, and only when focus isn't in a text field (safe even though
+// review has no inputs today).
+document.addEventListener('keydown', (e) => {
+  const overlay = document.getElementById('review-overlay');
+  if (!overlay.classList.contains('show')) return;
+  const tag = (e.target && e.target.tagName) || '';
+  if (tag === 'INPUT' || tag === 'TEXTAREA' || (e.target && e.target.isContentEditable)) return;
+  // Don't intercept once we're on the completion screen.
+  if (document.getElementById('review-complete').style.display === 'flex') return;
+
+  if (e.key === ' ' || e.code === 'Space') {
+    e.preventDefault();
+    const c = document.getElementById('review-card');
+    if (!c.classList.contains('flipped')) c.click();
+    return;
+  }
+  // Grade keys are only meaningful once the card is flipped (grade row is visible).
+  const gradeRow = document.getElementById('grade-row');
+  if (gradeRow.style.display !== 'flex') return;
+  const map = { '1': 0, '2': 3, '3': 4, '4': 5 };
+  if (e.key in map) {
+    e.preventDefault();
+    const btn = document.querySelector(`.grade-btn[data-grade="${map[e.key]}"]`);
+    if (btn) btn.click();
+  }
 });
 
 document.getElementById('review-close-btn').onclick = () => {
@@ -1609,14 +1689,17 @@ document.getElementById('import-file').onchange = (e) => {
 document.getElementById('reset-all-btn').onclick = async () => {
   if (!confirm("This will wipe ALL your data. There is no undo.\n\nProceed?")) return;
   if (!confirm("Absolutely sure?")) return;
+  // Reset state.* in-memory, then await every save before declaring the wipe
+  // complete. forEach + un-awaited save() let the migrations and toast race
+  // ahead of the queued upserts (and produced N per-key 'Saved' toasts).
   KEYS.forEach(k => {
-    // Reset migratedToVirtues so the next loadState re-seeds the 8 default virtues.
+    // Drop meta.migratedToVirtues so the next loadState re-seeds the default constitution.
     if (k === 'meta') state[k] = { firstVisit: false };
     else if (k === 'reviewStats') state[k] = { total: 0 };
     else if (Array.isArray(state[k])) state[k] = [];
     else state[k] = {};
-    save(k);
   });
+  await Promise.all(KEYS.map(k => save(k, true)));
   // Re-run migrations so the user is left with the default constitution, fully shaped.
   if (migrateToVirtues()) {
     await save('virtues', true);
@@ -1626,6 +1709,7 @@ document.getElementById('reset-all-btn').onclick = async () => {
     await save('virtues', true);
     await save('meta', true);
   }
+  await flushSync(); // push the debounced batch before we report 'Wiped'
   renderAll();
   toast('Wiped');
 };
@@ -1865,11 +1949,11 @@ function renderBehaviorList() {
   list.innerHTML = behaviors.map((b, idx) => `
     <div class="behavior-card" draggable="true" data-idx="${idx}">
       <div class="behavior-card-head">
-        <span class="behavior-card-drag" title="Drag to reorder">⋮⋮</span>
+        <span class="behavior-card-drag" title="Drag to reorder" aria-hidden="true">⋮⋮</span>
         <span class="behavior-card-label">Behavior · ${idx + 1}</span>
         <div class="behavior-card-actions">
           <button class="behavior-card-btn" data-action="edit">Edit</button>
-          <button class="behavior-card-btn del" data-action="del">×</button>
+          <button class="behavior-card-btn del" data-action="del" aria-label="Delete behavior">×</button>
         </div>
       </div>
       <div class="behavior-card-text">${escapeHtml(b.text || '')}</div>
@@ -2127,7 +2211,7 @@ function renderStringList() {
       <div class="ve-string-item" data-idx="${idx}" draggable="true">
         ${bullet}
         <span class="ve-string-item-text">${escapeHtml(text)}</span>
-        <button class="ve-string-item-del" data-idx="${idx}" aria-label="Delete">×</button>
+        <button class="ve-string-item-del" data-idx="${idx}" aria-label="Delete item">×</button>
       </div>`;
   }).join('');
 
@@ -2351,7 +2435,7 @@ function renderExpEntries(exp) {
   }
   container.innerHTML = entries.map(entry => `
     <div class="exp-entry" data-entry-id="${entry.id}">
-      <button class="exp-entry-delete" title="Delete">✕</button>
+      <button class="exp-entry-delete" title="Delete" aria-label="Delete note">✕</button>
       <div class="exp-entry-date">${formatEntryTime(entry.at)}</div>
       <div class="exp-entry-text">${escapeHtml(entry.text)}</div>
     </div>`).join('');

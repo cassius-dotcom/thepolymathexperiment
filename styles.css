@@ -299,23 +299,6 @@ body {
   line-height: 1.5;
 }
 
-/* Triggers */
-.virtue-trigger-item {
-  border-left: 2px solid rgba(218,165,32,0.4);
-  padding: 6px 0 6px 14px;
-  margin-bottom: 6px;
-  display: flex; gap: 8px;
-}
-.virtue-trigger-item:last-child { margin-bottom: 0; }
-.virtue-trigger-mark {
-  color: #daa520; font-size: 13px;
-  margin-top: 1px; flex-shrink: 0;
-}
-.virtue-trigger-text {
-  font-size: 13px; color: #c8b89c;
-  line-height: 1.5;
-}
-
 /* Habits */
 .virtue-habit-item {
   display: flex; align-items: flex-start; gap: 10px;
@@ -329,6 +312,149 @@ body {
 .virtue-habit-text {
   font-size: 13px; color: #a8b8c8;
   line-height: 1.5;
+}
+
+/* Behavior "why" — shows underneath the action + cue. Muted, italic, smaller. */
+.virtue-behavior-why {
+  font-size: 12px; color: var(--ink-3);
+  font-style: italic; line-height: 1.5;
+  font-family: var(--display);
+  margin-top: 6px;
+  padding-top: 6px;
+  border-top: 0.5px solid rgba(212,168,87,0.15);
+}
+
+/* Portrait prose — "How he acts". Drop-cap-feel intro under the identity line. */
+.virtue-portrait-prose {
+  font-family: var(--display);
+  font-size: 15px; line-height: 1.7;
+  color: var(--ink);
+  white-space: pre-wrap;
+  margin: 0 0 28px;
+  padding: 16px 18px;
+  background: rgba(212,168,87,0.04);
+  border: 0.5px solid rgba(212,168,87,0.2);
+  border-radius: 10px;
+}
+
+/* Group dividers between THE MAN / THE PRACTICE arcs */
+.virtue-section-group-label {
+  font-family: var(--display);
+  font-size: 11px;
+  letter-spacing: 0.4em;
+  text-transform: uppercase;
+  color: var(--gold);
+  text-align: center;
+  margin: 28px 0 16px;
+  position: relative;
+}
+.virtue-section-group-label::before,
+.virtue-section-group-label::after {
+  content: '';
+  position: absolute; top: 50%;
+  width: 28px; height: 1px;
+  background: rgba(212,168,87,0.3);
+}
+.virtue-section-group-label::before { left: 50%; margin-left: -80px; }
+.virtue-section-group-label::after  { left: 50%; margin-left: 52px; }
+
+/* Questions — "What he asks" */
+.virtue-question-item {
+  display: flex; align-items: flex-start; gap: 10px;
+  margin-bottom: 10px;
+  padding: 8px 0 8px 14px;
+  border-left: 2px solid rgba(120,160,200,0.35);
+}
+.virtue-question-item:last-child { margin-bottom: 0; }
+.virtue-question-mark {
+  color: #7aa0c8; font-size: 14px;
+  font-weight: 600;
+  margin-top: 1px; flex-shrink: 0;
+}
+.virtue-question-text {
+  font-size: 14px; line-height: 1.55;
+  color: var(--ink);
+  font-family: var(--display);
+  font-style: italic;
+}
+
+/* Challenges — "Where he struggles" */
+.virtue-challenge-item {
+  background: rgba(218,165,32,0.05);
+  border: 0.5px solid rgba(218,165,32,0.18);
+  border-left: 2px solid #daa520;
+  border-radius: 8px;
+  padding: 10px 12px;
+  margin-bottom: 8px;
+  display: flex; gap: 10px;
+}
+.virtue-challenge-item:last-child { margin-bottom: 0; }
+.virtue-challenge-mark {
+  color: #daa520; font-size: 13px;
+  margin-top: 1px; flex-shrink: 0;
+}
+.virtue-challenge-text {
+  font-size: 13px; color: #c8b89c;
+  line-height: 1.55;
+}
+
+/* Notes — per-virtue free-form log. Lab-experiment-style. */
+.virtue-notes-section { margin-top: 28px; }
+.virtue-note-list {
+  display: flex; flex-direction: column; gap: 8px;
+  margin-bottom: 14px;
+}
+.virtue-note-empty {
+  font-size: 12px; color: var(--ink-3);
+  font-style: italic; font-family: var(--display);
+  padding: 12px 0;
+  line-height: 1.55;
+}
+.virtue-note-item {
+  background: rgba(255,255,255,0.025);
+  border: 0.5px solid var(--line);
+  border-radius: 8px;
+  padding: 10px 12px;
+}
+.virtue-note-text {
+  font-size: 13px; line-height: 1.55;
+  color: var(--ink);
+  white-space: pre-wrap; word-break: break-word;
+  margin-bottom: 6px;
+}
+.virtue-note-row {
+  display: flex; justify-content: space-between; align-items: center;
+  margin-top: 4px;
+}
+.virtue-note-date {
+  font-family: var(--mono); font-size: 9px;
+  letter-spacing: 0.2em; text-transform: uppercase;
+  color: var(--ink-3);
+}
+.virtue-note-del {
+  background: none; border: none;
+  color: var(--ink-3); font-size: 16px;
+  cursor: pointer; padding: 2px 6px;
+  line-height: 1;
+}
+.virtue-note-del:hover { color: var(--red); }
+.virtue-note-input-row {
+  display: flex; flex-direction: column; gap: 8px;
+}
+.virtue-note-input-row textarea {
+  width: 100%; resize: vertical;
+  background: rgba(255,255,255,0.02);
+  border: 0.5px solid var(--line);
+  border-radius: 8px;
+  color: var(--ink);
+  padding: 10px 12px;
+  font-family: var(--display);
+  font-size: 13px; line-height: 1.5;
+  box-sizing: border-box;
+}
+.virtue-note-input-row textarea:focus {
+  outline: none;
+  border-color: rgba(212,168,87,0.45);
 }
 
 /* ========== STATS ========== */
@@ -2372,7 +2498,7 @@ body {
 }
 .ve-section-remove-btn:active { transform: scale(0.99); }
 
-/* Generic string-list item (mantras, rules, anti, triggers, habits in editor) */
+/* Generic string-list item (mantras, questions, habits, challenges, rules, anti in editor) */
 .ve-string-item {
   background: var(--bg-1);
   border: 1px solid var(--line);

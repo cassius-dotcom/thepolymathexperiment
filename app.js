@@ -129,9 +129,12 @@ function getAllVirtuesSorted() {
   return (state.virtues || []).slice().sort(virtueComparator);
 }
 
-const ALL_COMPONENT_TYPES = ['behaviors','mantras','rules','antiBehaviors','triggers','habits'];
-const STRING_COMPONENT_TYPES = ['mantras','rules','antiBehaviors','triggers','habits'];
-const DEFAULT_COMPONENT_ORDER = ['behaviors','mantras','rules','antiBehaviors','triggers','habits'];
+const ALL_COMPONENT_TYPES = ['behaviors','mantras','questions','habits','challenges','rules','antiBehaviors'];
+const STRING_COMPONENT_TYPES = ['mantras','questions','habits','challenges','rules','antiBehaviors'];
+const DEFAULT_COMPONENT_ORDER = ['behaviors','mantras','questions','habits','challenges','rules','antiBehaviors'];
+// 'triggers' is legacy: content was migrated into notes by migrateVirtuesToPortraitV2.
+// The type is intentionally absent from ALL_COMPONENT_TYPES / DEFAULT_COMPONENT_ORDER so it
+// can never be re-added through the editor.
 
 // A string-component item is either a bare string (legacy) or a {id, text} object.
 const componentText = it => (typeof it === 'string' ? it : (it && it.text) || '');
@@ -168,12 +171,21 @@ function ensureVirtueShape(v) {
   v.antiBehaviors = _normalizeStringComponent(v.antiBehaviors);
   v.habits        = _normalizeStringComponent(v.habits);
   v.mantras       = _normalizeStringComponent(v.mantras);
-  v.triggers      = _normalizeStringComponent(v.triggers);
+  v.questions     = _normalizeStringComponent(v.questions);
+  v.challenges    = _normalizeStringComponent(v.challenges);
+  // 'triggers' is deprecated. Any remaining content is preserved in notes by the
+  // V2 migration; here we just ensure the bare field doesn't break older saves.
+  delete v.triggers;
+  // Portrait prose ("how he acts") + free-form notes log
+  if (typeof v.portrait !== 'string') v.portrait = '';
+  v.notes = _normalizeStringComponent(v.notes);
   if (!Array.isArray(v.componentOrder)) {
     const order = ['behaviors'];
     if (v.rules.length) order.push('rules');
     v.componentOrder = order;
   }
+  // Strip any legacy 'triggers' entry from a previously-saved componentOrder.
+  v.componentOrder = v.componentOrder.filter(t => t !== 'triggers');
   return v;
 }
 
@@ -301,6 +313,36 @@ function migrateVirtuesToComponents() {
   return true;
 }
 
+// ============ MIGRATION: portrait V2 (one-shot) ============
+// Adds the portrait prose field, questions/challenges component types, and a
+// per-virtue notes log. Folds any existing 'triggers' content into notes so
+// nothing is lost when triggers is retired as a standalone section.
+function migrateVirtuesToPortraitV2() {
+  if (state.meta && state.meta.migratedToPortraitV2) return false;
+  state.virtues = state.virtues || [];
+  state.virtues.forEach(v => {
+    // Preserve any existing trigger text into notes BEFORE ensureVirtueShape strips it.
+    const legacyTriggers = Array.isArray(v.triggers) ? v.triggers : [];
+    if (legacyTriggers.length) {
+      v.notes = Array.isArray(v.notes) ? v.notes : [];
+      const now = Date.now();
+      legacyTriggers.forEach((t, i) => {
+        const text = (typeof t === 'string') ? t : (t && t.text) || '';
+        if (!text) return;
+        v.notes.push({
+          id: uid(),
+          text: '[from triggers] ' + text,
+          createdAt: now + i
+        });
+      });
+    }
+    ensureVirtueShape(v);
+  });
+  state.meta = state.meta || {};
+  state.meta.migratedToPortraitV2 = true;
+  return true;
+}
+
 async function loadState(loadOk = true) {
   for (const k of KEYS) {
     try {
@@ -343,6 +385,11 @@ async function loadState(loadOk = true) {
     // (in case a virtue was imported or hand-edited)
     (state.virtues || []).forEach(ensureVirtueShape);
     state.generalRules = _normalizeStringComponent(state.generalRules);
+  }
+  // Portrait V2: portrait prose, questions/challenges, notes log, retire triggers.
+  if (migrateVirtuesToPortraitV2()) {
+    await save('virtues', true);
+    await save('meta', true);
   }
 
   if (state.meta.firstVisit) {
@@ -728,12 +775,13 @@ document.getElementById('rule-add-text-input').addEventListener('keydown', (e) =
 let currentVirtueId = null;
 
 const COMPONENT_LABELS = {
-  behaviors: 'BEHAVIORS',
-  mantras: 'MANTRAS',
-  rules: 'RULES',
-  antiBehaviors: 'ANTI-BEHAVIORS',
-  triggers: 'TRIGGERS',
-  habits: 'HABITS'
+  behaviors:     'WHAT HE DOES',
+  mantras:       'WHAT HE SAYS',
+  questions:     'WHAT HE ASKS',
+  habits:        'DAILY',
+  challenges:    'WHERE HE STRUGGLES',
+  rules:         'LINES HE HOLDS',
+  antiBehaviors: 'WHAT HE REFUSES'
 };
 
 function openVirtueView(virtueId) {
@@ -755,16 +803,29 @@ function closeVirtueView() {
   currentVirtueId = null;
 }
 
+// Visual grouping: which sections belong to "THE MAN" (who he is) vs.
+// "THE PRACTICE" (how the man is built). Used purely for headers — section order
+// inside each group still follows the virtue's componentOrder.
+const MAN_GROUP = new Set(['behaviors','mantras','questions']);
+const PRACTICE_GROUP = new Set(['habits','challenges','rules','antiBehaviors']);
+
 function renderVirtueView(v) {
   const container = document.getElementById('virtue-view-container');
 
-  // Section order: behaviors always first, then componentOrder for the rest
+  // Section order: behaviors always first, then componentOrder for the rest.
+  // Drop legacy 'triggers' defensively in case an old order slipped through.
   const orderRaw = Array.isArray(v.componentOrder) && v.componentOrder.length
     ? v.componentOrder
     : DEFAULT_COMPONENT_ORDER;
-  const order = ['behaviors', ...orderRaw.filter(t => t !== 'behaviors')];
+  const order = ['behaviors', ...orderRaw.filter(t => t !== 'behaviors' && t !== 'triggers')];
 
-  const sectionsHtml = order.map(type => renderComponentSection(type, v)).filter(Boolean).join('');
+  // Split into the two visual groups, preserving order within each.
+  const manSections      = order.filter(t => MAN_GROUP.has(t))
+                                .map(type => renderComponentSection(type, v))
+                                .filter(Boolean).join('');
+  const practiceSections = order.filter(t => PRACTICE_GROUP.has(t))
+                                .map(type => renderComponentSection(type, v))
+                                .filter(Boolean).join('');
 
   container.innerHTML = `
     <div class="virtue-view-topbar">
@@ -779,17 +840,100 @@ function renderVirtueView(v) {
       <div class="virtue-portrait-identity">${escapeHtml(v.identityLine || '')}</div>
     </div>
 
+    ${v.portrait ? `
+      <div class="virtue-portrait-prose">${escapeHtml(v.portrait)}</div>` : ''}
+
+    ${manSections ? `
+      <div class="virtue-section-group-label">THE MAN</div>
+      ${manSections}` : ''}
+
+    ${practiceSections ? `
+      <div class="virtue-section-group-label">THE PRACTICE</div>
+      ${practiceSections}` : ''}
+
     ${v.body ? `
       <div class="virtue-section">
         <div class="virtue-section-label">THE MAN BEHIND IT</div>
         <div class="virtue-body-box">${escapeHtml(v.body)}</div>
       </div>` : ''}
 
-    ${sectionsHtml}
+    ${renderVirtueNotesSection(v)}
   `;
 
   document.getElementById('virtue-view-back-btn').onclick = closeVirtueView;
   document.getElementById('virtue-view-edit-btn').onclick = editCurrentVirtue;
+  wireVirtueNotesSection(v);
+}
+
+// ============ VIRTUE NOTES (per-virtue free-form log) ============
+function renderVirtueNotesSection(v) {
+  const notes = (v.notes || []).slice().reverse(); // newest first
+  const items = notes.length
+    ? notes.map(n => `
+        <div class="virtue-note-item" data-note-id="${escapeHtml(n.id)}">
+          <div class="virtue-note-text">${escapeHtml(n.text)}</div>
+          <div class="virtue-note-row">
+            <span class="virtue-note-date">${formatNoteDate(n.createdAt)}</span>
+            <button class="virtue-note-del" data-note-id="${escapeHtml(n.id)}" aria-label="Delete note">×</button>
+          </div>
+        </div>`).join('')
+    : `<div class="virtue-note-empty">No notes yet. Record moments — when it showed up, when it slipped, what you noticed.</div>`;
+
+  return `
+    <div class="virtue-section virtue-notes-section">
+      <div class="virtue-section-label">NOTES</div>
+      <div class="virtue-note-list" id="virtue-note-list">${items}</div>
+      <div class="virtue-note-input-row">
+        <textarea id="virtue-note-input" rows="2" placeholder="Log a moment..."></textarea>
+        <button class="btn btn-primary" id="virtue-note-add-btn">+ Add note</button>
+      </div>
+    </div>`;
+}
+
+function wireVirtueNotesSection(v) {
+  const input  = document.getElementById('virtue-note-input');
+  const addBtn = document.getElementById('virtue-note-add-btn');
+  if (!input || !addBtn) return;
+
+  addBtn.onclick = () => addNoteToVirtue(v.id, input.value);
+  input.addEventListener('keydown', e => {
+    // Enter saves; Shift+Enter inserts a newline. Matches the rule-add pattern.
+    if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); addNoteToVirtue(v.id, input.value); }
+  });
+
+  document.querySelectorAll('#virtue-note-list .virtue-note-del').forEach(btn => {
+    btn.onclick = () => deleteNoteFromVirtue(v.id, btn.dataset.noteId);
+  });
+}
+
+async function addNoteToVirtue(virtueId, rawText) {
+  const text = (rawText || '').trim();
+  if (!text) return;
+  const v = getVirtueById(virtueId);
+  if (!v) return;
+  ensureVirtueShape(v);
+  v.notes.push({ id: uid(), text, createdAt: Date.now() });
+  v.updatedAt = Date.now();
+  await save('virtues', true);
+  // Re-render only the open portrait — no full renderAll needed.
+  renderVirtueView(v);
+}
+
+async function deleteNoteFromVirtue(virtueId, noteId) {
+  if (!confirm('Delete this note?')) return;
+  const v = getVirtueById(virtueId);
+  if (!v) return;
+  ensureVirtueShape(v);
+  v.notes = v.notes.filter(n => n.id !== noteId);
+  v.updatedAt = Date.now();
+  await save('virtues', true);
+  renderVirtueView(v);
+}
+
+function formatNoteDate(ts) {
+  if (!ts) return '';
+  const d = new Date(ts);
+  return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
 }
 
 function renderComponentSection(type, v) {
@@ -806,10 +950,25 @@ function renderComponentSection(type, v) {
         <div class="virtue-behavior-item">
           <div class="virtue-behavior-text${b.cue ? ' has-cue' : ''}">${escapeHtml(b.text || '')}</div>
           ${b.cue ? `<div class="virtue-behavior-cue">Cue: ${escapeHtml(b.cue)}</div>` : ''}
+          ${b.why ? `<div class="virtue-behavior-why">${escapeHtml(b.why)}</div>` : ''}
         </div>`).join('');
       break;
     case 'mantras':
       body = items.map(m => `<div class="virtue-mantra-item">${escapeHtml(textOf(m))}</div>`).join('');
+      break;
+    case 'questions':
+      body = items.map(q => `
+        <div class="virtue-question-item">
+          <span class="virtue-question-mark">?</span>
+          <span class="virtue-question-text">${escapeHtml(textOf(q))}</span>
+        </div>`).join('');
+      break;
+    case 'challenges':
+      body = items.map(c => `
+        <div class="virtue-challenge-item">
+          <span class="virtue-challenge-mark">△</span>
+          <span class="virtue-challenge-text">${escapeHtml(textOf(c))}</span>
+        </div>`).join('');
       break;
     case 'rules':
       body = items.map(r => `
@@ -823,13 +982,6 @@ function renderComponentSection(type, v) {
         <div class="virtue-anti-item">
           <span class="virtue-anti-x">✕</span>
           <span class="virtue-anti-text">${escapeHtml(textOf(a))}</span>
-        </div>`).join('');
-      break;
-    case 'triggers':
-      body = items.map(t => `
-        <div class="virtue-trigger-item">
-          <span class="virtue-trigger-mark">!</span>
-          <span class="virtue-trigger-text">${escapeHtml(textOf(t))}</span>
         </div>`).join('');
       break;
     case 'habits':
@@ -1720,17 +1872,18 @@ let _editorIsNew = false;
 let _editorDraft = null; // working copy
 let _editorVePane = 'identity';
 let _editorComponentView = 'list'; // 'list' or 'section'
-let _editorSectionType = null;      // 'behaviors' | 'mantras' | 'rules' | 'antiBehaviors' | 'triggers' | 'habits'
+let _editorSectionType = null;      // 'behaviors' | 'mantras' | 'questions' | 'habits' | 'challenges' | 'rules' | 'antiBehaviors'
 let _constitutionFilter = 'active';
 let _editingBehaviorIdx = -1;
 
 const COMPONENT_META = {
-  behaviors:    { icon: '◇', label: 'Behaviors',      desc: 'Concrete actions. What he does.' },
-  mantras:      { icon: '›', label: 'Mantras',        desc: 'Lines he repeats to anchor.' },
-  rules:        { icon: '◆', label: 'Rules',          desc: 'Lines he will not cross.' },
-  antiBehaviors:{ icon: '✕', label: 'Anti-behaviors', desc: 'Patterns he refuses.' },
-  triggers:     { icon: '!', label: 'Triggers',       desc: 'Moments to watch for.' },
-  habits:       { icon: '◐', label: 'Habits',         desc: 'Standing routines that hold him.' }
+  behaviors:    { icon: '◇', label: 'What he does',     singular: 'behavior',    desc: 'Concrete actions. Cue + why optional.' },
+  mantras:      { icon: '›', label: 'What he says',     singular: 'mantra',      desc: 'Lines he repeats. The voice of the man.' },
+  questions:    { icon: '?', label: 'What he asks',     singular: 'question',    desc: 'The questions characteristic of him.' },
+  habits:       { icon: '◐', label: 'Daily',            singular: 'habit',       desc: 'Standing routines that hold him.' },
+  challenges:   { icon: '△', label: 'Where he struggles',singular: 'challenge',  desc: 'Friction to expect. Where you slip.' },
+  rules:        { icon: '◆', label: 'Lines he holds',   singular: 'rule',        desc: 'Lines he will not cross.' },
+  antiBehaviors:{ icon: '✕', label: 'What he refuses',  singular: 'anti-behavior',desc: 'Patterns he will not perform.' }
 };
 
 function emptyVirtue() {
@@ -1741,12 +1894,15 @@ function emptyVirtue() {
     symbol: '◆',
     identityLine: '',
     body: '',
+    portrait: '',
     behaviors: [],
+    mantras: [],
+    questions: [],
+    habits: [],
+    challenges: [],
     rules: [],
     antiBehaviors: [],
-    habits: [],
-    mantras: [],
-    triggers: [],
+    notes: [],
     componentOrder: DEFAULT_COMPONENT_ORDER.slice(),
     active: true,
     pinned: false,
@@ -1882,15 +2038,18 @@ document.querySelectorAll('.ve-tab').forEach(t => {
 });
 
 function bindEditorFields() {
-  const nameEl = document.getElementById('ve-name-input');
-  const idEl = document.getElementById('ve-identity-input');
-  const bodyEl = document.getElementById('ve-body-input');
-  nameEl.value = _editorDraft.name || '';
-  idEl.value = _editorDraft.identityLine || '';
-  bodyEl.value = _editorDraft.body || '';
-  nameEl.oninput = () => { _editorDraft.name = nameEl.value; updateEditorPreview(); };
-  idEl.oninput = () => { _editorDraft.identityLine = idEl.value; updateEditorPreview(); };
-  bodyEl.oninput = () => { _editorDraft.body = bodyEl.value; };
+  const nameEl     = document.getElementById('ve-name-input');
+  const idEl       = document.getElementById('ve-identity-input');
+  const portraitEl = document.getElementById('ve-portrait-input');
+  const bodyEl     = document.getElementById('ve-body-input');
+  nameEl.value     = _editorDraft.name || '';
+  idEl.value       = _editorDraft.identityLine || '';
+  portraitEl.value = _editorDraft.portrait || '';
+  bodyEl.value     = _editorDraft.body || '';
+  nameEl.oninput     = () => { _editorDraft.name = nameEl.value; updateEditorPreview(); };
+  idEl.oninput       = () => { _editorDraft.identityLine = idEl.value; updateEditorPreview(); };
+  portraitEl.oninput = () => { _editorDraft.portrait = portraitEl.value; };
+  bodyEl.oninput     = () => { _editorDraft.body = bodyEl.value; };
   // Toggles
   const activeT = document.getElementById('ve-active-toggle');
   const pinnedT = document.getElementById('ve-pinned-toggle');
@@ -2188,7 +2347,7 @@ document.getElementById('ve-section-remove-btn').onclick = () => {
   closeComponentSection();
 };
 
-// ============ EDITOR: GENERIC STRING LIST (mantras/rules/antiBehaviors/triggers/habits) ============
+// ============ EDITOR: GENERIC STRING LIST (mantras/questions/habits/challenges/rules/antiBehaviors) ============
 function renderStringList() {
   const list = document.getElementById('ve-string-list');
   const type = _editorSectionType;
@@ -2196,7 +2355,9 @@ function renderStringList() {
   const input = document.getElementById('ve-string-input');
   const meta = COMPONENT_META[type];
 
-  if (input) input.placeholder = `Add a ${meta.label.toLowerCase().replace(/s$/, '')}...`;
+  // Use singular for the placeholder so the new portrait-language labels still
+  // produce clean copy ("Add a question..." not "Add a what he ask...").
+  if (input) input.placeholder = `Add a ${meta.singular || meta.label.toLowerCase()}...`;
 
   if (items.length === 0) {
     list.innerHTML = `<div class="ve-empty">No items yet. Add the first one below.</div>`;
@@ -2271,9 +2432,10 @@ stringInput.addEventListener('keydown', (e) => {
 
 document.getElementById('ve-save-btn').onclick = async () => {
   // Commit text fields back to draft from the DOM (in case oninput missed something on mobile)
-  _editorDraft.name = document.getElementById('ve-name-input').value.trim();
+  _editorDraft.name         = document.getElementById('ve-name-input').value.trim();
   _editorDraft.identityLine = document.getElementById('ve-identity-input').value.trim();
-  _editorDraft.body = document.getElementById('ve-body-input').value.trim();
+  _editorDraft.portrait     = document.getElementById('ve-portrait-input').value.trim();
+  _editorDraft.body         = document.getElementById('ve-body-input').value.trim();
 
   if (!_editorDraft.name) { toast('Name required'); return; }
   _editorDraft.updatedAt = Date.now();

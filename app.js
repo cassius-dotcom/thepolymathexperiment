@@ -375,6 +375,14 @@ async function loadState(loadOk = true) {
     await save('virtues', true);
     await save('meta', true);
   }
+  // Portrait V2 MUST run before migrateVirtuesToComponents (and its defensive
+  // ensureVirtueShape fallback), because ensureVirtueShape deletes v.triggers —
+  // V2 needs to read that field first to copy its content into the notes log.
+  // Reordering this would silently lose trigger content on next load.
+  if (migrateVirtuesToPortraitV2()) {
+    await save('virtues', true);
+    await save('meta', true);
+  }
   // Run one-shot migration to add new component arrays + componentOrder + object-form rules
   if (migrateVirtuesToComponents()) {
     await save('virtues', true);
@@ -385,11 +393,6 @@ async function loadState(loadOk = true) {
     // (in case a virtue was imported or hand-edited)
     (state.virtues || []).forEach(ensureVirtueShape);
     state.generalRules = _normalizeStringComponent(state.generalRules);
-  }
-  // Portrait V2: portrait prose, questions/challenges, notes log, retire triggers.
-  if (migrateVirtuesToPortraitV2()) {
-    await save('virtues', true);
-    await save('meta', true);
   }
 
   if (state.meta.firstVisit) {
@@ -843,6 +846,12 @@ function renderVirtueView(v) {
     ${v.portrait ? `
       <div class="virtue-portrait-prose">${escapeHtml(v.portrait)}</div>` : ''}
 
+    ${v.body ? `
+      <div class="virtue-section">
+        <div class="virtue-section-label">CONTEXT</div>
+        <div class="virtue-body-box">${escapeHtml(v.body)}</div>
+      </div>` : ''}
+
     ${manSections ? `
       <div class="virtue-section-group-label">THE MAN</div>
       ${manSections}` : ''}
@@ -850,12 +859,6 @@ function renderVirtueView(v) {
     ${practiceSections ? `
       <div class="virtue-section-group-label">THE PRACTICE</div>
       ${practiceSections}` : ''}
-
-    ${v.body ? `
-      <div class="virtue-section">
-        <div class="virtue-section-label">THE MAN BEHIND IT</div>
-        <div class="virtue-body-box">${escapeHtml(v.body)}</div>
-      </div>` : ''}
 
     ${renderVirtueNotesSection(v)}
   `;

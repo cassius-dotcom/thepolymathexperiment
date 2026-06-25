@@ -280,23 +280,20 @@ body {
   color: var(--ink);
 }
 
-/* Anti-behaviors */
+/* Anti-behaviors — plain row matching the other text-list components.
+   Only the ✕ is red; the body text uses the standard readable ink color. */
 .virtue-anti-item {
-  background: rgba(229,76,76,0.04);
-  border: 0.5px solid rgba(229,76,76,0.15);
-  border-radius: 8px;
-  padding: 10px 12px;
-  margin-bottom: 6px;
-  display: flex; gap: 10px;
+  display: flex; align-items: flex-start; gap: 10px;
+  margin-bottom: 10px;
 }
 .virtue-anti-item:last-child { margin-bottom: 0; }
 .virtue-anti-x {
   color: #c84a4a; font-size: 12px;
-  margin-top: 1px; flex-shrink: 0;
+  margin-top: 3px; flex-shrink: 0;
 }
 .virtue-anti-text {
-  font-size: 13px; color: #b8a8a8;
-  line-height: 1.5;
+  font-size: 13px; color: var(--ink);
+  line-height: 1.55;
 }
 
 /* Habits */
@@ -337,26 +334,27 @@ body {
   border-radius: 10px;
 }
 
-/* Group dividers between THE MAN / THE PRACTICE arcs */
+/* Group dividers between THE MAN / THE PRACTICE arcs.
+   Flex row: rule (flex:1) — label — rule (flex:1), with a gap so the rules
+   never touch the glyphs regardless of label length. */
 .virtue-section-group-label {
+  display: flex;
+  align-items: center;
+  gap: 16px;
   font-family: var(--display);
   font-size: 11px;
   letter-spacing: 0.4em;
   text-transform: uppercase;
   color: var(--gold);
-  text-align: center;
   margin: 28px 0 16px;
-  position: relative;
 }
 .virtue-section-group-label::before,
 .virtue-section-group-label::after {
   content: '';
-  position: absolute; top: 50%;
-  width: 28px; height: 1px;
+  flex: 1;
+  height: 1px;
   background: rgba(212,168,87,0.3);
 }
-.virtue-section-group-label::before { left: 50%; margin-left: -80px; }
-.virtue-section-group-label::after  { left: 50%; margin-left: 52px; }
 
 /* Questions — "What he asks" */
 .virtue-question-item {

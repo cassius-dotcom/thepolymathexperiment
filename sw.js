@@ -3,7 +3,7 @@
 // HTML so deploys ship without waiting for the SW to update; stale-while-
 // revalidate for static assets. Bump CACHE_NAME whenever the shell list
 // changes so old caches are cleared on activate.
-const CACHE_NAME = 'the-os-v2';
+const CACHE_NAME = 'the-os-v3';
 const SHELL = [
   '/',
   '/the_os.html',

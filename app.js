@@ -129,12 +129,13 @@ function getAllVirtuesSorted() {
   return (state.virtues || []).slice().sort(virtueComparator);
 }
 
-const ALL_COMPONENT_TYPES = ['behaviors','mantras','questions','habits','challenges','rules','antiBehaviors'];
-const STRING_COMPONENT_TYPES = ['mantras','questions','habits','challenges','rules','antiBehaviors'];
-const DEFAULT_COMPONENT_ORDER = ['behaviors','mantras','questions','habits','challenges','rules','antiBehaviors'];
-// 'triggers' is legacy: content was migrated into notes by migrateVirtuesToPortraitV2.
-// The type is intentionally absent from ALL_COMPONENT_TYPES / DEFAULT_COMPONENT_ORDER so it
-// can never be re-added through the editor.
+const ALL_COMPONENT_TYPES = ['behaviors','mantras','questions','habits','challenges','antiBehaviors'];
+const STRING_COMPONENT_TYPES = ['mantras','questions','habits','challenges','antiBehaviors'];
+const DEFAULT_COMPONENT_ORDER = ['behaviors','mantras','questions','habits','challenges','antiBehaviors'];
+// Legacy types intentionally absent from ALL_COMPONENT_TYPES / DEFAULT_COMPONENT_ORDER:
+//   'triggers' — content was migrated into notes by migrateVirtuesToPortraitV2.
+//   'rules'    — rules are now a separate concept (state.generalRules only). Existing
+//                per-virtue rules were copied into generalRules by migrateRulesOutOfVirtues.
 
 // A string-component item is either a bare string (legacy) or a {id, text} object.
 const componentText = it => (typeof it === 'string' ? it : (it && it.text) || '');
@@ -167,25 +168,23 @@ function ensureVirtueShape(v) {
     createdAt: b.createdAt || nowB
   }));
   // All other component types: arrays of {id, text, createdAt}
-  v.rules         = _normalizeStringComponent(v.rules);
   v.antiBehaviors = _normalizeStringComponent(v.antiBehaviors);
   v.habits        = _normalizeStringComponent(v.habits);
   v.mantras       = _normalizeStringComponent(v.mantras);
   v.questions     = _normalizeStringComponent(v.questions);
   v.challenges    = _normalizeStringComponent(v.challenges);
-  // 'triggers' is deprecated. Any remaining content is preserved in notes by the
-  // V2 migration; here we just ensure the bare field doesn't break older saves.
+  // Deprecated fields. Their content is preserved by one-shot migrations
+  // (V2 -> notes, RulesOut -> state.generalRules) before being stripped here.
   delete v.triggers;
+  delete v.rules;
   // Portrait prose ("how he acts") + free-form notes log
   if (typeof v.portrait !== 'string') v.portrait = '';
   v.notes = _normalizeStringComponent(v.notes);
   if (!Array.isArray(v.componentOrder)) {
-    const order = ['behaviors'];
-    if (v.rules.length) order.push('rules');
-    v.componentOrder = order;
+    v.componentOrder = ['behaviors'];
   }
-  // Strip any legacy 'triggers' entry from a previously-saved componentOrder.
-  v.componentOrder = v.componentOrder.filter(t => t !== 'triggers');
+  // Strip any legacy entries from a previously-saved componentOrder.
+  v.componentOrder = v.componentOrder.filter(t => t !== 'triggers' && t !== 'rules');
   return v;
 }
 
@@ -313,6 +312,41 @@ function migrateVirtuesToComponents() {
   return true;
 }
 
+// ============ MIGRATION: rules out of virtues (one-shot) ============
+// Severs the virtue↔rule association — rules become a separate concept
+// (state.generalRules) and never live inside a virtue again. Per-virtue rules
+// are preserved by being copied into state.generalRules. Run BEFORE
+// ensureVirtueShape strips v.rules.
+function migrateRulesOutOfVirtues() {
+  if (state.meta && state.meta.migratedRulesOutOfVirtues) return false;
+  state.virtues = state.virtues || [];
+  state.generalRules = Array.isArray(state.generalRules) ? state.generalRules : [];
+  // De-dupe by rule id so a re-run (shouldn't happen, but defensively) can't
+  // double-add a rule that's already in generalRules.
+  const existingIds = new Set(state.generalRules.map(r => r && r.id).filter(Boolean));
+  const now = Date.now();
+  state.virtues.forEach((v, vi) => {
+    const rules = Array.isArray(v.rules) ? v.rules : [];
+    rules.forEach((r, ri) => {
+      const text = (typeof r === 'string') ? r : (r && r.text) || '';
+      if (!text) return;
+      const id = (r && r.id) || uid();
+      if (existingIds.has(id)) return;
+      state.generalRules.push({
+        id,
+        text,
+        createdAt: (r && r.createdAt) || (now + vi * 1000 + ri)
+      });
+      existingIds.add(id);
+    });
+    // ensureVirtueShape will strip v.rules and the 'rules' entry from
+    // componentOrder on its next call; nothing to do here.
+  });
+  state.meta = state.meta || {};
+  state.meta.migratedRulesOutOfVirtues = true;
+  return true;
+}
+
 // ============ MIGRATION: portrait V2 (one-shot) ============
 // Adds the portrait prose field, questions/challenges component types, and a
 // per-virtue notes log. Folds any existing 'triggers' content into notes so
@@ -375,10 +409,16 @@ async function loadState(loadOk = true) {
     await save('virtues', true);
     await save('meta', true);
   }
-  // Portrait V2 MUST run before migrateVirtuesToComponents (and its defensive
-  // ensureVirtueShape fallback), because ensureVirtueShape deletes v.triggers —
-  // V2 needs to read that field first to copy its content into the notes log.
-  // Reordering this would silently lose trigger content on next load.
+  // These two field-retiring migrations MUST run before migrateVirtuesToComponents
+  // (and its defensive ensureVirtueShape fallback), because ensureVirtueShape
+  // deletes v.triggers and v.rules. They need to read those fields first to
+  // preserve their content (triggers → notes, rules → generalRules). Reordering
+  // would silently drop data on next load.
+  if (migrateRulesOutOfVirtues()) {
+    await save('virtues', true);
+    await save('generalRules', true);
+    await save('meta', true);
+  }
   if (migrateVirtuesToPortraitV2()) {
     await save('virtues', true);
     await save('meta', true);
@@ -553,29 +593,16 @@ function renderToday() {
 }
 
 // ============ RULES VIEW ============
-function getAllRulesFlat() {
-  const general = (state.generalRules || []).map(r => ({
-    id: r.id, text: r.text, createdAt: r.createdAt || 0,
-    source: 'general'
-  }));
-  const virtueBound = [];
-  (state.virtues || []).forEach(v => {
-    (v.rules || []).forEach(r => {
-      virtueBound.push({
-        id: r.id, text: r.text, createdAt: r.createdAt || 0,
-        source: { virtueId: v.id, virtueName: v.name, virtueSymbol: v.symbol || '◆' }
-      });
-    });
-  });
-  return [...general, ...virtueBound].sort((a, b) => (a.createdAt || 0) - (b.createdAt || 0));
-}
-
+// Rules are a standalone concept now: they live only in state.generalRules
+// and never inside a virtue. Existing per-virtue rules were migrated by
+// migrateRulesOutOfVirtues.
 function renderRulesView() {
   const container = document.getElementById('rules-list-container');
   const countEl = document.getElementById('rules-count');
   if (!container) return;
 
-  const rules = getAllRulesFlat();
+  const rules = (state.generalRules || []).slice()
+    .sort((a, b) => (a.createdAt || 0) - (b.createdAt || 0));
 
   if (countEl) {
     countEl.textContent = rules.length === 0
@@ -593,22 +620,12 @@ function renderRulesView() {
     const row = document.createElement('div');
     row.className = 'rule-row';
     row.dataset.ruleId = r.id;
-    if (typeof r.source === 'string') {
-      row.dataset.source = 'general';
-    } else {
-      row.dataset.source = 'virtue';
-      row.dataset.virtueId = r.source.virtueId;
-    }
-    const tag = typeof r.source === 'string'
-      ? '<div class="rule-row-virtue-tag general">GENERAL</div>'
-      : `<div class="rule-row-virtue-tag">${escapeHtml(r.source.virtueSymbol)} ${escapeHtml(r.source.virtueName)}</div>`;
 
     row.innerHTML = `
       <span class="rule-row-bullet">◆</span>
       <div style="flex:1; min-width:0;">
         <div class="rule-row-text">${escapeHtml(r.text)}</div>
         <input class="rule-row-input" type="text" value="${escapeHtml(r.text)}"/>
-        ${tag}
       </div>
       <button class="rule-row-delete" aria-label="Delete">×</button>
     `;
@@ -647,16 +664,8 @@ function commitRuleEdit(row, input) {
     input.value = row.querySelector('.rule-row-text').textContent;
     return;
   }
-
-  if (row.dataset.source === 'general') {
-    const r = (state.generalRules || []).find(x => x.id === ruleId);
-    if (r) { r.text = newText; save('generalRules'); }
-  } else {
-    const v = state.virtues.find(x => x.id === row.dataset.virtueId);
-    const r = v && (v.rules || []).find(x => x.id === ruleId);
-    if (r) { r.text = newText; save('virtues'); }
-  }
-
+  const r = (state.generalRules || []).find(x => x.id === ruleId);
+  if (r) { r.text = newText; save('generalRules'); }
   row.querySelector('.rule-row-text').textContent = newText;
   row.classList.remove('editing');
 }
@@ -664,99 +673,32 @@ function commitRuleEdit(row, input) {
 function deleteRuleByRow(row) {
   if (!confirm('Delete this rule?')) return;
   const ruleId = row.dataset.ruleId;
-
-  if (row.dataset.source === 'general') {
-    state.generalRules = (state.generalRules || []).filter(r => r.id !== ruleId);
-    save('generalRules');
-  } else {
-    const v = state.virtues.find(x => x.id === row.dataset.virtueId);
-    if (v) { v.rules = (v.rules || []).filter(r => r.id !== ruleId); save('virtues'); }
-  }
-
+  state.generalRules = (state.generalRules || []).filter(r => r.id !== ruleId);
+  save('generalRules');
   renderRulesView();
 }
 
-// Add-rule sheet (two steps: pick target, then write the rule text)
-let _addRuleTarget = null; // 'general' or a virtue id
-
+// Add-rule sheet — single step. Just write the rule.
 function openAddRuleSheet() {
   const sheet = document.getElementById('rule-add-sheet');
-  const virtueList = document.getElementById('rule-add-virtue-list');
-
-  virtueList.innerHTML = '';
-  (state.virtues || []).forEach(v => {
-    const btn = document.createElement('button');
-    btn.className = 'rule-add-option';
-    btn.innerHTML = `
-      <div class="rule-add-option-title">${escapeHtml(v.symbol || '◆')} ${escapeHtml(v.name)}</div>
-      <div class="rule-add-option-sub">${escapeHtml(v.identityLine || '')}</div>
-    `;
-    btn.addEventListener('click', () => startAddRule(v.id));
-    virtueList.appendChild(btn);
-  });
-
-  showAddRuleStep('target');
+  const input = document.getElementById('rule-add-text-input');
+  input.value = '';
   sheet.style.display = 'flex';
+  setTimeout(() => input.focus(), 60);
 }
 
 function closeAddRuleSheet() {
   document.getElementById('rule-add-sheet').style.display = 'none';
-  _addRuleTarget = null;
-}
-
-function showAddRuleStep(step) {
-  document.getElementById('rule-add-step-target').style.display = step === 'target' ? 'block' : 'none';
-  document.getElementById('rule-add-step-write').style.display = step === 'write' ? 'block' : 'none';
-}
-
-function startAddRule(target) {
-  // Step 2: collect the rule text in-sheet (no native prompt).
-  _addRuleTarget = target;
-
-  let eyebrow = 'WRITE THE RULE';
-  let title = 'A line he will not cross.';
-  if (target !== 'general') {
-    const v = state.virtues.find(x => x.id === target);
-    if (v) {
-      eyebrow = `RULE · ${(v.name || '').toUpperCase()}`;
-      title = `A line ${v.name || 'he'} will not cross.`;
-    }
-  } else {
-    eyebrow = 'GENERAL RULE';
-    title = 'Standing law of the man.';
-  }
-  document.getElementById('rule-add-write-eyebrow').textContent = eyebrow;
-  document.getElementById('rule-add-write-title').textContent = title;
-
-  const input = document.getElementById('rule-add-text-input');
-  input.value = '';
-  showAddRuleStep('write');
-  setTimeout(() => input.focus(), 60);
 }
 
 function commitAddRule() {
   const input = document.getElementById('rule-add-text-input');
   const text = input.value.trim();
   if (!text) { toast('Write the rule first'); input.focus(); return; }
-  if (!_addRuleTarget) { closeAddRuleSheet(); return; }
 
-  const newRule = { id: uid(), text, createdAt: Date.now() };
-
-  if (_addRuleTarget === 'general') {
-    state.generalRules = state.generalRules || [];
-    state.generalRules.push(newRule);
-    save('generalRules');
-  } else {
-    const v = state.virtues.find(x => x.id === _addRuleTarget);
-    if (v) {
-      v.rules = v.rules || [];
-      v.rules.push(newRule);
-      if (Array.isArray(v.componentOrder) && !v.componentOrder.includes('rules')) {
-        v.componentOrder.push('rules');
-      }
-      save('virtues');
-    }
-  }
+  state.generalRules = state.generalRules || [];
+  state.generalRules.push({ id: uid(), text, createdAt: Date.now() });
+  save('generalRules');
 
   closeAddRuleSheet();
   renderRulesView();
@@ -766,8 +708,6 @@ function commitAddRule() {
 document.getElementById('rules-add-btn').onclick = openAddRuleSheet;
 document.getElementById('rule-add-backdrop').onclick = closeAddRuleSheet;
 document.getElementById('rule-add-cancel-btn').onclick = closeAddRuleSheet;
-document.querySelector('.rule-add-option[data-target="general"]').onclick = () => startAddRule('general');
-document.getElementById('rule-add-back-btn').onclick = () => showAddRuleStep('target');
 document.getElementById('rule-add-save-btn').onclick = commitAddRule;
 document.getElementById('rule-add-text-input').addEventListener('keydown', (e) => {
   // Enter saves; Shift+Enter inserts a newline.
@@ -783,7 +723,6 @@ const COMPONENT_LABELS = {
   questions:     'WHAT HE ASKS',
   habits:        'DAILY',
   challenges:    'WHERE HE STRUGGLES',
-  rules:         'LINES HE HOLDS',
   antiBehaviors: 'WHAT HE REFUSES'
 };
 
@@ -810,7 +749,7 @@ function closeVirtueView() {
 // "THE PRACTICE" (how the man is built). Used purely for headers — section order
 // inside each group still follows the virtue's componentOrder.
 const MAN_GROUP = new Set(['behaviors','mantras','questions']);
-const PRACTICE_GROUP = new Set(['habits','challenges','rules','antiBehaviors']);
+const PRACTICE_GROUP = new Set(['habits','challenges','antiBehaviors']);
 
 function renderVirtueView(v) {
   const container = document.getElementById('virtue-view-container');
@@ -971,13 +910,6 @@ function renderComponentSection(type, v) {
         <div class="virtue-challenge-item">
           <span class="virtue-challenge-mark">△</span>
           <span class="virtue-challenge-text">${escapeHtml(textOf(c))}</span>
-        </div>`).join('');
-      break;
-    case 'rules':
-      body = items.map(r => `
-        <div class="virtue-rule-item">
-          <span class="virtue-rule-bullet">◆</span>
-          <span class="virtue-rule-text">${escapeHtml(textOf(r))}</span>
         </div>`).join('');
       break;
     case 'antiBehaviors':
@@ -1875,7 +1807,7 @@ let _editorIsNew = false;
 let _editorDraft = null; // working copy
 let _editorVePane = 'identity';
 let _editorComponentView = 'list'; // 'list' or 'section'
-let _editorSectionType = null;      // 'behaviors' | 'mantras' | 'questions' | 'habits' | 'challenges' | 'rules' | 'antiBehaviors'
+let _editorSectionType = null;      // 'behaviors' | 'mantras' | 'questions' | 'habits' | 'challenges' | 'antiBehaviors'
 let _constitutionFilter = 'active';
 let _editingBehaviorIdx = -1;
 
@@ -1885,7 +1817,6 @@ const COMPONENT_META = {
   questions:    { icon: '?', label: 'What he asks',     singular: 'question',    desc: 'The questions characteristic of him.' },
   habits:       { icon: '◐', label: 'Daily',            singular: 'habit',       desc: 'Standing routines that hold him.' },
   challenges:   { icon: '△', label: 'Where he struggles',singular: 'challenge',  desc: 'Friction to expect. Where you slip.' },
-  rules:        { icon: '◆', label: 'Lines he holds',   singular: 'rule',        desc: 'Lines he will not cross.' },
   antiBehaviors:{ icon: '✕', label: 'What he refuses',  singular: 'anti-behavior',desc: 'Patterns he will not perform.' }
 };
 
@@ -2092,10 +2023,6 @@ function renderSymbolGrid() {
       grid.querySelectorAll('.ve-symbol-opt').forEach(o => o.classList.remove('selected'));
       el.classList.add('selected');
       updateEditorPreview();
-      // If we happen to be viewing rules right now, re-render so bullets stay in sync.
-      if (_editorComponentView === 'section' && _editorSectionType === 'rules') {
-        renderStringList();
-      }
     };
     grid.appendChild(el);
   });
@@ -2367,13 +2294,10 @@ function renderStringList() {
     return;
   }
 
-  // For rules, show the virtue symbol as the bullet (live with symbol changes).
   list.innerHTML = items.map((it, idx) => {
     const text = componentText(it);
-    const bullet = type === 'rules' ? `<span class="rule-card-bullet">${escapeHtml(_editorDraft.symbol || '◆')}</span>` : '';
     return `
       <div class="ve-string-item" data-idx="${idx}" draggable="true">
-        ${bullet}
         <span class="ve-string-item-text">${escapeHtml(text)}</span>
         <button class="ve-string-item-del" data-idx="${idx}" aria-label="Delete item">×</button>
       </div>`;

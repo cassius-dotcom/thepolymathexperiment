@@ -639,7 +639,13 @@
           <button class="add-behavior-btn" id="ve-add-behavior-btn">+ Add Behavior</button>
         </div>
 
-        <!-- Generic string-list body (mantras/questions/habits/challenges/rules/antiBehaviors) -->
+        <!-- Challenges body (only shown when section type is 'challenges') -->
+        <div id="ve-section-challenges" style="display:none;">
+          <div id="ve-challenge-list"></div>
+          <button class="add-behavior-btn" id="ve-add-challenge-btn">+ Add Challenge</button>
+        </div>
+
+        <!-- Generic string-list body (mantras/questions/habits/antiBehaviors) -->
         <div id="ve-section-strings" style="display:none;">
           <div id="ve-string-list"></div>
           <div class="rule-add-row">
@@ -675,6 +681,28 @@
     <div class="modal-actions">
       <button class="btn btn-ghost" id="behavior-cancel-btn">Cancel</button>
       <button class="btn btn-primary" id="behavior-save-btn">Save</button>
+    </div>
+  </div>
+</div>
+
+<!-- CHALLENGE EDIT SHEET (within virtue editor) -->
+<div class="modal-bg" id="challenge-modal" role="dialog" aria-modal="true" aria-label="Challenge">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-eyebrow" id="challenge-modal-eyebrow">New challenge</div>
+    <div class="modal-title">A rung on the ladder.</div>
+    <div class="field">
+      <div class="field-label">Challenge</div>
+      <textarea id="challenge-text-input" rows="2" placeholder='The exposure rep. e.g. "Ask for a discount or upgrade."'></textarea>
+    </div>
+    <div class="field">
+      <div class="field-label">Phrase</div>
+      <textarea id="challenge-phrase-input" rows="2" placeholder='The line to use. e.g. "Any chance you could upgrade me?"'></textarea>
+      <div class="field-hint">The exact words. The rung is set by ladder position — drag to reorder.</div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" id="challenge-cancel-btn">Cancel</button>
+      <button class="btn btn-primary" id="challenge-save-btn">Save</button>
     </div>
   </div>
 </div>
@@ -718,7 +746,7 @@
       <div class="modal-step-num">4</div>
       <div class="modal-step-text">
         <strong>Each virtue is a portrait of the man.</strong>
-        Start with the prose — "how he acts." Then the components: what he does, says, asks, his daily, where he struggles, what he refuses. Use only the ones you need. (Rules live in their own tab — they're not tied to a single virtue.)
+        Challenges lead — the ladder of exposure reps he climbs, each rung with a phrase to use. Everything else (how he acts, context, what he says, does, asks, his daily, what he refuses) is supporting reference below. (Rules live in their own tab — they're not tied to a single virtue.)
       </div>
     </div>
 

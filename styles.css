@@ -376,24 +376,80 @@ body {
   font-style: italic;
 }
 
-/* Challenges — "Where he struggles" */
-.virtue-challenge-item {
-  background: rgba(218,165,32,0.05);
-  border: 0.5px solid rgba(218,165,32,0.18);
-  border-left: 2px solid #daa520;
-  border-radius: 8px;
-  padding: 10px 12px;
-  margin-bottom: 8px;
-  display: flex; gap: 10px;
+/* Challenges anchor — the lead block. Numbered rungs, lowest at top,
+   connected by a faint vertical line so the climb reads as one ladder.
+   No background fill (boxing is reserved for "WHAT HE DOES"); the
+   emphasis comes from a louder label, larger text, and the rung column. */
+.virtue-challenges-anchor {
+  margin-top: 4px;
+  margin-bottom: 32px;
 }
-.virtue-challenge-item:last-child { margin-bottom: 0; }
-.virtue-challenge-mark {
-  color: #daa520; font-size: 13px;
-  margin-top: 1px; flex-shrink: 0;
+.virtue-anchor-label {
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.4em;
+  text-transform: uppercase;
+  color: var(--gold);
+  margin-bottom: 14px;
 }
-.virtue-challenge-text {
-  font-size: 13px; color: #c8b89c;
-  line-height: 1.55;
+.virtue-rung-list {
+  list-style: none;
+  margin: 0; padding: 0;
+  position: relative;
+}
+.virtue-rung-list::before {
+  /* Vertical connector through the rung numbers — makes the climb legible. */
+  content: '';
+  position: absolute;
+  left: 11px; top: 14px; bottom: 14px;
+  width: 1px;
+  background: rgba(212,168,87,0.18);
+}
+.virtue-rung {
+  display: grid;
+  grid-template-columns: 24px 1fr;
+  column-gap: 14px;
+  align-items: start;
+  padding: 6px 0 14px;
+  position: relative;
+}
+.virtue-rung:last-child { padding-bottom: 0; }
+.virtue-rung-num {
+  font-family: var(--mono);
+  font-size: 12px;
+  color: var(--gold);
+  background: var(--bg);
+  text-align: center;
+  line-height: 22px;
+  width: 22px; height: 22px;
+  border: 1px solid rgba(212,168,87,0.35);
+  border-radius: 50%;
+  position: relative;
+  z-index: 1;
+}
+.virtue-rung-body { min-width: 0; }
+.virtue-rung-text {
+  font-family: var(--display);
+  font-size: 15px;
+  line-height: 1.45;
+  color: var(--ink);
+}
+.virtue-rung-phrase {
+  font-family: var(--display);
+  font-style: italic;
+  font-size: 13px;
+  color: var(--ink-3);
+  line-height: 1.5;
+  margin-top: 4px;
+}
+
+/* Supporting sections — quieter visual weight than the challenges anchor.
+   The labels stay at the same size (already small and austere), but we soften
+   the label color and tighten margins so the block reads as secondary. */
+.virtue-section.supporting { margin-bottom: 18px; }
+.virtue-section.supporting .virtue-section-label {
+  color: var(--ink-3);
+  opacity: 0.85;
 }
 
 /* Notes — per-virtue free-form log. Lab-experiment-style. */

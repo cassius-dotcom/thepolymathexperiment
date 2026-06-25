@@ -130,7 +130,9 @@ function getAllVirtuesSorted() {
 }
 
 const ALL_COMPONENT_TYPES = ['behaviors','mantras','questions','habits','challenges','antiBehaviors'];
-const STRING_COMPONENT_TYPES = ['mantras','questions','habits','challenges','antiBehaviors'];
+// 'challenges' has its own item shape ({id, rung, text, phrase, createdAt}) and is no
+// longer a generic string list. It gets its own editor + portrait anchor block.
+const STRING_COMPONENT_TYPES = ['mantras','questions','habits','antiBehaviors'];
 const DEFAULT_COMPONENT_ORDER = ['behaviors','mantras','questions','habits','challenges','antiBehaviors'];
 // Legacy types intentionally absent from ALL_COMPONENT_TYPES / DEFAULT_COMPONENT_ORDER:
 //   'triggers' — content was migrated into notes by migrateVirtuesToPortraitV2.
@@ -156,6 +158,29 @@ function _normalizeStringComponent(arr) {
   });
 }
 
+// A challenge item: {id, rung, text, phrase, createdAt}. Handles legacy items
+// that were plain strings or {id, text, createdAt} from the earlier string-list
+// shape — defaults phrase to '' and rung to the array index + 1.
+function _normalizeChallenges(arr) {
+  if (!Array.isArray(arr)) return [];
+  const now = Date.now();
+  return arr.map((item, idx) => {
+    if (typeof item === 'string') {
+      return { id: uid(), rung: idx + 1, text: item, phrase: '', createdAt: now };
+    }
+    if (item && typeof item === 'object') {
+      return {
+        id: item.id || uid(),
+        rung: Number.isInteger(item.rung) ? item.rung : (idx + 1),
+        text: item.text || '',
+        phrase: typeof item.phrase === 'string' ? item.phrase : '',
+        createdAt: item.createdAt || now
+      };
+    }
+    return { id: uid(), rung: idx + 1, text: String(item || ''), phrase: '', createdAt: now };
+  });
+}
+
 function ensureVirtueShape(v) {
   if (!Array.isArray(v.behaviors)) v.behaviors = [];
   // Behaviors stay {id, text, cue, why, createdAt}
@@ -172,7 +197,7 @@ function ensureVirtueShape(v) {
   v.habits        = _normalizeStringComponent(v.habits);
   v.mantras       = _normalizeStringComponent(v.mantras);
   v.questions     = _normalizeStringComponent(v.questions);
-  v.challenges    = _normalizeStringComponent(v.challenges);
+  v.challenges    = _normalizeChallenges(v.challenges);
   // Deprecated fields. Their content is preserved by one-shot migrations
   // (V2 -> notes, RulesOut -> state.generalRules) before being stripped here.
   delete v.triggers;
@@ -312,6 +337,23 @@ function migrateVirtuesToComponents() {
   return true;
 }
 
+// ============ MIGRATION: challenges become an exposure ladder (one-shot) ============
+// Old shape: challenges items were {id, text, createdAt} (a generic string list).
+// New shape: each item is {id, rung, text, phrase, createdAt} — a rung on a
+// climbing ladder with an example phrase to use. Idempotent.
+function migrateChallengesToLadder() {
+  if (state.meta && state.meta.migratedChallengesToLadder) return false;
+  state.virtues = state.virtues || [];
+  state.virtues.forEach(v => {
+    if (Array.isArray(v.challenges)) {
+      v.challenges = _normalizeChallenges(v.challenges);
+    }
+  });
+  state.meta = state.meta || {};
+  state.meta.migratedChallengesToLadder = true;
+  return true;
+}
+
 // ============ MIGRATION: rules out of virtues (one-shot) ============
 // Severs the virtue↔rule association — rules become a separate concept
 // (state.generalRules) and never live inside a virtue again. Per-virtue rules
@@ -420,6 +462,13 @@ async function loadState(loadOk = true) {
     await save('meta', true);
   }
   if (migrateVirtuesToPortraitV2()) {
+    await save('virtues', true);
+    await save('meta', true);
+  }
+  // Challenges -> exposure ladder shape. Safe to run any time (ensureVirtueShape
+  // also normalizes via _normalizeChallenges); the explicit migration just
+  // persists the upgraded shape with a single save.
+  if (migrateChallengesToLadder()) {
     await save('virtues', true);
     await save('meta', true);
   }
@@ -722,7 +771,7 @@ const COMPONENT_LABELS = {
   mantras:       'WHAT HE SAYS',
   questions:     'WHAT HE ASKS',
   habits:        'DAILY',
-  challenges:    'WHERE HE STRUGGLES',
+  challenges:    'CHALLENGES',
   antiBehaviors: 'WHAT HE REFUSES'
 };
 
@@ -745,29 +794,26 @@ function closeVirtueView() {
   currentVirtueId = null;
 }
 
-// Visual grouping: which sections belong to "THE MAN" (who he is) vs.
-// "THE PRACTICE" (how the man is built). Used purely for headers — section order
-// inside each group still follows the virtue's componentOrder.
-const MAN_GROUP = new Set(['behaviors','mantras','questions']);
-const PRACTICE_GROUP = new Set(['habits','challenges','antiBehaviors']);
+// Supporting sections that render BELOW the challenges anchor, in this fixed
+// flat order. The user's brief asked for CONTEXT, WHAT HE SAYS, WHAT HE DOES,
+// WHAT HE REFUSES specifically; the remaining component types (questions,
+// habits) are interleaved in the natural reading order. CONTEXT is handled
+// inline (it's not a component type). 'challenges' is the anchor block and
+// is intentionally excluded from this list.
+const SUPPORTING_SECTION_ORDER = ['mantras','questions','behaviors','habits','antiBehaviors'];
 
 function renderVirtueView(v) {
   const container = document.getElementById('virtue-view-container');
 
-  // Section order: behaviors always first, then componentOrder for the rest.
-  // Drop legacy 'triggers' defensively in case an old order slipped through.
-  const orderRaw = Array.isArray(v.componentOrder) && v.componentOrder.length
-    ? v.componentOrder
-    : DEFAULT_COMPONENT_ORDER;
-  const order = ['behaviors', ...orderRaw.filter(t => t !== 'behaviors' && t !== 'triggers')];
+  const ladderHtml = renderChallengeLadder(v);
 
-  // Split into the two visual groups, preserving order within each.
-  const manSections      = order.filter(t => MAN_GROUP.has(t))
-                                .map(type => renderComponentSection(type, v))
-                                .filter(Boolean).join('');
-  const practiceSections = order.filter(t => PRACTICE_GROUP.has(t))
-                                .map(type => renderComponentSection(type, v))
-                                .filter(Boolean).join('');
+  // Render supporting sections in the fixed flat order above, omitting any
+  // type whose data is empty (renderComponentSection returns ''). The legacy
+  // componentOrder is ignored here on purpose — the new layout has its own
+  // reading hierarchy, and componentOrder still drives the editor list.
+  const supportingHtml = SUPPORTING_SECTION_ORDER
+    .map(type => renderComponentSection(type, v))
+    .filter(Boolean).join('');
 
   container.innerHTML = `
     <div class="virtue-view-topbar">
@@ -782,22 +828,21 @@ function renderVirtueView(v) {
       <div class="virtue-portrait-identity">${escapeHtml(v.identityLine || '')}</div>
     </div>
 
+    ${ladderHtml}
+
     ${v.portrait ? `
-      <div class="virtue-portrait-prose">${escapeHtml(v.portrait)}</div>` : ''}
+      <div class="virtue-section supporting">
+        <div class="virtue-section-label">HOW HE ACTS</div>
+        <div class="virtue-portrait-prose">${escapeHtml(v.portrait)}</div>
+      </div>` : ''}
 
     ${v.body ? `
-      <div class="virtue-section">
+      <div class="virtue-section supporting">
         <div class="virtue-section-label">CONTEXT</div>
         <div class="virtue-body-box">${escapeHtml(v.body)}</div>
       </div>` : ''}
 
-    ${manSections ? `
-      <div class="virtue-section-group-label">THE MAN</div>
-      ${manSections}` : ''}
-
-    ${practiceSections ? `
-      <div class="virtue-section-group-label">THE PRACTICE</div>
-      ${practiceSections}` : ''}
+    ${supportingHtml}
 
     ${renderVirtueNotesSection(v)}
   `;
@@ -805,6 +850,35 @@ function renderVirtueView(v) {
   document.getElementById('virtue-view-back-btn').onclick = closeVirtueView;
   document.getElementById('virtue-view-edit-btn').onclick = editCurrentVirtue;
   wireVirtueNotesSection(v);
+}
+
+// ============ CHALLENGES LADDER (portrait anchor) ============
+// Renders the lead block of the portrait — challenges ordered by rung,
+// lowest at top, each with the challenge text and its example phrase.
+// Returns '' if the virtue has no challenges yet so the section degrades
+// out cleanly rather than rendering an empty header.
+function renderChallengeLadder(v) {
+  const items = (v.challenges || []).slice()
+    .sort((a, b) => (a.rung || 0) - (b.rung || 0));
+  if (!items.length) return '';
+
+  const rungs = items.map((c, idx) => {
+    const num = Number.isInteger(c.rung) ? c.rung : (idx + 1);
+    return `
+      <li class="virtue-rung">
+        <span class="virtue-rung-num">${num}</span>
+        <div class="virtue-rung-body">
+          <div class="virtue-rung-text">${escapeHtml(c.text || '')}</div>
+          ${c.phrase ? `<div class="virtue-rung-phrase">"${escapeHtml(c.phrase)}"</div>` : ''}
+        </div>
+      </li>`;
+  }).join('');
+
+  return `
+    <div class="virtue-section virtue-challenges-anchor">
+      <div class="virtue-anchor-label">CHALLENGES</div>
+      <ol class="virtue-rung-list">${rungs}</ol>
+    </div>`;
 }
 
 // ============ VIRTUE NOTES (per-virtue free-form log) ============
@@ -905,13 +979,6 @@ function renderComponentSection(type, v) {
           <span class="virtue-question-text">${escapeHtml(textOf(q))}</span>
         </div>`).join('');
       break;
-    case 'challenges':
-      body = items.map(c => `
-        <div class="virtue-challenge-item">
-          <span class="virtue-challenge-mark">△</span>
-          <span class="virtue-challenge-text">${escapeHtml(textOf(c))}</span>
-        </div>`).join('');
-      break;
     case 'antiBehaviors':
       body = items.map(a => `
         <div class="virtue-anti-item">
@@ -929,7 +996,7 @@ function renderComponentSection(type, v) {
   }
 
   return `
-    <div class="virtue-section">
+    <div class="virtue-section supporting">
       <div class="virtue-section-label">${label}</div>
       ${body}
     </div>`;
@@ -1816,7 +1883,7 @@ const COMPONENT_META = {
   mantras:      { icon: '›', label: 'What he says',     singular: 'mantra',      desc: 'Lines he repeats. The voice of the man.' },
   questions:    { icon: '?', label: 'What he asks',     singular: 'question',    desc: 'The questions characteristic of him.' },
   habits:       { icon: '◐', label: 'Daily',            singular: 'habit',       desc: 'Standing routines that hold him.' },
-  challenges:   { icon: '△', label: 'Where he struggles',singular: 'challenge',  desc: 'Friction to expect. Where you slip.' },
+  challenges:   { icon: '△', label: 'Challenges',        singular: 'challenge',  desc: 'The ladder of exposure reps he climbs. Each rung has a phrase.' },
   antiBehaviors:{ icon: '✕', label: 'What he refuses',  singular: 'anti-behavior',desc: 'Patterns he will not perform.' }
 };
 
@@ -2118,6 +2185,112 @@ document.getElementById('behavior-save-btn').onclick = () => {
   updateEditorPreview();
 };
 
+// ============ EDITOR: CHALLENGE LIST (ladder) ============
+// Cards mirror the behavior list pattern: drag-to-reorder, edit/delete per
+// card. Rung is implicit — it's recomputed from array position on save and
+// when the list re-renders, so the user never types a number.
+let _editingChallengeIdx = -1;
+
+function _renumberChallengeRungs() {
+  const items = _editorDraft.challenges || [];
+  items.forEach((c, i) => { c.rung = i + 1; });
+}
+
+function renderChallengeList() {
+  const list = document.getElementById('ve-challenge-list');
+  const items = _editorDraft.challenges || [];
+  if (items.length === 0) {
+    list.innerHTML = `<div class="ve-empty">No challenges yet. Add the first rung — the easiest exposure rep.</div>`;
+    return;
+  }
+  _renumberChallengeRungs();
+  list.innerHTML = items.map((c, idx) => `
+    <div class="behavior-card" draggable="true" data-idx="${idx}">
+      <div class="behavior-card-head">
+        <span class="behavior-card-drag" title="Drag to reorder" aria-hidden="true">⋮⋮</span>
+        <span class="behavior-card-label">Rung · ${c.rung}</span>
+        <div class="behavior-card-actions">
+          <button class="behavior-card-btn" data-action="edit">Edit</button>
+          <button class="behavior-card-btn del" data-action="del" aria-label="Delete challenge">×</button>
+        </div>
+      </div>
+      <div class="behavior-card-text">${escapeHtml(c.text || '')}</div>
+      ${c.phrase ? `<div class="behavior-card-cue">"${escapeHtml(c.phrase)}"</div>` : ''}
+    </div>`).join('');
+
+  list.querySelectorAll('.behavior-card').forEach(card => {
+    const idx = parseInt(card.dataset.idx);
+    card.querySelector('[data-action="edit"]').onclick = () => openChallengeModal(idx);
+    card.querySelector('[data-action="del"]').onclick = () => {
+      if (!confirm('Delete this challenge?')) return;
+      _editorDraft.challenges.splice(idx, 1);
+      renderChallengeList();
+    };
+    card.addEventListener('dragstart', e => {
+      e.dataTransfer.setData('text/plain', String(idx));
+      card.classList.add('dragging');
+    });
+    card.addEventListener('dragend', () => card.classList.remove('dragging'));
+    card.addEventListener('dragover', e => e.preventDefault());
+    card.addEventListener('drop', e => {
+      e.preventDefault();
+      const from = parseInt(e.dataTransfer.getData('text/plain'));
+      const to = idx;
+      if (from === to || isNaN(from)) return;
+      const arr = _editorDraft.challenges;
+      const [moved] = arr.splice(from, 1);
+      arr.splice(to, 0, moved);
+      renderChallengeList();
+    });
+  });
+}
+
+document.getElementById('ve-add-challenge-btn').onclick = () => openChallengeModal(-1);
+
+function openChallengeModal(idx) {
+  _editingChallengeIdx = idx;
+  const isNew = idx < 0;
+  document.getElementById('challenge-modal-eyebrow').textContent = isNew ? 'New challenge' : 'Edit challenge';
+  const c = isNew
+    ? { text: '', phrase: '' }
+    : (_editorDraft.challenges[idx] || { text: '', phrase: '' });
+  document.getElementById('challenge-text-input').value   = c.text || '';
+  document.getElementById('challenge-phrase-input').value = c.phrase || '';
+  document.getElementById('challenge-modal').classList.add('show');
+  setTimeout(() => document.getElementById('challenge-text-input').focus(), 200);
+}
+
+document.getElementById('challenge-cancel-btn').onclick = () => {
+  document.getElementById('challenge-modal').classList.remove('show');
+};
+document.getElementById('challenge-modal').onclick = e => {
+  if (e.target.id === 'challenge-modal') document.getElementById('challenge-modal').classList.remove('show');
+};
+document.getElementById('challenge-save-btn').onclick = () => {
+  const text   = document.getElementById('challenge-text-input').value.trim();
+  const phrase = document.getElementById('challenge-phrase-input').value.trim();
+  if (!text) { toast('Challenge text required'); return; }
+  _editorDraft.challenges = _editorDraft.challenges || [];
+  if (_editingChallengeIdx < 0) {
+    _editorDraft.challenges.push({
+      id: uid(),
+      rung: _editorDraft.challenges.length + 1,
+      text, phrase,
+      createdAt: Date.now()
+    });
+  } else {
+    const existing = _editorDraft.challenges[_editingChallengeIdx];
+    _editorDraft.challenges[_editingChallengeIdx] = {
+      id: existing && existing.id ? existing.id : uid(),
+      rung: existing && Number.isInteger(existing.rung) ? existing.rung : (_editingChallengeIdx + 1),
+      text, phrase,
+      createdAt: (existing && existing.createdAt) || Date.now()
+    };
+  }
+  document.getElementById('challenge-modal').classList.remove('show');
+  renderChallengeList();
+};
+
 // ============ EDITOR: COMPONENTS LIST VIEW ============
 function renderComponentsListView() {
   ensureVirtueShape(_editorDraft);
@@ -2232,15 +2405,18 @@ function openComponentSection(type) {
   document.getElementById('ve-section-title').textContent = meta.label;
   document.getElementById('ve-section-sub').textContent = meta.desc;
 
-  // Show the right body
-  document.getElementById('ve-section-behaviors').style.display = type === 'behaviors' ? 'block' : 'none';
-  document.getElementById('ve-section-strings').style.display = type === 'behaviors' ? 'none' : 'block';
+  // Show the right body. Behaviors and challenges have richer item shapes
+  // and get their own section editors; everything else uses the generic
+  // string list.
+  const isBehaviors  = type === 'behaviors';
+  const isChallenges = type === 'challenges';
+  document.getElementById('ve-section-behaviors').style.display  = isBehaviors  ? 'block' : 'none';
+  document.getElementById('ve-section-challenges').style.display = isChallenges ? 'block' : 'none';
+  document.getElementById('ve-section-strings').style.display    = (isBehaviors || isChallenges) ? 'none' : 'block';
 
-  if (type === 'behaviors') {
-    renderBehaviorList();
-  } else {
-    renderStringList();
-  }
+  if (isBehaviors)       renderBehaviorList();
+  else if (isChallenges) renderChallengeList();
+  else                   renderStringList();
 
   // The remove button is always shown but only for non-behaviors
   // (behaviors is part of the core shape — empty is allowed, but the component itself stays)
@@ -2366,6 +2542,12 @@ document.getElementById('ve-save-btn').onclick = async () => {
 
   if (!_editorDraft.name) { toast('Name required'); return; }
   _editorDraft.updatedAt = Date.now();
+
+  // Defensive: ensure challenge rungs match final array order. The list view
+  // already renumbers on every render, but if the user reordered then edited
+  // a single item via the modal (which preserves the existing rung), this
+  // guarantees the saved data is consistent.
+  (_editorDraft.challenges || []).forEach((c, i) => { c.rung = i + 1; });
 
   if (_editorIsNew) {
     state.virtues = state.virtues || [];

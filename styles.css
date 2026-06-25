@@ -376,10 +376,11 @@ body {
   font-style: italic;
 }
 
-/* Challenges anchor — the lead block. Numbered rungs, lowest at top,
-   connected by a faint vertical line so the climb reads as one ladder.
-   No background fill (boxing is reserved for "WHAT HE DOES"); the
-   emphasis comes from a louder label, larger text, and the rung column. */
+/* Challenges anchor — the lead block. Multiple titled Challenges can stack;
+   each block has a heading and a diamond-bullet item list (reuses
+   .virtue-rule-item / .virtue-rule-bullet / .virtue-rule-text styling). No
+   card fill — boxing is reserved for WHAT HE DOES; emphasis comes from the
+   louder label, the title heading, and being above the supporting sections. */
 .virtue-challenges-anchor {
   margin-top: 4px;
   margin-bottom: 32px;
@@ -392,55 +393,19 @@ body {
   color: var(--gold);
   margin-bottom: 14px;
 }
-.virtue-rung-list {
-  list-style: none;
-  margin: 0; padding: 0;
-  position: relative;
+.virtue-challenge-block {
+  margin-bottom: 22px;
 }
-.virtue-rung-list::before {
-  /* Vertical connector through the rung numbers — makes the climb legible. */
-  content: '';
-  position: absolute;
-  left: 11px; top: 14px; bottom: 14px;
-  width: 1px;
-  background: rgba(212,168,87,0.18);
+.virtue-challenge-block:last-child {
+  margin-bottom: 0;
 }
-.virtue-rung {
-  display: grid;
-  grid-template-columns: 24px 1fr;
-  column-gap: 14px;
-  align-items: start;
-  padding: 6px 0 14px;
-  position: relative;
-}
-.virtue-rung:last-child { padding-bottom: 0; }
-.virtue-rung-num {
-  font-family: var(--mono);
-  font-size: 12px;
-  color: var(--gold);
-  background: var(--bg);
-  text-align: center;
-  line-height: 22px;
-  width: 22px; height: 22px;
-  border: 1px solid rgba(212,168,87,0.35);
-  border-radius: 50%;
-  position: relative;
-  z-index: 1;
-}
-.virtue-rung-body { min-width: 0; }
-.virtue-rung-text {
+.virtue-challenge-title {
   font-family: var(--display);
-  font-size: 15px;
-  line-height: 1.45;
+  font-size: 16px;
+  line-height: 1.3;
   color: var(--ink);
-}
-.virtue-rung-phrase {
-  font-family: var(--display);
-  font-style: italic;
-  font-size: 13px;
-  color: var(--ink-3);
-  line-height: 1.5;
-  margin-top: 4px;
+  margin-bottom: 10px;
+  letter-spacing: -0.005em;
 }
 
 /* Supporting sections — quieter visual weight than the challenges anchor.

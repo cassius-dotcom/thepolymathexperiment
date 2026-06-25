@@ -158,26 +158,50 @@ function _normalizeStringComponent(arr) {
   });
 }
 
-// A challenge item: {id, rung, text, phrase, createdAt}. Handles legacy items
-// that were plain strings or {id, text, createdAt} from the earlier string-list
-// shape — defaults phrase to '' and rung to the array index + 1.
+// A Challenge block: {id, title, items, createdAt}.
+//   - title: short theme heading (e.g. "Observation")
+//   - items: array of {id, text, createdAt} — one short line per item, rendered
+//     in authored order (no separate sort field)
+// Handles every prior shape this field has taken so no data is lost on upgrade:
+//   - rung shape:        {id, rung, text, phrase, createdAt}     -> title=text, items=[phrase] if phrase
+//   - old string-list:   {id, text, createdAt}                   -> title=text, items=[]
+//   - plain string:      "text"                                  -> title=text, items=[]
 function _normalizeChallenges(arr) {
   if (!Array.isArray(arr)) return [];
   const now = Date.now();
-  return arr.map((item, idx) => {
+  return arr.map(item => {
     if (typeof item === 'string') {
-      return { id: uid(), rung: idx + 1, text: item, phrase: '', createdAt: now };
+      return { id: uid(), title: item, items: [], createdAt: now };
     }
     if (item && typeof item === 'object') {
+      // New shape — title + items already present.
+      if (typeof item.title === 'string' && Array.isArray(item.items)) {
+        return {
+          id: item.id || uid(),
+          title: item.title,
+          items: _normalizeStringComponent(item.items),
+          createdAt: item.createdAt || now
+        };
+      }
+      // Rung shape — promote text to title; preserve phrase as a single item.
+      if (Number.isInteger(item.rung) || typeof item.phrase === 'string') {
+        const phrase = typeof item.phrase === 'string' ? item.phrase.trim() : '';
+        return {
+          id: item.id || uid(),
+          title: item.text || '',
+          items: phrase ? [{ id: uid(), text: phrase, createdAt: item.createdAt || now }] : [],
+          createdAt: item.createdAt || now
+        };
+      }
+      // Older plain string-list shape — text becomes the title; no items yet.
       return {
         id: item.id || uid(),
-        rung: Number.isInteger(item.rung) ? item.rung : (idx + 1),
-        text: item.text || '',
-        phrase: typeof item.phrase === 'string' ? item.phrase : '',
+        title: item.text || '',
+        items: [],
         createdAt: item.createdAt || now
       };
     }
-    return { id: uid(), rung: idx + 1, text: String(item || ''), phrase: '', createdAt: now };
+    return { id: uid(), title: String(item || ''), items: [], createdAt: now };
   });
 }
 
@@ -337,12 +361,13 @@ function migrateVirtuesToComponents() {
   return true;
 }
 
-// ============ MIGRATION: challenges become an exposure ladder (one-shot) ============
-// Old shape: challenges items were {id, text, createdAt} (a generic string list).
-// New shape: each item is {id, rung, text, phrase, createdAt} — a rung on a
-// climbing ladder with an example phrase to use. Idempotent.
-function migrateChallengesToLadder() {
-  if (state.meta && state.meta.migratedChallengesToLadder) return false;
+// ============ MIGRATION: challenges become titled blocks with items (one-shot) ============
+// Final shape: each Challenge is {id, title, items, createdAt} where items is an
+// authored sequence of short lines. _normalizeChallenges handles every prior
+// shape (rung+phrase, plain string-list, raw strings); this migration just
+// persists the upgraded shape with a single save + flag. Idempotent.
+function migrateChallengesToBlocks() {
+  if (state.meta && state.meta.migratedChallengesToBlocks) return false;
   state.virtues = state.virtues || [];
   state.virtues.forEach(v => {
     if (Array.isArray(v.challenges)) {
@@ -350,7 +375,7 @@ function migrateChallengesToLadder() {
     }
   });
   state.meta = state.meta || {};
-  state.meta.migratedChallengesToLadder = true;
+  state.meta.migratedChallengesToBlocks = true;
   return true;
 }
 
@@ -465,10 +490,10 @@ async function loadState(loadOk = true) {
     await save('virtues', true);
     await save('meta', true);
   }
-  // Challenges -> exposure ladder shape. Safe to run any time (ensureVirtueShape
-  // also normalizes via _normalizeChallenges); the explicit migration just
-  // persists the upgraded shape with a single save.
-  if (migrateChallengesToLadder()) {
+  // Challenges -> titled blocks with items. Safe to run any time
+  // (ensureVirtueShape also normalizes via _normalizeChallenges); the explicit
+  // migration just persists the upgraded shape with a single save + flag.
+  if (migrateChallengesToBlocks()) {
     await save('virtues', true);
     await save('meta', true);
   }
@@ -805,7 +830,7 @@ const SUPPORTING_SECTION_ORDER = ['mantras','questions','behaviors','habits','an
 function renderVirtueView(v) {
   const container = document.getElementById('virtue-view-container');
 
-  const ladderHtml = renderChallengeLadder(v);
+  const challengesHtml = renderChallengesBlock(v);
 
   // Render supporting sections in the fixed flat order above, omitting any
   // type whose data is empty (renderComponentSection returns ''). The legacy
@@ -828,7 +853,7 @@ function renderVirtueView(v) {
       <div class="virtue-portrait-identity">${escapeHtml(v.identityLine || '')}</div>
     </div>
 
-    ${ladderHtml}
+    ${challengesHtml}
 
     ${v.portrait ? `
       <div class="virtue-section supporting">
@@ -852,32 +877,33 @@ function renderVirtueView(v) {
   wireVirtueNotesSection(v);
 }
 
-// ============ CHALLENGES LADDER (portrait anchor) ============
-// Renders the lead block of the portrait — challenges ordered by rung,
-// lowest at top, each with the challenge text and its example phrase.
-// Returns '' if the virtue has no challenges yet so the section degrades
-// out cleanly rather than rendering an empty header.
-function renderChallengeLadder(v) {
-  const items = (v.challenges || []).slice()
-    .sort((a, b) => (a.rung || 0) - (b.rung || 0));
-  if (!items.length) return '';
+// ============ CHALLENGES BLOCK (portrait anchor) ============
+// Renders the lead block of the portrait — one or more titled Challenges,
+// each with a heading and a list of short item lines (authored sequence,
+// rendered as a diamond-bullet list that reuses the existing rule-row style).
+// Multiple Challenge blocks stack in their authored array order. Returns ''
+// when the virtue has no Challenges so the block degrades out cleanly.
+function renderChallengesBlock(v) {
+  const blocks = (v.challenges || []).filter(c => c && (c.title || (c.items && c.items.length)));
+  if (!blocks.length) return '';
 
-  const rungs = items.map((c, idx) => {
-    const num = Number.isInteger(c.rung) ? c.rung : (idx + 1);
+  const blocksHtml = blocks.map(c => {
+    const items = (c.items || []).map(it => `
+      <div class="virtue-rule-item">
+        <span class="virtue-rule-bullet">◆</span>
+        <span class="virtue-rule-text">${escapeHtml(componentText(it))}</span>
+      </div>`).join('');
     return `
-      <li class="virtue-rung">
-        <span class="virtue-rung-num">${num}</span>
-        <div class="virtue-rung-body">
-          <div class="virtue-rung-text">${escapeHtml(c.text || '')}</div>
-          ${c.phrase ? `<div class="virtue-rung-phrase">"${escapeHtml(c.phrase)}"</div>` : ''}
-        </div>
-      </li>`;
+      <div class="virtue-challenge-block">
+        ${c.title ? `<div class="virtue-challenge-title">${escapeHtml(c.title)}</div>` : ''}
+        ${items}
+      </div>`;
   }).join('');
 
   return `
     <div class="virtue-section virtue-challenges-anchor">
       <div class="virtue-anchor-label">CHALLENGES</div>
-      <ol class="virtue-rung-list">${rungs}</ol>
+      ${blocksHtml}
     </div>`;
 }
 
@@ -2185,38 +2211,36 @@ document.getElementById('behavior-save-btn').onclick = () => {
   updateEditorPreview();
 };
 
-// ============ EDITOR: CHALLENGE LIST (ladder) ============
-// Cards mirror the behavior list pattern: drag-to-reorder, edit/delete per
-// card. Rung is implicit — it's recomputed from array position on save and
-// when the list re-renders, so the user never types a number.
+// ============ EDITOR: CHALLENGE BLOCKS ============
+// Each Challenge is a titled block holding an authored item list. The section
+// view shows a card per block (drag to reorder blocks); editing one opens a
+// modal with a title input + an inline item list (add/remove/reorder items).
 let _editingChallengeIdx = -1;
-
-function _renumberChallengeRungs() {
-  const items = _editorDraft.challenges || [];
-  items.forEach((c, i) => { c.rung = i + 1; });
-}
+let _challengeDraft = null;   // working copy of the block being edited
 
 function renderChallengeList() {
   const list = document.getElementById('ve-challenge-list');
-  const items = _editorDraft.challenges || [];
-  if (items.length === 0) {
-    list.innerHTML = `<div class="ve-empty">No challenges yet. Add the first rung — the easiest exposure rep.</div>`;
+  const blocks = _editorDraft.challenges || [];
+  if (blocks.length === 0) {
+    list.innerHTML = `<div class="ve-empty">No challenges yet. Add the first one — a short theme with its items.</div>`;
     return;
   }
-  _renumberChallengeRungs();
-  list.innerHTML = items.map((c, idx) => `
-    <div class="behavior-card" draggable="true" data-idx="${idx}">
-      <div class="behavior-card-head">
-        <span class="behavior-card-drag" title="Drag to reorder" aria-hidden="true">⋮⋮</span>
-        <span class="behavior-card-label">Rung · ${c.rung}</span>
-        <div class="behavior-card-actions">
-          <button class="behavior-card-btn" data-action="edit">Edit</button>
-          <button class="behavior-card-btn del" data-action="del" aria-label="Delete challenge">×</button>
+  list.innerHTML = blocks.map((c, idx) => {
+    const count = (c.items || []).length;
+    return `
+      <div class="behavior-card" draggable="true" data-idx="${idx}">
+        <div class="behavior-card-head">
+          <span class="behavior-card-drag" title="Drag to reorder" aria-hidden="true">⋮⋮</span>
+          <span class="behavior-card-label">Challenge · ${idx + 1}</span>
+          <div class="behavior-card-actions">
+            <button class="behavior-card-btn" data-action="edit">Edit</button>
+            <button class="behavior-card-btn del" data-action="del" aria-label="Delete challenge">×</button>
+          </div>
         </div>
-      </div>
-      <div class="behavior-card-text">${escapeHtml(c.text || '')}</div>
-      ${c.phrase ? `<div class="behavior-card-cue">"${escapeHtml(c.phrase)}"</div>` : ''}
-    </div>`).join('');
+        <div class="behavior-card-text">${escapeHtml(c.title || '(untitled)')}</div>
+        ${count ? `<div class="behavior-card-cue">${count} item${count === 1 ? '' : 's'}</div>` : ''}
+      </div>`;
+  }).join('');
 
   list.querySelectorAll('.behavior-card').forEach(card => {
     const idx = parseInt(card.dataset.idx);
@@ -2251,43 +2275,115 @@ function openChallengeModal(idx) {
   _editingChallengeIdx = idx;
   const isNew = idx < 0;
   document.getElementById('challenge-modal-eyebrow').textContent = isNew ? 'New challenge' : 'Edit challenge';
-  const c = isNew
-    ? { text: '', phrase: '' }
-    : (_editorDraft.challenges[idx] || { text: '', phrase: '' });
-  document.getElementById('challenge-text-input').value   = c.text || '';
-  document.getElementById('challenge-phrase-input').value = c.phrase || '';
+  // Work on a deep copy so Cancel discards changes.
+  if (isNew) {
+    _challengeDraft = { id: uid(), title: '', items: [], createdAt: Date.now() };
+  } else {
+    const existing = _editorDraft.challenges[idx];
+    _challengeDraft = {
+      id: existing.id || uid(),
+      title: existing.title || '',
+      items: (existing.items || []).map(it => ({ id: it.id || uid(), text: it.text || '', createdAt: it.createdAt || Date.now() })),
+      createdAt: existing.createdAt || Date.now()
+    };
+  }
+  document.getElementById('challenge-title-input').value = _challengeDraft.title;
+  document.getElementById('challenge-new-item-input').value = '';
+  renderChallengeModalItems();
   document.getElementById('challenge-modal').classList.add('show');
-  setTimeout(() => document.getElementById('challenge-text-input').focus(), 200);
+  setTimeout(() => document.getElementById('challenge-title-input').focus(), 200);
 }
+
+function renderChallengeModalItems() {
+  const list = document.getElementById('challenge-items-list');
+  const items = _challengeDraft.items || [];
+  if (items.length === 0) {
+    list.innerHTML = `<div class="ve-empty">No items yet. Add one below.</div>`;
+    return;
+  }
+  list.innerHTML = items.map((it, idx) => `
+    <div class="ve-string-item" data-idx="${idx}" draggable="true">
+      <span class="ve-string-item-text">${escapeHtml(it.text)}</span>
+      <button class="ve-string-item-del" data-idx="${idx}" aria-label="Delete item">×</button>
+    </div>`).join('');
+
+  list.querySelectorAll('.ve-string-item-del').forEach(btn => {
+    btn.onclick = (e) => {
+      e.stopPropagation();
+      const i = parseInt(btn.dataset.idx);
+      _challengeDraft.items.splice(i, 1);
+      renderChallengeModalItems();
+    };
+  });
+  list.querySelectorAll('.ve-string-item').forEach(item => {
+    const idx = parseInt(item.dataset.idx);
+    item.addEventListener('dragstart', e => {
+      e.dataTransfer.setData('text/plain', String(idx));
+      item.style.opacity = '0.4';
+    });
+    item.addEventListener('dragend', () => { item.style.opacity = ''; });
+    item.addEventListener('dragover', e => e.preventDefault());
+    item.addEventListener('drop', e => {
+      e.preventDefault();
+      const from = parseInt(e.dataTransfer.getData('text/plain'));
+      const to = idx;
+      if (isNaN(from) || from === to) return;
+      const arr = _challengeDraft.items;
+      const [moved] = arr.splice(from, 1);
+      arr.splice(to, 0, moved);
+      renderChallengeModalItems();
+    });
+  });
+}
+
+function _addChallengeItemFromInput() {
+  const input = document.getElementById('challenge-new-item-input');
+  const text = input.value.trim();
+  if (!text) return;
+  _challengeDraft.items.push({ id: uid(), text, createdAt: Date.now() });
+  input.value = '';
+  renderChallengeModalItems();
+  input.focus();
+}
+
+document.getElementById('challenge-add-item-btn').onclick = _addChallengeItemFromInput;
+document.getElementById('challenge-new-item-input').addEventListener('keydown', e => {
+  if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); _addChallengeItemFromInput(); }
+});
+document.getElementById('challenge-title-input').addEventListener('input', e => {
+  _challengeDraft.title = e.target.value;
+});
 
 document.getElementById('challenge-cancel-btn').onclick = () => {
   document.getElementById('challenge-modal').classList.remove('show');
+  _challengeDraft = null;
 };
 document.getElementById('challenge-modal').onclick = e => {
-  if (e.target.id === 'challenge-modal') document.getElementById('challenge-modal').classList.remove('show');
+  if (e.target.id === 'challenge-modal') {
+    document.getElementById('challenge-modal').classList.remove('show');
+    _challengeDraft = null;
+  }
 };
 document.getElementById('challenge-save-btn').onclick = () => {
-  const text   = document.getElementById('challenge-text-input').value.trim();
-  const phrase = document.getElementById('challenge-phrase-input').value.trim();
-  if (!text) { toast('Challenge text required'); return; }
+  // Commit any pending typed-but-not-added item so the user doesn't lose it on save.
+  const pending = document.getElementById('challenge-new-item-input').value.trim();
+  if (pending) {
+    _challengeDraft.items.push({ id: uid(), text: pending, createdAt: Date.now() });
+  }
+  const title = document.getElementById('challenge-title-input').value.trim();
+  _challengeDraft.title = title;
+  if (!title && _challengeDraft.items.length === 0) {
+    toast('Add a title or at least one item');
+    return;
+  }
   _editorDraft.challenges = _editorDraft.challenges || [];
   if (_editingChallengeIdx < 0) {
-    _editorDraft.challenges.push({
-      id: uid(),
-      rung: _editorDraft.challenges.length + 1,
-      text, phrase,
-      createdAt: Date.now()
-    });
+    _editorDraft.challenges.push(_challengeDraft);
   } else {
-    const existing = _editorDraft.challenges[_editingChallengeIdx];
-    _editorDraft.challenges[_editingChallengeIdx] = {
-      id: existing && existing.id ? existing.id : uid(),
-      rung: existing && Number.isInteger(existing.rung) ? existing.rung : (_editingChallengeIdx + 1),
-      text, phrase,
-      createdAt: (existing && existing.createdAt) || Date.now()
-    };
+    _editorDraft.challenges[_editingChallengeIdx] = _challengeDraft;
   }
   document.getElementById('challenge-modal').classList.remove('show');
+  _challengeDraft = null;
   renderChallengeList();
 };
 
@@ -2542,12 +2638,6 @@ document.getElementById('ve-save-btn').onclick = async () => {
 
   if (!_editorDraft.name) { toast('Name required'); return; }
   _editorDraft.updatedAt = Date.now();
-
-  // Defensive: ensure challenge rungs match final array order. The list view
-  // already renumbers on every render, but if the user reordered then edited
-  // a single item via the modal (which preserves the existing rung), this
-  // guarantees the saved data is consistent.
-  (_editorDraft.challenges || []).forEach((c, i) => { c.rung = i + 1; });
 
   if (_editorIsNew) {
     state.virtues = state.virtues || [];

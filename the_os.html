@@ -690,15 +690,19 @@
   <div class="modal">
     <div class="modal-handle"></div>
     <div class="modal-eyebrow" id="challenge-modal-eyebrow">New challenge</div>
-    <div class="modal-title">A rung on the ladder.</div>
+    <div class="modal-title">A theme and its items.</div>
     <div class="field">
-      <div class="field-label">Challenge</div>
-      <textarea id="challenge-text-input" rows="2" placeholder='The exposure rep. e.g. "Ask for a discount or upgrade."'></textarea>
+      <div class="field-label">Title</div>
+      <input id="challenge-title-input" placeholder='Short theme. e.g. "Observation"'/>
     </div>
     <div class="field">
-      <div class="field-label">Phrase</div>
-      <textarea id="challenge-phrase-input" rows="2" placeholder='The line to use. e.g. "Any chance you could upgrade me?"'></textarea>
-      <div class="field-hint">The exact words. The rung is set by ladder position — drag to reorder.</div>
+      <div class="field-label">Items</div>
+      <div id="challenge-items-list"></div>
+      <div class="rule-add-row">
+        <input id="challenge-new-item-input" placeholder="Add an item..."/>
+        <button id="challenge-add-item-btn">+</button>
+      </div>
+      <div class="field-hint">One short line each — an action, a question, or a phrase. Drag to reorder.</div>
     </div>
     <div class="modal-actions">
       <button class="btn btn-ghost" id="challenge-cancel-btn">Cancel</button>
@@ -746,7 +750,7 @@
       <div class="modal-step-num">4</div>
       <div class="modal-step-text">
         <strong>Each virtue is a portrait of the man.</strong>
-        Challenges lead — the ladder of exposure reps he climbs, each rung with a phrase to use. Everything else (how he acts, context, what he says, does, asks, his daily, what he refuses) is supporting reference below. (Rules live in their own tab — they're not tied to a single virtue.)
+        Challenges lead — a titled theme with a list of short items (an action, a question, or a phrase). Stack as many Challenges as you need. Everything else (how he acts, context, what he says, does, asks, his daily, what he refuses) is supporting reference below. (Rules live in their own tab — they're not tied to a single virtue.)
       </div>
     </div>
 

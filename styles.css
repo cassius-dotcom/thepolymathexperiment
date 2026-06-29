@@ -2551,3 +2551,75 @@ body {
   font-size: 13px;
 }
 
+/* ============ STANDARD VIEW ============ */
+.standard-card {
+  position: relative;
+  padding: 16px 14px;
+  margin-bottom: 12px;
+  background: var(--bg-1);
+  border: 0.5px solid var(--line);
+  border-radius: 12px;
+  cursor: pointer;
+  transition: border-color 200ms ease;
+}
+.standard-card:hover { border-color: var(--line-bright); }
+.standard-card-del {
+  position: absolute;
+  top: 8px; right: 8px;
+  background: transparent; border: none;
+  color: var(--ink-4); font-size: 16px;
+  padding: 2px 8px; cursor: pointer;
+  opacity: 0; transition: opacity 200ms ease, color 150ms ease;
+  z-index: 1;
+}
+.standard-card:hover .standard-card-del { opacity: 1; }
+.standard-card-del:hover { color: var(--red); }
+.standard-domain {
+  font-family: var(--mono);
+  font-size: 10px; letter-spacing: 0.25em;
+  color: var(--ink-3); text-transform: uppercase;
+  margin-bottom: 8px;
+  padding-right: 28px;
+}
+.standard-spec {
+  font-family: var(--display);
+  font-size: 15px; line-height: 1.5;
+  color: var(--ink);
+}
+.standard-sequence {
+  display: flex; flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin-top: 12px;
+}
+.standard-sequence-item {
+  font-family: var(--display);
+  font-size: 13px; line-height: 1.4;
+  color: var(--ink-2);
+}
+.standard-sequence-sep {
+  color: var(--gold);
+  font-size: 10px; line-height: 1;
+}
+.standard-tell-row {
+  display: flex; align-items: baseline; gap: 10px;
+  margin-top: 12px;
+}
+.standard-tell-label {
+  font-family: var(--mono);
+  font-size: 9px; letter-spacing: 0.3em;
+  color: var(--ink-3); text-transform: uppercase;
+  flex-shrink: 0;
+}
+.standard-tell-text {
+  font-family: var(--display); font-style: italic;
+  font-size: 13px; line-height: 1.5;
+  color: var(--ink-2);
+}
+.standard-note {
+  margin-top: 12px;
+  font-size: 12px; line-height: 1.55;
+  color: var(--ink-3);
+  white-space: pre-wrap;
+}
+

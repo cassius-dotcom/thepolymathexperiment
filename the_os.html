@@ -212,6 +212,17 @@
     <button class="rules-add-btn" id="rules-add-btn">+ Add Rule</button>
   </div>
 
+  <!-- ============ STANDARD VIEW ============ -->
+  <div class="view" id="view-standard">
+    <div class="home-header">
+      <div class="home-eyebrow">The plumb line</div>
+      <div class="home-title">Standard.</div>
+      <div class="home-sub">What he returns to when drifted.</div>
+    </div>
+    <div id="standards-list-container"></div>
+    <button class="rules-add-btn" id="standards-add-btn">+ Add Standard</button>
+  </div>
+
   <!-- ============ CONSTITUTION VIEW ============ -->
   <div class="view" id="view-constitution">
 
@@ -330,6 +341,10 @@
   <button class="tab" data-view="rules">
     <svg viewBox="0 0 24 24" aria-hidden="true"><polygon points="12 3 21 12 12 21 3 12"/></svg>
     <span class="tab-label">Rules</span>
+  </button>
+  <button class="tab" data-view="standard">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 4h6"/><path d="M12 4v9"/><polygon points="8 13 16 13 12 21"/></svg>
+    <span class="tab-label">Standard</span>
   </button>
   <button class="tab" data-view="constitution">
     <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 4h14a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V4z"/><path d="M8 8h8M8 12h8M8 16h5"/></svg>
@@ -707,6 +722,47 @@
     <div class="modal-actions">
       <button class="btn btn-ghost" id="challenge-cancel-btn">Cancel</button>
       <button class="btn btn-primary" id="challenge-save-btn">Save</button>
+    </div>
+  </div>
+</div>
+
+<!-- ADD/EDIT STANDARD SHEET -->
+<div class="modal-bg" id="standard-modal" role="dialog" aria-modal="true" aria-label="Standard">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-eyebrow" id="standard-modal-eyebrow">New standard</div>
+    <div class="modal-title">A line you return to.</div>
+    <div class="field">
+      <div class="field-label">Domain</div>
+      <input id="standard-domain-input" placeholder='Short label. e.g. "Beard", "Body"'/>
+    </div>
+    <div class="field">
+      <div class="field-label">The standard</div>
+      <textarea id="standard-spec-input" rows="2" placeholder="One declarative line."></textarea>
+    </div>
+    <div class="field">
+      <div class="field-label">Sequence (optional)</div>
+      <div id="standard-seq-items-list"></div>
+      <div class="rule-add-row">
+        <input id="standard-seq-new-item-input" placeholder="Add a step..."/>
+        <button id="standard-seq-add-item-btn">+</button>
+      </div>
+      <div class="field-hint">One step each. Order is the progression. Drag to reorder.</div>
+    </div>
+    <div class="field">
+      <div class="field-label">Tell (optional)</div>
+      <input id="standard-tell-input" placeholder='The signal you have drifted. e.g. "past a week, or patchy"'/>
+    </div>
+    <div class="field">
+      <div class="field-label">Note (optional)</div>
+      <textarea id="standard-note-input" rows="3" placeholder="Anything else worth keeping."></textarea>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" id="standard-cancel-btn">Cancel</button>
+      <button class="btn btn-primary" id="standard-save-btn">Save</button>
+    </div>
+    <div class="modal-actions" id="standard-delete-row" style="display:none;">
+      <button class="btn btn-danger" id="standard-delete-btn">Delete</button>
     </div>
   </div>
 </div>

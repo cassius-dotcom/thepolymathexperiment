@@ -101,12 +101,13 @@ const state = {
   virtues: [],
   generalRules: [],
   experiments: [],
+  standards: [],
   meta: { firstVisit: true }
 };
 
 const ICONS = ['📚','🧠','💡','📖','🎯','⚖️','🔬','🎨','💼','🌍','🧘','💪','💰','❤️','🛠️','🗣️','🎵','✍️','🏛️','⚔️','🌱','🔥','✦','♟️'];
 const VIRTUE_SYMBOLS = ['◆','⚡','⊙','◈','◇','◉','◎','⚖️','✦','✧','✶','★','☉','☼','◊','▲','■','●','♆','✚','✿','❄','☯','⚓'];
-const KEYS = ['categories','cards','books','summaries','reviewStats','virtues','generalRules','experiments','meta'];
+const KEYS = ['categories','cards','books','summaries','reviewStats','virtues','generalRules','experiments','standards','meta'];
 
 // ============ VIRTUE HELPERS ============
 function getVirtueById(id) {
@@ -787,6 +788,208 @@ document.getElementById('rule-add-text-input').addEventListener('keydown', (e) =
   // Enter saves; Shift+Enter inserts a newline.
   if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); commitAddRule(); }
 });
+
+// ============ STANDARD VIEW ============
+// Pure-reference surface for fixed personal/physical standards (grooming,
+// training, body) read to re-align after drift. Explicitly not a tracker —
+// no dates, counts, checkboxes, streaks, completion, or countdowns.
+function renderStandardsView() {
+  const container = document.getElementById('standards-list-container');
+  if (!container) return;
+
+  const standards = (state.standards || []).slice()
+    .sort((a, b) => (a.createdAt || 0) - (b.createdAt || 0));
+
+  if (standards.length === 0) {
+    container.innerHTML = '<div class="rules-empty">The standards you return to. Add the first.</div>';
+    return;
+  }
+
+  container.innerHTML = '';
+  standards.forEach(s => {
+    const card = document.createElement('div');
+    card.className = 'standard-card';
+    card.dataset.standardId = s.id;
+
+    const seq = Array.isArray(s.sequence) ? s.sequence.filter(t => (t || '').trim()) : [];
+    const seqHtml = seq.length
+      ? `<div class="standard-sequence">${seq.map((it, i) =>
+          (i > 0 ? '<span class="standard-sequence-sep">◆</span>' : '') +
+          `<span class="standard-sequence-item">${escapeHtml(it)}</span>`
+        ).join('')}</div>`
+      : '';
+
+    const tellHtml = (s.tell || '').trim()
+      ? `<div class="standard-tell-row">
+           <span class="standard-tell-label">TELL</span>
+           <span class="standard-tell-text">${escapeHtml(s.tell)}</span>
+         </div>`
+      : '';
+
+    const noteHtml = (s.note || '').trim()
+      ? `<div class="standard-note">${escapeHtml(s.note)}</div>`
+      : '';
+
+    card.innerHTML = `
+      <button class="standard-card-del" aria-label="Delete">×</button>
+      <div class="standard-domain">${escapeHtml(s.domain || '')}</div>
+      <div class="standard-spec">${escapeHtml(s.spec || '')}</div>
+      ${seqHtml}
+      ${tellHtml}
+      ${noteHtml}
+    `;
+
+    card.addEventListener('click', e => {
+      if (e.target.closest('.standard-card-del')) return;
+      openStandardModal(s.id);
+    });
+    card.querySelector('.standard-card-del').addEventListener('click', e => {
+      e.stopPropagation();
+      if (!confirm('Delete this standard?')) return;
+      state.standards = (state.standards || []).filter(x => x.id !== s.id);
+      save('standards');
+      renderStandardsView();
+    });
+
+    container.appendChild(card);
+  });
+}
+
+let _standardDraft = null;
+let _editingStandardId = null;
+
+function openStandardModal(id) {
+  _editingStandardId = id || null;
+  const isNew = !id;
+  if (isNew) {
+    _standardDraft = { id: uid(), domain: '', spec: '', sequence: [], tell: '', note: '', createdAt: Date.now() };
+  } else {
+    const existing = (state.standards || []).find(x => x.id === id);
+    if (!existing) return;
+    _standardDraft = {
+      id: existing.id,
+      domain: existing.domain || '',
+      spec: existing.spec || '',
+      sequence: Array.isArray(existing.sequence) ? existing.sequence.slice() : [],
+      tell: existing.tell || '',
+      note: existing.note || '',
+      createdAt: existing.createdAt || Date.now()
+    };
+  }
+  document.getElementById('standard-modal-eyebrow').textContent = isNew ? 'New standard' : 'Edit standard';
+  document.getElementById('standard-domain-input').value = _standardDraft.domain;
+  document.getElementById('standard-spec-input').value = _standardDraft.spec;
+  document.getElementById('standard-tell-input').value = _standardDraft.tell;
+  document.getElementById('standard-note-input').value = _standardDraft.note;
+  document.getElementById('standard-seq-new-item-input').value = '';
+  document.getElementById('standard-delete-row').style.display = isNew ? 'none' : 'flex';
+  renderStandardSeqItems();
+  document.getElementById('standard-modal').classList.add('show');
+  setTimeout(() => document.getElementById('standard-domain-input').focus(), 200);
+}
+
+function closeStandardModal() {
+  document.getElementById('standard-modal').classList.remove('show');
+  _standardDraft = null;
+  _editingStandardId = null;
+}
+
+function renderStandardSeqItems() {
+  const list = document.getElementById('standard-seq-items-list');
+  const items = (_standardDraft && _standardDraft.sequence) || [];
+  if (items.length === 0) {
+    list.innerHTML = '';
+    return;
+  }
+  list.innerHTML = items.map((t, idx) => `
+    <div class="ve-string-item" data-idx="${idx}" draggable="true">
+      <span class="ve-string-item-text">${escapeHtml(t)}</span>
+      <button class="ve-string-item-del" data-idx="${idx}" aria-label="Delete item">×</button>
+    </div>`).join('');
+
+  list.querySelectorAll('.ve-string-item-del').forEach(btn => {
+    btn.onclick = (e) => {
+      e.stopPropagation();
+      const i = parseInt(btn.dataset.idx);
+      _standardDraft.sequence.splice(i, 1);
+      renderStandardSeqItems();
+    };
+  });
+  list.querySelectorAll('.ve-string-item').forEach(item => {
+    const idx = parseInt(item.dataset.idx);
+    item.addEventListener('dragstart', e => {
+      e.dataTransfer.setData('text/plain', String(idx));
+      item.style.opacity = '0.4';
+    });
+    item.addEventListener('dragend', () => { item.style.opacity = ''; });
+    item.addEventListener('dragover', e => e.preventDefault());
+    item.addEventListener('drop', e => {
+      e.preventDefault();
+      const from = parseInt(e.dataTransfer.getData('text/plain'));
+      const to = idx;
+      if (isNaN(from) || from === to) return;
+      const arr = _standardDraft.sequence;
+      const [moved] = arr.splice(from, 1);
+      arr.splice(to, 0, moved);
+      renderStandardSeqItems();
+    });
+  });
+}
+
+function _addStandardSeqItemFromInput() {
+  const input = document.getElementById('standard-seq-new-item-input');
+  const text = input.value.trim();
+  if (!text) return;
+  _standardDraft.sequence.push(text);
+  input.value = '';
+  renderStandardSeqItems();
+  input.focus();
+}
+
+document.getElementById('standards-add-btn').onclick = () => openStandardModal(null);
+document.getElementById('standard-cancel-btn').onclick = closeStandardModal;
+document.getElementById('standard-modal').addEventListener('click', e => {
+  if (e.target.id === 'standard-modal') closeStandardModal();
+});
+document.getElementById('standard-seq-add-item-btn').onclick = _addStandardSeqItemFromInput;
+document.getElementById('standard-seq-new-item-input').addEventListener('keydown', e => {
+  if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); _addStandardSeqItemFromInput(); }
+});
+document.getElementById('standard-save-btn').onclick = () => {
+  if (!_standardDraft) return;
+  // Commit any pending typed-but-not-added sequence item so the user doesn't lose it on save.
+  const pending = document.getElementById('standard-seq-new-item-input').value.trim();
+  if (pending) _standardDraft.sequence.push(pending);
+
+  const domain = document.getElementById('standard-domain-input').value.trim();
+  const spec = document.getElementById('standard-spec-input').value.trim();
+  if (!domain) { toast('Domain is required'); document.getElementById('standard-domain-input').focus(); return; }
+  if (!spec)   { toast('Spec is required');   document.getElementById('standard-spec-input').focus();   return; }
+
+  _standardDraft.domain = domain;
+  _standardDraft.spec = spec;
+  _standardDraft.tell = document.getElementById('standard-tell-input').value.trim();
+  _standardDraft.note = document.getElementById('standard-note-input').value.trim();
+  _standardDraft.sequence = (_standardDraft.sequence || []).map(t => (t || '').trim()).filter(Boolean);
+
+  state.standards = state.standards || [];
+  if (_editingStandardId) {
+    state.standards = state.standards.map(x => x.id === _editingStandardId ? _standardDraft : x);
+  } else {
+    state.standards.push(_standardDraft);
+  }
+  save('standards');
+  closeStandardModal();
+  renderStandardsView();
+};
+document.getElementById('standard-delete-btn').onclick = () => {
+  if (!_editingStandardId) return;
+  if (!confirm('Delete this standard?')) return;
+  state.standards = (state.standards || []).filter(x => x.id !== _editingStandardId);
+  save('standards');
+  closeStandardModal();
+  renderStandardsView();
+};
 
 // ============ FULL-SCREEN VIRTUE VIEW ============
 let currentVirtueId = null;
@@ -3003,6 +3206,9 @@ function renderView(view) {
       break;
     case 'rules':
       renderRulesView();
+      break;
+    case 'standard':
+      renderStandardsView();
       break;
     case 'constitution':
       renderConstitution();
